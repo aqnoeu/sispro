@@ -15,9 +15,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22.23.5'
+      - name: Exigir incremento de versão
+        if: github.event_name == 'push'
+        env:
+          PREVIOUS_SHA: ${{ github.event.before }}
+        run: node scripts/check-version-increment.mjs
       - run: npm install --no-audit --no-fund
       - run: npm test
       - run: npm run build -- --mode preview

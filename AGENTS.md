@@ -11,3 +11,10 @@
 - Preservar escolhas de navegação e regras de qualidade visual da seção 7 do manual. Verificar ícones, textos, botões e responsividade em ambos os perfis.
 
 - Ao finalizar cada implementação, apresentar checklist do feito (distinguir código, testes e publicação) e pendências, com comando pronto de próximo passo. Atualizar docs/ROADMAP.md. Não afirmar integração real sem teste.
+
+## Versionamento obrigatório
+
+- Em toda atualização de código, configuração, banco ou funcionalidade destinada à versão oficial, incrementar a versão numérica de `package.json` antes do commit de publicação. Nunca republicar alterações usando o mesmo número.
+- Usar versionamento semântico `MAJOR.MINOR.PATCH`: incrementar PATCH para correções e ajustes, MINOR para novas funcionalidades relevantes e MAJOR para mudanças incompatíveis. Não reduzir nem reutilizar versões publicadas.
+- Manter a mesma versão de origem no site oficial, na prévia e no instalador Windows, incluindo metadados de atualização automática. Conferir se a interface exibe o número correto e se a release corresponde ao commit publicado.
+- Registrar a versão e as alterações em `docs/ROADMAP.md`, informar o número ao responsável e distinguir deployment web, CI e release Windows efetivamente confirmados. Não declarar release publicada antes da verificação.
