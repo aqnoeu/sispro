@@ -2568,3 +2568,18 @@
 .access-exit { border:1px solid rgba(255,255,255,.35); background:transparent; border-radius:12px; color:white; padding:9px 12px; }
 .demo-session-banner { margin:10px auto 0; width:min(1320px,calc(100% - 32px)); padding:10px 16px; font-size:.85rem; color:#17478d; background:#e8f1ff; border:1px solid #c7d9f5; border-radius:10px; }
 @media (max-width:800px) { .access-screen { grid-template-columns:1fr; padding:16px; } .access-brand { border-radius:24px 24px 0 0; padding:24px; } .access-brand img { width:55px; height:55px; margin-bottom:10px; } .access-brand small { margin-top:8px; } .access-panel { border-radius:0 0 24px 24px; border-left:1px solid var(--color-border); } }
+
+/* Tela de entrada baseada no layout original AMUR-PGM. */
+.sipro-auth-brand { display:flex; align-items:center; gap:16px; margin-bottom:28px; }
+.sipro-auth-brand img { width:76px; height:76px; object-fit:contain; }
+.sipro-auth-brand strong { display:block; font-size:2rem; font-weight:800; letter-spacing:.05em; }
+.sipro-auth-brand span { display:block; font-size:.9rem; color:#d6e7ff; }
+.sipro-auth-layout .auth-hero { background:radial-gradient(circle at top right,rgba(73,160,235,.26),transparent 32%),linear-gradient(145deg,#0d2a5b 0%,#184788 50%,#163c82 100%); }
+.sipro-auth-layout .auth-card { align-self:stretch; }
+.sipro-auth-layout .auth-card h2 { color:var(--color-primary); font-size:2rem; }
+.sipro-auth-layout .auth-form input:disabled { background:#f2f5fa; color:#66758c; cursor:not-allowed; opacity:1; }
+.sipro-auth-layout .auth-demo__user:hover,.sipro-auth-layout .auth-demo__user:focus-visible,.sipro-auth-layout .sipro-demo-selected { border-color:#2169cc; background:#eaf2ff; }
+.sipro-auth-layout .auth-demo__user:focus-visible { outline:2px solid #2169cc; outline-offset:2px; }
+.sipro-auth-layout .sipro-demo-note,.sipro-auth-footnote { font-size:.82rem; line-height:1.5; margin-top:16px; }
+@media (min-width:900px) { .auth-layout.sipro-auth-layout { grid-template-columns:minmax(0,1.1fr) minmax(360px,.9fr); } }
+@media (max-width:899px) { .auth-layout.sipro-auth-layout { grid-template-columns:1fr; } }

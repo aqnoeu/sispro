@@ -46,3 +46,6 @@ Teste automatizado do adaptador local (CRUD, consultas, lote, persistência e ob
 
 ## Versão 1.0.1 — entrada e prévia de perfis
 A tela de entrada permite conhecer os dois perfis sem autenticação real. A demonstração usa armazenamento temporário em memória, separado do banco existente, e permite alternar perfis após sair. O acesso local original continua disponível. As telas administrativas de usuários e setores são prévias, não cadastro real. Não use esta versão como mecanismo de controle de acesso a dados sigilosos.
+
+## Versão 1.0.2 — tela de login
+Layout baseado no AMUR-PGM original (painel institucional e formulário). Identidade SIPRO, e-mails fictícios de demonstração e senha desabilitada até implementar autenticação local real. A base temporária dos dois perfis permanece separada do ambiente local existente.
