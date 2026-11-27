@@ -58,6 +58,11 @@ export class CloudClient {
   workspaceTable(s) { return s.mode==='pgm'?'sispro_test_pgm_workspaces':'sispro_workspaces' }
   async read() {
     const s=this.requireSession()
+    if(s.mode!=='pgm'){
+      const result=await this.request('/rest/v1/rpc/sispro_read_workspace',{token:s.token,method:'POST',body:{}})
+      this.assertSession(s)
+      return {data:result.data,original:JSON.parse(JSON.stringify(result.data)),revision:result.revision,levels:result.levels,session:s}
+    }
     const rows=await this.request('/rest/v1/'+this.workspaceTable(s)+'?select=data,revision&user_id=eq.'+encodeURIComponent(s.uid),{token:s.token})
     this.assertSession(s)
     if (s.mode==='pgm'&&!rows?.length) throw new Error('Subperfil PGM revogado.')
@@ -65,6 +70,11 @@ export class CloudClient {
   }
   async write(state, data) {
     const s=state.session; this.assertSession(s)
+    if(s.mode!=='pgm'){
+      const changes=Object.fromEntries(Object.entries(data).filter(([k,v])=>JSON.stringify(v)!==JSON.stringify(state.original?.[k])))
+      if(Object.keys(changes).length)await this.request('/rest/v1/rpc/sispro_write_workspace',{token:s.token,method:'POST',body:{expected_revision:state.revision,changes}})
+      this.assertSession(s);return
+    }
     const initial=state.revision===null
     if (s.mode==='pgm'&&initial) throw new Error('Subperfil PGM não autorizado.')
     const body=initial?{user_id:s.uid,data,revision:1}:{data,revision:state.revision+1}
