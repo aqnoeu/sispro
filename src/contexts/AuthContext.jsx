@@ -34,5 +34,5 @@ export function AuthProvider({ children }) {
     if (cloud) cloud.signOut().catch(()=>{})
     setCurrentUser(null)
   }
-  return <AuthContext.Provider value={{ currentUser, authReady: true, isLocalEnabled: !isCloud, cloudReady:cloud?.configured ?? false, enter, signIn, signOut, switchProfile, changePassword:async(...args)=>{try{await cloud.changePassword(...args)}finally{if(!cloud.session)setCurrentUser(null)}}, manageAccount:(body)=>cloud.manageAccount(body), deleteTestRole:(...args)=>cloud.deleteTestRole(...args), adminTable:(...args)=>cloud.adminTable(...args), listProfiles:()=>cloud.listProfiles() }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ currentUser, authReady: true, isLocalEnabled: !isCloud, cloudReady:cloud?.configured ?? false, enter, signIn, signOut, switchProfile, changePassword:async(...args)=>{try{await cloud.changePassword(...args)}finally{if(!cloud.session)setCurrentUser(null)}}, manageAccount:(body)=>cloud.manageAccount(body), adminTable:(...args)=>cloud.adminTable(...args), listProfiles:()=>cloud.listProfiles() }}>{children}</AuthContext.Provider>
 }

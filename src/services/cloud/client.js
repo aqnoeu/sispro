@@ -18,7 +18,7 @@ export class CloudClient {
     if (!response.ok) {
       let code; try { const payload = await response.json(); code = payload?.error_code ?? payload?.code } catch { /* no response body */ }
       const passwordGrant = path === '/auth/v1/token?grant_type=password'
-      const message = passwordGrant && code === 'invalid_credentials' ? 'E-mail ou senha incorretos.' : passwordGrant && code === 'email_not_confirmed' ? 'Confirme seu e-mail antes de entrar.' : response.status === 429 ? 'Muitas tentativas. Aguarde alguns instantes e tente novamente.' : response.status === 409 ? 'Conflito de gravação. Recarregue e tente novamente.' : response.status === 401 || response.status === 403 ? 'Acesso não autorizado ou sessão expirada.' : 'Não foi possível concluir a operação no servidor.'
+      const message = passwordGrant && code === 'invalid_credentials' ? 'E-mail ou senha incorretos.' : passwordGrant && code === 'email_not_confirmed' ? 'Confirme seu e-mail antes de entrar.' : response.status === 429 ? 'Muitas tentativas. Aguarde alguns instantes e tente novamente.' : code === '23505' ? 'Já existe um registro com esses dados. Edite o registro existente.' : code === '23503' ? 'O registro está vinculado a outro cadastro ou pertence a outro ambiente.' : response.status === 409 ? 'Conflito de gravação. Recarregue e tente novamente.' : response.status === 401 || response.status === 403 ? 'Acesso não autorizado ou sessão expirada.' : 'Não foi possível concluir a operação no servidor.'
       const error = new Error(message); error.status = response.status; throw error
     }
     return response.status === 204 ? null : response.json()
@@ -86,12 +86,6 @@ export class CloudClient {
     const rows=await this.request(path,{token:s.token,method:initial?'POST':'PATCH',body,prefer:'return=representation'})
     this.assertSession(s)
     if (!Array.isArray(rows)||rows.length!==1) throw new Error('Conflito de gravação ou acesso negado. Recarregue e tente novamente.')
-  }
-  async deleteTestRole(roleId,institutionId) {
-    const s=this.requireSession()
-    if(s.mode!=='ceo'||!roleId||!institutionId) throw new Error('Acesso administrativo não autorizado.')
-    await this.request('/rest/v1/rpc/sispro_delete_test_role',{token:s.token,method:'POST',body:{target_role:roleId,target_institution:institutionId}})
-    this.assertSession(s)
   }
   async adminTable(table, row, id) {
     const s=this.requireSession()
