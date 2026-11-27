@@ -1,3 +1,4 @@
+export const isCloud = import.meta.env.MODE === 'web'
 export const isPreview = import.meta.env.MODE === 'preview'
 export function createPreviewData() {
   const date = (offset) => { const d = new Date(); d.setDate(d.getDate()+offset); return d.toLocaleDateString('pt-BR') }

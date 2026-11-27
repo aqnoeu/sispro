@@ -3,7 +3,7 @@ import { LayoutDashboard, FolderOpen, CalendarClock, CalendarDays, Scale, Users,
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/useAuth'
 import siproLogo from '../../assets/sipro.svg'
-import { isPreview } from '../../data/preview'
+import { isCloud, isPreview } from '../../data/preview'
 import { useAppearance } from './AppearanceContext'
 
 const icons = { '/':LayoutDashboard, '/processos':FolderOpen, '/prazos':CalendarClock, '/agenda':CalendarDays, '/jurisprudencia':Scale, '/usuarios':Users, '/setores':Building2, '/configuracoes':Settings }
@@ -56,7 +56,7 @@ export function Sidebar({ items }) {
         <div className="site-header__meta">
           {(
             <span className={`status-pill${isLocalEnabled ? ' status-pill--ok' : ''}`}>
-              {isPreview ? 'Prévia pública' : isLocalEnabled ? 'Armazenamento local' : 'Modo local'}
+              {isCloud ? 'Armazenamento online' : isPreview ? 'Prévia pública' : isLocalEnabled ? 'Armazenamento local' : 'Modo local'}
             </span>
           )}
           <button
