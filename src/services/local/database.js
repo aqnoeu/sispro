@@ -2,8 +2,10 @@
 const key = 'sipro-local-v1'
 const bridge = () => globalThis.siproStorage
 let demoMode = false
+let previewOnly = false
 let demoData = {}
-export function setDemoMode(enabled) { demoMode = enabled }
+export function setDemoMode(enabled) { demoMode = previewOnly || enabled }
+export function initializePreview(seed) { previewOnly = true; demoMode = true; demoData = clone(seed) }
 const read = () => demoMode ? clone(demoData) : bridge() ? bridge().read() : JSON.parse(globalThis.localStorage.getItem(key) || '{}')
 const write = (data) => { if (demoMode) { demoData = clone(data); return } return bridge() ? bridge().write(data) : globalThis.localStorage.setItem(key, JSON.stringify(data)) }
 const listeners = new Set()

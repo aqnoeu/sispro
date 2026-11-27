@@ -54,3 +54,6 @@ Layout baseado no AMUR-PGM original (painel institucional e formulário). Identi
 
 ## 1.0.3 — Identidade capixaba
 Azul #0098D6, branco #FFFFFF e rosa #EF98BC; verde, amarelo e vermelho reservados a estados funcionais. Azul de contraste acessível para textos e áreas com texto branco. Nome comercial por extenso; identificador técnico, appId, repositório e diretório de dados preservados.
+
+## Prévia pública no celular
+Endereço previsto: https://aqnoeu.github.io/sispro/ . Ative Settings → Pages → Source → GitHub Actions uma vez. O workflow pages-preview.yml compila a interface em modo preview em cada push a main, sem alterar a versão Windows. Somente exemplos inventados, armazenamento em memória e dois perfis de demonstração; alterações descartadas ao recarregar. Não inserir dados reais ou sigilosos. O acesso ao banco local existente é bloqueado no modo preview. A janela nativa e o atualizador Windows não são simulados.

@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { AuthContext } from './auth-context'
-import { setDemoMode } from '../services/local/database'
+import { setDemoMode, initializePreview } from '../services/local/database'
+import { isPreview, createPreviewData } from '../data/preview'
+if (isPreview) initializePreview(createPreviewData())
 
 const localUser = Object.freeze({ uid: 'sipro-local', displayName: 'Usuário local', role: 'Procurador', workspace: 'Procuradoria', sectorId: 'local', sectorName: 'Procuradoria', sectorSigla: 'PGM', isAdmin: false })
 const demoUser = Object.freeze({ ...localUser, uid: 'sipro-demo-user', email: 'usuario@sipro.local', displayName: 'Usuário de demonstração', workspace: 'Setor de demonstração', sectorId: 'demo', sectorName: 'Setor de demonstração', sectorSigla: 'DEMO', isDemo: true })
@@ -10,7 +12,7 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null)
   function enter(mode) {
     const user = { local: localUser, user: demoUser, admin: demoAdmin }[mode]
-    if (!user) return
+    if (!user || (isPreview && mode === 'local')) return
     setDemoMode(Boolean(user.isDemo))
     setCurrentUser(user)
   }

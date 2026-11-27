@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/useAuth'
 import logo from '../assets/sipro.svg'
+import { isPreview } from '../data/preview'
 
 const demoProfiles = [
   { mode: 'user', name: 'Usuário comum', workspace: 'Ambiente jurídico setorial', email: 'usuario@sipro.local' },
@@ -42,7 +43,7 @@ export function LoginPage() {
             <article><strong>Processos, prazos e informações em um só lugar</strong></article>
             <article><strong>Gestão de usuários e setores</strong></article>
           </div>
-          <p className="sipro-auth-footnote">Sistema local para Windows · Sem Firebase</p>
+          <p className="sipro-auth-footnote">{isPreview ? 'Prévia online · Dados fictícios' : 'Sistema local para Windows · Sem Firebase'}</p>
         </section>
         <section className="auth-card" aria-labelledby="login-title">
           <div className="auth-card__header">
@@ -73,8 +74,8 @@ export function LoginPage() {
                 </button>
               ))}
             </div>
-            <p className="sipro-demo-note">Dados temporários, separados do banco local existente. Esta tela ainda não constitui autenticação real.</p>
-            <button type="button" className="access-local auth-form__submit" onClick={() => choose('local')}>Abrir ambiente local existente</button>
+            <p className="sipro-demo-note">{isPreview ? 'Prévia pública. Use somente dados inventados. Alterações são descartadas ao recarregar. Não é autenticação real.' : 'Dados temporários, separados do banco local existente. Esta tela ainda não constitui autenticação real.'}</p>
+            {!isPreview && <button type="button" className="access-local auth-form__submit" onClick={() => choose('local')}>Abrir ambiente local existente</button>}
           </div>
         </section>
       </div>

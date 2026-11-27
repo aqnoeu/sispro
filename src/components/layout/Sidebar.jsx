@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/useAuth'
 import siproLogo from '../../assets/sipro.svg'
+import { isPreview } from '../../data/preview'
 
 export function Sidebar({ items }) {
   const { currentUser, isLocalEnabled, signOut } = useAuth()
@@ -40,7 +41,7 @@ export function Sidebar({ items }) {
         <div className="site-header__meta">
           {(
             <span className={`status-pill${isLocalEnabled ? ' status-pill--ok' : ''}`}>
-              {isLocalEnabled ? 'Armazenamento local' : 'Modo local'}
+              {isPreview ? 'Prévia pública' : isLocalEnabled ? 'Armazenamento local' : 'Modo local'}
             </span>
           )}
           <button

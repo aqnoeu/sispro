@@ -5,3 +5,5 @@
 - Rosa exclusivamente decorativo; não usar em ações ou estados. Verde, amarelo e vermelho exclusivamente funcionais.
 - Preservar identificadores técnicos e dados locais; não introduzir Firebase nem publicar registros de usuários.
 - Alterações da identidade oficial exigem aprovação expressa. Diferenciar documentação aprovada de conformidade visual efetivamente verificada.
+
+- A prévia pública do GitHub Pages deve usar exclusivamente dados inventados em memória; nunca publicar dados reais, credenciais ou banco local. Preservar o build Windows independente.
