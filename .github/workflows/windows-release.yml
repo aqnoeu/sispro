@@ -1,27 +1,64 @@
 name: SIPRO - Windows
 on:
   push:
+    branches: [main]
     tags: ['v*.*.*']
+  workflow_dispatch:
 permissions:
   contents: write
 concurrency:
-  group: sipro-release-${{ github.ref }}
+  group: sipro-windows-release
   cancel-in-progress: false
 jobs:
   windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install --no-audit --no-fund
-      - run: npm test
-      - name: Conferir versão da tag
+      - name: Verificar versão
+        id: version
         shell: pwsh
-        run: |
-          $version = node -p "require('./package.json').version"
-          if ($env:GITHUB_REF_NAME -ne "v$version") { throw 'Tag deve corresponder à versão do package.json' }
-      - run: npm run release:win
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $version = node -p "require('./package.json').version"
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw 'Versão inválida' }
+          $tag = "v$version"
+          if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne $tag) { throw 'Tag deve corresponder à versão do package.json' }
+          $releases = gh release list --limit 100 --json tagName,isDraft
+          if ($LASTEXITCODE -ne 0) { throw 'Falha ao consultar releases' }
+          $existing = @($releases | ConvertFrom-Json | Where-Object { $_.tagName -eq $tag })
+          if ($existing.Count -gt 0) {
+            if ($existing[0].isDraft) { throw 'Já existe uma release em rascunho; confira antes de publicar' }
+            "needed=false" >> $env:GITHUB_OUTPUT
+          } else {
+            $tagCommit = git rev-list -n 1 "refs/tags/$tag" 2>$null
+            if ($LASTEXITCODE -eq 0 -and $tagCommit -ne $env:GITHUB_SHA) { throw 'Tag existente aponta para outro commit' }
+            "needed=true" >> $env:GITHUB_OUTPUT
+          }
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+      - run: npm install --no-audit --no-fund
+      - run: npm test
+      - name: Compilar instalador
+        if: steps.version.outputs.needed == 'true'
+        run: npm run dist:win
+      - name: Publicar instalador e metadados de atualização
+        if: steps.version.outputs.needed == 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          $version = node -p "require('./package.json').version"
+          $assets = @("release/SIPRO-Setup-$version.exe", "release/SIPRO-Setup-$version.exe.blockmap", "release/latest.yml")
+          foreach ($asset in $assets) {
+            if (-not (Test-Path $asset -PathType Leaf)) { throw "Artefato ausente: $asset" }
+          }
+          gh release create $env:RELEASE_TAG --target $env:GITHUB_SHA --title "SIPRO $version" --notes "Aplicativo Windows — Sistema Procuradorias." --draft @assets
+          if ($LASTEXITCODE -ne 0) { throw 'Falha ao criar release' }
+          gh release edit $env:RELEASE_TAG --draft=false --latest
+          if ($LASTEXITCODE -ne 0) { throw 'Falha ao publicar release' }
