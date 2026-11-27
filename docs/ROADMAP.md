@@ -38,3 +38,7 @@ Valide CI 1.0.21, corrija falhas e execute os testes disponíveis. Implemente hi
 ## Correção do login web
 - Conta administrativa criada pelo titular, e-mail confirmado e perfil ativo. Nenhuma entrada bem-sucedida registrada antes da correção.
 - Corrigida chamada fetch no navegador (preserva o receptor global, evita Illegal invocation), timeout e mensagens de erro específicas sem divulgar resposta bruta. Dois testes adicionados. Causa exata do relato ainda não confirmada; Vercel Authentication permanece habilitada em homologação. Repetir login pelo usuário, sem compartilhar senha. Não promover produção.
+
+## Correção de CSP da versão web
+- Causa encontrada: index.html herdou `connect-src 'none'` do Desktop e bloqueava a API no navegador. Vite agora permite somente o origin HTTPS do Supabase dedicado no modo web. Desktop, GitHub Pages e demais diretivas permanecem inalterados.
+- Dois testes de política adicionados e verificação do HTML compilado. Validar login real pelo navegador antes de promoção. Não mudar credenciais nem RLS.
