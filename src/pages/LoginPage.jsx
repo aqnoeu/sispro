@@ -32,7 +32,7 @@ export function LoginPage() {
         <section className="auth-hero">
           <div className="sipro-auth-brand">
             <img src={logo} alt="" />
-            <div><strong>SIPRO</strong><span>Sistema Procuradorias</span></div>
+            <div><strong>Sistema Procuradorias</strong><span>Gestão jurídica institucional</span></div>
           </div>
           <span className="auth-hero__eyebrow">Ambiente jurídico</span>
           <h1>Gestão jurídica institucional</h1>

@@ -1,7 +1,7 @@
 {
   "name": "sipro",
   "private": true,
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -32,11 +32,11 @@
     "electron": "^40.0.0",
     "electron-builder": "^26.0.0"
   },
-  "description": "SIPRO — Sistema Procuradorias",
+  "description": "Sistema Procuradorias",
   "main": "electron/main.cjs",
   "build": {
     "appId": "br.sipro.desktop",
-    "productName": "SIPRO",
+    "productName": "Sistema Procuradorias",
     "directories": {
       "output": "release"
     },
@@ -54,13 +54,14 @@
           ]
         }
       ],
-      "artifactName": "SIPRO-Setup-${version}.${ext}",
+      "artifactName": "Sistema-Procuradorias-Setup-${version}.${ext}",
       "icon": "public/logo-sipro.png"
     },
     "nsis": {
       "oneClick": false,
       "perMachine": false,
-      "deleteAppDataOnUninstall": false
+      "deleteAppDataOnUninstall": false,
+      "shortcutName": "Sistema Procuradorias"
     },
     "publish": [
       {

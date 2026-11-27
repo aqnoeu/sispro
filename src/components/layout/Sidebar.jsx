@@ -16,11 +16,10 @@ export function Sidebar({ items }) {
       <div className="site-header__inner">
         <div className="brand-mark">
           <div className="brand-mark__shield">
-            <img src={siproLogo} alt="SIPRO" className="brand-mark__image" />
+            <img src={siproLogo} alt="" className="brand-mark__image" />
           </div>
           <div>
-            <span className="brand-mark__eyebrow">Sistema Procuradorias</span>
-            <strong>SIPRO</strong>
+            <strong>Sistema Procuradorias</strong>
             <small>{currentUser?.isAdmin ? 'Administração, governança e setores' : currentUser?.sectorName ?? 'Ambiente setorial'}</small>
           </div>
         </div>

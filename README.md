@@ -1,4 +1,4 @@
-# SIPRO — Sistema Procuradorias
+# Sistema Procuradorias
 
 Aplicativo Windows independente, derivado do código de interface AMUR-PGM. Base inicial vazia; não há conexão, credenciais, dependências, usuários ou dados do Firebase. O original não é alterado.
 
@@ -49,3 +49,6 @@ A tela de entrada permite conhecer os dois perfis sem autenticação real. A dem
 
 ## Versão 1.0.2 — tela de login
 Layout baseado no AMUR-PGM original (painel institucional e formulário). Identidade SIPRO, e-mails fictícios de demonstração e senha desabilitada até implementar autenticação local real. A base temporária dos dois perfis permanece separada do ambiente local existente.
+
+## 1.0.3 — Identidade capixaba
+Azul #0098D6, branco #FFFFFF e rosa #EF98BC; verde, amarelo e vermelho reservados a estados funcionais. Azul de contraste acessível para textos e áreas com texto branco. Nome comercial por extenso; identificador técnico, appId, repositório e diretório de dados preservados.

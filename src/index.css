@@ -13,10 +13,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, rgba(29, 78, 216, 0.16), transparent 28%),
-    radial-gradient(circle at right 20%, rgba(14, 165, 233, 0.12), transparent 24%),
-    linear-gradient(180deg, #f4f7fb 0%, #edf2f8 100%);
+  background: radial-gradient(circle at top left,#ddf2fc,transparent 35%),radial-gradient(circle at right 20%,#fce7f0,transparent 28%),#f5f9fc;
   color: var(--color-text);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
