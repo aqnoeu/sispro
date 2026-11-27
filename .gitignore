@@ -1,0 +1,9 @@
+node_modules/
+dist/
+release/
+.env*
+*.log
+*.pfx
+*.pem
+*.key
+sipro-data.json*
