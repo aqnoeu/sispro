@@ -1,15 +1,15 @@
 # Roteiro — Sistema Procuradorias
 
 ## Implementado
-- Até 1.0.18: interface, perfis locais/demonstração, processos, prazos, etiquetas, cartões, janela gerencial e autos com PDFs locais.
-- CI 1.0.18: prévia e Windows aprovados; 10/10 testes passaram. Visualização real e reinício do Electron ainda pendentes.
-- 1.0.19: OAuth desktop com PKCE S256, state, callback 127.0.0.1 em porta dinâmica, escopo drive.file, importação local de credencial, tokens cifrados via Electron safeStorage, teste da API about.get, renovação e revogação. Sem envio de documentos. Prévia e demonstração sem controles de conexão. O modelo de perfis local ainda não constitui autenticação institucional.
-- Testes adicionais de PKCE, callback, credencial desktop e reabertura do armazenamento; execução CI 1.0.19 a confirmar.
+- 1.0.18: interface, perfis locais/demonstração, processos, prazos, etiquetas, cartões, detalhes e autos com PDFs locais. CI web e Windows aprovado, 10/10 testes.
+- 1.0.19: OAuth desktop, PKCE, callback loopback, drive.file, credenciais e tokens protegidos, teste e desconexão. CI web e Windows aprovado, 13/13 testes.
+- 1.0.20: provedor Drive no processo principal, pasta raiz e pasta por identificador local de processo, upload explícito de cópia de PDF, SHA-256 para deduplicação dentro da pasta, listagem sob demanda, recuperação autenticada, limite 25 MB, tratamento de falhas. Sem compartilhamento público, exclusão remota ou migração automática. Arquivos locais preservados. Testes simulados adicionados; CI a confirmar.
+- A conta Drive é do dispositivo; perfis locais não constituem autenticação institucional. Pastas herdam permissões do Drive; não há garantia de isolamento entre procuradores. Deduplicação serial por dispositivo, não garantia transacional entre computadores.
 
 ## Próximas etapas
-1. Confirmar CI 1.0.19, testar Windows real e autorização com conta institucional de teste e credencial OAuth desktop criada no Google Cloud (Drive API ativada).
-2. Implementar provedor Drive: pasta privada do aplicativo, pastas por processo, upload explícito, listagem, download, deduplicação e tratamento de erros; preservar arquivos locais e não migrar automaticamente.
-3. Gestão documental, auditoria, backup, autenticação institucional e revisão LGPD; avaliar banco compartilhado quando necessário.
+1. Confirmar CI 1.0.20 e testar no Windows com credencial OAuth desktop e conta de teste. Validar PDF fictício real, reinício, upload, listagem, download, duplicidade e offline. Verificar permissões e revogação.
+2. Gestão documental: tipos, datas, linha do tempo, metadados, pesquisa, auditoria, backup e restauração.
+3. Autenticação institucional e permissões efetivas; avaliar banco compartilhado; revisão LGPD antes de dados reais.
 
 ## Prompt próximo passo
-Valide CI 1.0.19 e implemente o provedor Google Drive para autos, mantendo o armazenamento local, upload explícito, escopo drive.file, pasta privada por processo, listagem e download autenticados no processo principal. Teste com mocks e, se houver credencial autorizada, conta de teste; não afirme teste real sem evidência. Atualize o roteiro e apresente checklist e próximo comando.
+Valide CI 1.0.20 e teste a integração Drive com arquivos fictícios, incluindo importação e visualização Windows, reinício, upload explícito, listagem, download, duplicidade e offline. Se não houver credencial autorizada ou Windows, registre a limitação e forneça roteiro de teste local. Avance na gestão documental com tipos, datas e linha do tempo. Atualize ROADMAP.md e apresente checklist e botão.

@@ -22,12 +22,16 @@ handler('sipro:files:remove',v=>files().remove(authorizedProcess(v.pid),v.id));
 const {createDrive}=require('./drive.cjs');
 let drive;
 function driveService(){return drive??=createDrive({root:app.getPath('userData'),safeStorage,openExternal:url=>shell.openExternal(url)});}
-function driveHandler(name,fn){ipcMain.handle('sipro:drive:'+name,async(event)=>{if(!trusted(event))throw Error('Origem não autorizada');return fn(driveService());});}
+function driveHandler(name,fn){ipcMain.handle('sipro:drive:'+name,async(event,value)=>{if(!trusted(event))throw Error('Origem não autorizada');return fn(driveService(),value);});}
 driveHandler('status',d=>d.status());
 driveHandler('configure',async d=>{const result=await dialog.showOpenDialog(win,{title:'Selecionar credencial OAuth para computador',properties:['openFile'],filters:[{name:'Credencial JSON',extensions:['json']}]});if(result.canceled)return d.status();const file=result.filePaths[0];if(fs.statSync(file).size>65536)throw Error('Arquivo de credencial inválido.');return d.configure(fs.readFileSync(file,'utf8'));});
 driveHandler('connect',d=>d.connect());
 driveHandler('check',d=>d.check());
 driveHandler('disconnect',d=>d.disconnect());
+function driveProcess(pid){authorizedProcess(pid);const row=JSON.parse(fs.readFileSync(store(),'utf8')).processos[pid];return {documentId:pid,numero:row.numero};}
+driveHandler('listFiles',(d,pid)=>d.listFiles(driveProcess(pid)));
+driveHandler('uploadFile',(d,v)=>{const p=driveProcess(v.pid);const doc=files().list(v.pid).find(x=>x.id===v.id);if(!doc)throw Error('PDF local não encontrado');return d.uploadFile(p,doc.name,files().read(v.pid,v.id));});
+driveHandler('readFile',(d,v)=>d.readFile(driveProcess(v.pid),v.id));
 function createWindow() { win = new BrowserWindow({ width: 1440, height: 900, minWidth: 900, minHeight: 600, title: 'Sistema Procuradorias', webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true } }); win.webContents.setWindowOpenHandler(({ url }) => { if (/^https?:\/\//i.test(url)) shell.openExternal(url).catch(console.error); return { action: 'deny' }; }); win.webContents.on('will-navigate', (event, url) => { if (url.split('#')[0] !== entryURL) event.preventDefault(); }); win.loadFile(entry); }
 if (!app.requestSingleInstanceLock()) app.quit(); else {
  app.on('second-instance', () => { if (win?.isMinimized()) win.restore(); win?.focus(); });
