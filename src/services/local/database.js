@@ -1,13 +1,15 @@
 // Offline document store. Electron persists the data in its per-user directory.
 const key = 'sipro-local-v1'
 const bridge = () => globalThis.siproStorage
+let cloud = null
+export function configureCloud(adapter) { cloud = adapter }
 let demoMode = false
 let previewOnly = false
 let demoData = {}
 export function setDemoMode(enabled) { demoMode = previewOnly || enabled }
 export function initializePreview(seed) { previewOnly = true; demoMode = true; demoData = clone(seed) }
-const read = () => demoMode ? clone(demoData) : bridge() ? bridge().read() : JSON.parse(globalThis.localStorage.getItem(key) || '{}')
-const write = (data) => { if (demoMode) { demoData = clone(data); return } return bridge() ? bridge().write(data) : globalThis.localStorage.setItem(key, JSON.stringify(data)) }
+const read = () => { if (cloud) throw new Error('Armazenamento local bloqueado na Web.'); return demoMode ? clone(demoData) : bridge() ? bridge().read() : JSON.parse(globalThis.localStorage.getItem(key) || '{}') }
+const write = (data) => { if (cloud) throw new Error('Armazenamento local bloqueado na Web.'); if (demoMode) { demoData = clone(data); return } return bridge() ? bridge().write(data) : globalThis.localStorage.setItem(key, JSON.stringify(data)) }
 const listeners = new Set()
 const clone = (value) => JSON.parse(JSON.stringify(value))
 const notify = () => { for (const listener of [...listeners]) queueMicrotask(listener) }
@@ -37,8 +39,8 @@ function matches(row, rule) {
     default: throw new Error('Filtro local não suportado: ' + rule.operator)
   }
 }
-function resolve(ref) {
-  const rows = read()[ref.name] || {}
+function resolve(ref, data) {
+  const rows = Object.hasOwn(data, ref.name) ? data[ref.name] : {}
   if (ref.id) return snapshot(ref.id, Object.hasOwn(rows, ref.id) ? rows[ref.id] : undefined)
   let entries = Object.entries(rows)
   const constraints = ref.constraints || []
@@ -48,10 +50,11 @@ function resolve(ref) {
   const docs = entries.map(([id, data]) => snapshot(id, data))
   return { docs, empty: docs.length === 0, size: docs.length }
 }
-export async function getDocs(ref) { return resolve(ref) }
+export async function getDocs(ref) { return resolve(ref, cloud ? (await cloud.read()).data : read()) }
 export function onSnapshot(ref, callback, error) {
   let active = true
-  const listener = () => { if (!active) return; try { callback(resolve(ref)) } catch (e) { if (error) error(e); else console.error(e) } }
+  let sequence = 0
+  const listener = async () => { if (!active) return; const request=++sequence; try { const value=await getDocs(ref); if (active && request===sequence) callback(value) } catch (e) { if (active && request===sequence) { if (error) error(e); else console.error(e) } } }
   listeners.add(listener); queueMicrotask(listener)
   return () => { active = false; listeners.delete(listener) }
 }
@@ -73,8 +76,8 @@ function apply(data, ref, payload, merge, remove = false) {
   }
   table[id] = next
 }
-function commit(operations) { const data = read(); for (const op of operations) apply(data, ...op); write(data); notify() }
-export async function setDoc(ref, data, options = {}) { commit([[ref, data, !!options.merge]]) }
+async function commit(operations) { if (!operations.length) return; const state=cloud?await cloud.read():null; const data=state?state.data:read(); for (const op of operations) apply(data, ...op); if (state) await cloud.write(state,data); else write(data); notify() }
+export async function setDoc(ref, data, options = {}) { await commit([[ref, data, !!options.merge]]) }
 export async function addDoc(ref, data) { const target = doc(ref); await setDoc(target, data); return target }
-export async function deleteDoc(ref) { commit([[ref, {}, false, true]]) }
-export function writeBatch() { const ops = []; return { set(ref, data, options = {}) { ops.push([ref, data, !!options.merge]); return this }, delete(ref) { ops.push([ref, {}, false, true]); return this }, async commit() { commit(ops) } } }
+export async function deleteDoc(ref) { await commit([[ref, {}, false, true]]) }
+export function writeBatch() { const ops = []; return { set(ref, data, options = {}) { ops.push([ref, data, !!options.merge]); return this }, delete(ref) { ops.push([ref, {}, false, true]); return this }, async commit() { await commit(ops) } } }

@@ -18,3 +18,5 @@ Valide CI 1.0.21, corrija falhas e execute os testes disponíveis. Implemente hi
 
 ## Web oficial — administração CEO
 - Migração administrativa aplicada no Supabase existente: instituições, cargos, membros, setores, gabinetes, catálogo e permissões. RLS restrito ao CEO ativo. Procuradoria de Teste cadastrada. Cadastro Auth, painel e aplicação das permissões aos módulos ainda pendentes; não usar dados reais até validação.
+
+- Integração do código web-auth à main e painel CEO para CRUD administrativo via RLS. Vincula contas Auth existentes; criação de credenciais e aplicação de níveis aos módulos jurídicos ainda pendentes. Testes e deployment a confirmar.

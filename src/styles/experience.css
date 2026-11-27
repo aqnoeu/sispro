@@ -208,3 +208,10 @@ button:disabled { cursor:not-allowed; }
  .auth-page::after { width:55vw; height:40vh; }
  .login-credits { font-size:11px; }
 }
+
+/* Password visibility: only on the real Web login. */
+.sipro-auth-layout .login-password-wrap input { padding-right: max(48px, 5.5cqw); }
+.login-password-toggle { position:absolute; right:3px; top:50%; transform:translateY(-50%); display:grid; place-items:center; width:44px; height:40px; border:0; border-radius:8px; background:transparent; color:inherit; cursor:pointer; }
+.login-input-wrap .login-password-toggle svg { position:static; width:20px; height:20px; pointer-events:none; }
+.login-password-toggle:focus-visible { outline:2px solid currentColor; outline-offset:-3px; }
+.login-password-toggle:disabled { opacity:.5; cursor:default; }
