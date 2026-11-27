@@ -1,4 +1,4 @@
-import { Labels, WorkflowLabel, ClassificationEditor, ScopedLabelsEditor, useLabels } from '../components/ui/Labels'
+import { Labels, WorkflowLabel, LabelPicker, useLabels } from '../components/ui/Labels'
 import { classification, processLabels, workflow, WORKFLOW } from '../utils/labels'
 import { useMemo, useState } from 'react'
 import { FolderOpen, Pencil, Save, Plus, Trash2 } from 'lucide-react'
@@ -645,7 +645,7 @@ export function ProcessosPage() {
               <div><span>Parte</span><strong>{selectedProcess.parte || 'Não informada'}</strong></div>
               <div>{editingSelectedProcess ? <TextField label="Órgão" value={selectedProcessDraft.orgao} onChange={value=>setSelectedProcessDraft(current=>({...current,orgao:value}))}/> : <><span>Órgão</span><strong>{selectedProcess.orgao || 'Não informado'}</strong></>}</div>
             </div>
-            <div className="process-dialog-tags"><span>Etiquetas</span>{editingSelectedProcess?<ClassificationEditor row={selectedProcess} value={selectedProcessDraft.classificacao} onChange={value=>setSelectedProcessDraft(c=>({...c,classificacao:value}))}/>:<Labels row={selectedProcess} assignments={assignments}/>}<ScopedLabelsEditor row={selectedProcess} assignments={assignments}/></div>
+            <div className="process-dialog-tags"><span>Etiquetas</span><LabelPicker key={selectedProcess.documentId} row={selectedProcess} assignments={assignments} classificationDraft={editingSelectedProcess?selectedProcessDraft.classificacao:undefined} onClassificationChange={editingSelectedProcess?value=>setSelectedProcessDraft(c=>({...c,classificacao:value})):undefined} disabled={savingSelectedProcess||!localEnabled}/></div>
           </section>}
           {(!editingSelectedProcess || editTab==='demandas') && (
               <section className="process-modal__section">

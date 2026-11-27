@@ -61,3 +61,6 @@ Padrão de diálogo branco, cabeçalho e rodapé fora da área de rolagem, ícon
 
 ### Etiquetas
 Andamento por intimação (campo independente do status temporal do prazo); matéria e competência inferidas do assunto e órgão, editáveis no processo; etiquetas personalizadas vinculadas separadamente ao setor/gabinete ou UID do perfil. Visibilidade por perfil, andamento sempre exibido. Não há integração externa de intimações nem autenticação real nesta fase.
+
+### Seletor e aparência de etiquetas
+Botão único + Etiqueta na consulta, pesquisa por nome, categorias agrupadas, seleção direta e remoção por X. Criação e gerenciamento com paleta de 60 cores, círculos de 20px, intervalo de 3px, hexadecimal e seletor de cor; estilo suave, sólido ou contorno e prévia à direita, empilhados em telas estreitas. Andamento conserva cores funcionais fixas. Catálogo local separado por categoria e escopo; exclusão preserva os processos.
