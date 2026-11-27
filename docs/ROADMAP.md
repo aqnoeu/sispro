@@ -20,3 +20,5 @@ Valide CI 1.0.21, corrija falhas e execute os testes disponíveis. Implemente hi
 - Migração administrativa aplicada no Supabase existente: instituições, cargos, membros, setores, gabinetes, catálogo e permissões. RLS restrito ao CEO ativo. Procuradoria de Teste cadastrada. Cadastro Auth, painel e aplicação das permissões aos módulos ainda pendentes; não usar dados reais até validação.
 
 - Integração do código web-auth à main e painel CEO para CRUD administrativo via RLS. Vincula contas Auth existentes; criação de credenciais e aplicação de níveis aos módulos jurídicos ainda pendentes. Testes e deployment a confirmar.
+
+- Commit 98deb8a: Vercel production READY, CI web e Windows success. Edge Function sispro-ceo-accounts ativa, UI de contas e catálogo completo de mecânicas por instituição. CEO confirma titularidade do e-mail e define senha inicial (mín. 12 caracteres); troca de senha pelo titular e testes reais pendentes. Revogação via perfil ativo/RLS; validar sessões abertas. Permissões dos módulos jurídicos ainda pendentes; não usar dados reais antes de validação.

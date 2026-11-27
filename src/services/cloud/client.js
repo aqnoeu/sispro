@@ -83,10 +83,16 @@ export class CloudClient {
     if(row&&rows?.length!==1) throw new Error('Gravação não autorizada.')
     return rows
   }
+  async manageAccount(body) {
+    const s=this.requireSession()
+    if(s.mode!=='ceo') throw new Error('Acesso administrativo não autorizado.')
+    const result=await this.request('/functions/v1/sispro-ceo-accounts',{token:s.token,method:'POST',body})
+    this.assertSession(s); return result
+  }
   async listProfiles() {
     const s=this.requireSession()
     if(s.mode==='pgm') throw new Error('A gestão de contas institucionais ainda não está habilitada no teste PGM.')
-    const rows=await this.request('/rest/v1/sispro_profiles?select=user_id,display_name,role,active&order=display_name',{token:s.token})
+    const rows=await this.request('/rest/v1/sispro_profiles?select=user_id,display_name,role,active,platform_role&order=display_name',{token:s.token})
     this.assertSession(s); return rows
   }
 }
