@@ -19,6 +19,7 @@ export function AuthProvider({ children }) {
     return () => clearTimeout(timer)
   }, [currentUser])
   async function signIn(email,password) { if (!cloud) throw new Error('Login web indisponível.'); const user=await cloud.signIn(email,password); setCurrentUser(user) }
+  async function switchProfile(mode) { if (!cloud) throw new Error('Subperfil indisponível.'); const user=await cloud.switchProfile(mode); setCurrentUser(user) }
   function enter(mode) {
     if (isCloud) return
     const user = { local: localUser, user: demoUser, admin: demoAdmin }[mode]
@@ -30,5 +31,5 @@ export function AuthProvider({ children }) {
     if (cloud) cloud.signOut().catch(()=>{})
     setCurrentUser(null)
   }
-  return <AuthContext.Provider value={{ currentUser, authReady: true, isLocalEnabled: !isCloud, cloudReady:cloud?.configured ?? false, enter, signIn, signOut, listProfiles:()=>cloud.listProfiles() }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ currentUser, authReady: true, isLocalEnabled: !isCloud, cloudReady:cloud?.configured ?? false, enter, signIn, signOut, switchProfile, listProfiles:()=>cloud.listProfiles() }}>{children}</AuthContext.Provider>
 }

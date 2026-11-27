@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { LayoutDashboard, FolderOpen, CalendarClock, CalendarDays, Scale, Users, Building2, Settings, PanelLeftOpen, PanelLeftClose, Menu } from 'lucide-react'
+import { LayoutDashboard, FolderOpen, CalendarClock, CalendarDays, Scale, Users, Building2, Settings, PanelLeftOpen, PanelLeftClose, Menu, ArrowLeftRight } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/useAuth'
 import siproLogo from '../../assets/sipro.svg'
@@ -12,7 +12,9 @@ function NavIcon({ path }) { const Icon=icons[path] || LayoutDashboard; return <
 export function Sidebar({ items }) {
   const [expanded, setExpanded] = useState(false)
   const { appearance, update } = useAppearance()
-  const { currentUser, isLocalEnabled, signOut } = useAuth()
+  const { currentUser, isLocalEnabled, signOut, switchProfile } = useAuth()
+  const [switching,setSwitching]=useState(false)
+  const [switchError,setSwitchError]=useState('')
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -67,6 +69,7 @@ export function Sidebar({ items }) {
             <strong>{currentUser?.displayName ?? 'Autenticação pendente'}</strong>
             <small>{currentUser?.workspace ?? currentUser?.role ?? currentUser?.email ?? 'Sem usuário ativo'}</small>
           </button>
+          {currentUser?.canTestPgm && <><button type="button" className="access-exit" disabled={switching} onClick={async()=>{setSwitching(true);setSwitchError('');try{await switchProfile(currentUser.profileMode==='pgm'?'ceo':'pgm');navigate('/',{replace:true})}catch(e){setSwitchError(e.message)}finally{setSwitching(false)}}}><ArrowLeftRight size={16} aria-hidden="true"/> {currentUser.profileMode==='pgm'?'Voltar ao CEO':'Acessar PGM'}</button>{switchError&&<span role="alert">{switchError}</span>}</>}
           <button type="button" className="access-exit" onClick={() => { signOut(); navigate('/login', { replace: true }) }}>Sair</button>
         </div>
       </div>

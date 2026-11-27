@@ -21,7 +21,7 @@ import { ProcessosPage } from '../../pages/ProcessosPage'
 
 export function AppShell() {
  const { currentUser } = useAuth()
- return <AppearanceProvider key={currentUser?.uid} userId={currentUser?.uid}><Workspace /></AppearanceProvider>
+ return <AppearanceProvider key={currentUser?.uid+':'+(currentUser?.profileMode||'')} userId={currentUser?.uid}><Workspace /></AppearanceProvider>
 }
 function Workspace() {
   const { currentUser } = useAuth()
@@ -30,7 +30,8 @@ function Workspace() {
   const [searchTerm, setSearchTerm] = useState('')
   const deferredSearch = useDeferredValue(searchTerm)
   const isAdmin = currentUser?.isAdmin
-  const items = isAdmin ? [...adminNavigationItems, ...navigationItems.filter(item => item.path !== '/')] : navigationItems
+  const isCeo=currentUser?.profileMode==='ceo'
+  const items = isCeo ? [{path:'/',label:'Início'},{path:'/usuarios',label:'Usuários'},{path:'/setores',label:'Instituições'}] : isAdmin ? [...adminNavigationItems, ...navigationItems.filter(item => item.path !== '/')] : navigationItems
   const isReadOnlyJurisprudenciaRoute = location.pathname === '/jurisprudencia' || /^\/jurisprudencia\/(precedentes|pareceres|teses|referencias)\//.test(location.pathname)
   const shouldShowTopbar = location.pathname === '/perfil'
 
@@ -84,6 +85,7 @@ function Workspace() {
     <div className={`app-shell nav-${appearance.menu}${appearance.expanded ? ' nav-wide' : ' nav-compact'}${appearance.motion ? '' : ' motion-off'}`}>
       <a className="skip-workspace" href="#workspace" onClick={event => { event.preventDefault(); document.getElementById('workspace')?.focus() }}>Ir para área de trabalho</a>
       <Sidebar items={items} />
+      {currentUser?.isTestPgm && <div className="demo-session-banner">PGM · Procuradoria de teste · Utilize somente dados fictícios</div>}
       {currentUser?.isDemo && <div className="demo-session-banner">Demonstração · Dados temporários · Sem acesso aos registros reais</div>}
       <div className="app-shell__body" id="workspace" tabIndex={-1}>
         {shouldShowTopbar ? (
@@ -95,7 +97,7 @@ function Workspace() {
         ) : null}
         <PageSearchProvider searchTerm={deferredSearch}>
           <main key={location.pathname + location.hash} className="app-shell__content">
-            {isAdmin ? <Outlet /> : renderUserContent()}
+            {isCeo ? (location.pathname==='/' ? <section className="panel-card" style={{padding:24}}><h2>Administração da SISPRO · CEO</h2><p>Ambiente de gestão da plataforma. Use o seletor de perfil para acessar a Procuradoria de teste como PGM.</p><p>Cadastro de instituições, RH, Comercial e demais mecânicas serão habilitados conforme suas definições de acesso.</p></section> : ['/perfil','/configuracoes','/usuarios','/setores'].includes(location.pathname) ? <Outlet/> : <Navigate to="/" replace/>) : isAdmin ? <Outlet /> : renderUserContent()}
           </main>
         </PageSearchProvider>
       </div>

@@ -46,3 +46,6 @@ Valide CI 1.0.21, corrija falhas e execute os testes disponíveis. Implemente hi
 ## Login confirmado e visibilidade da senha
 - Usuário confirmou login real bem-sucedido na homologação após correção da CSP. Ainda faltam isolamento entre contas via JWT real, logout/revogação e MFA.
 - Botão de mostrar/ocultar senha com Eye/EyeOff (Lucide), acessível por teclado, ocultação padrão e ao enviar, sem efeito em perfis de demonstração ou Desktop. Produção permanece inalterada.
+
+## CEO e subperfil PGM (homologação)
+- Conta administrativa existente designada CEO por ato explícito do titular. Subperfil PGM de teste concedido somente a essa conta, nível 4 para navegação de homologação; sem instituição real. JWT único, alternância de interface, workspace de teste separado e RLS própria; não equivale à futura autorização institucional por mecânica. Não há cadastro real de usuários/gabinetes/financeiro por esta entrega. Níveis por ação ainda a definir, produção e Desktop preservados. 
