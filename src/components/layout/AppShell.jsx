@@ -23,7 +23,7 @@ import { ProcessosPage } from '../../pages/ProcessosPage'
 
 export function AppShell() {
  const { currentUser } = useAuth()
- return <AppearanceProvider key={currentUser?.uid+':'+(currentUser?.profileMode||'')} userId={currentUser?.uid}><Workspace /></AppearanceProvider>
+ return <AppearanceProvider key={currentUser?.uid+':'+(currentUser?.profileMode||'')} userId={currentUser?.uid}><Workspace key={JSON.stringify(currentUser?.levels||{})} /></AppearanceProvider>
 }
 function Workspace() {
   const { currentUser } = useAuth()
