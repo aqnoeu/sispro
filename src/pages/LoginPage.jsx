@@ -9,6 +9,9 @@ const demoProfiles = [
   { mode: 'admin', name: 'Administrador', workspace: 'Administração da Procuradoria', email: 'admin@sipro.local' },
 ]
 
+const iconPaths = { email:'M3 5h18v14H3z M3 6l9 7 9-7', lock:'M5 10h14v11H5z M8 10V7a4 4 0 0 1 8 0v3', user:'M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8 M4 21v-2a8 8 0 0 1 16 0v2', admin:'M12 3l8 3v6c0 5-4 8-8 10-4-2-8-5-8-10V6z' }
+function LoginIcon({ name }) { return <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d={iconPaths[name]}/></svg> }
+
 export function LoginPage() {
   const { currentUser, enter } = useAuth()
   const navigate = useNavigate()
@@ -31,46 +34,39 @@ export function LoginPage() {
     <main className="auth-page">
       <div className="auth-layout sipro-auth-layout">
         <section className="auth-hero">
-          <div className="sipro-auth-brand">
-            <img src={logo} alt="" />
-            <div><strong>Sistema Procuradorias</strong><span>Gestão jurídica institucional</span></div>
+          <div className="login-brand-content">
+            <img className="login-brand-symbol" src={logo} alt="" />
+            <h1>Sistema<br />Procuradorias</h1>
+            <p className="login-brand-subtitle">Gestão jurídica institucional</p>
+            <span className="login-brand-accent" aria-hidden="true" />
+            <p className="login-brand-description">Organize processos, prazos e compromissos da Procuradoria em um ambiente simples, claro e profissional.</p>
           </div>
-          <span className="auth-hero__eyebrow">Ambiente jurídico</span>
-          <h1>Gestão jurídica institucional</h1>
-          <p>Organização dos processos, prazos e compromissos da Procuradoria, com ambientes destinados à rotina jurídica e à administração institucional.</p>
-          <div className="auth-hero__highlights">
-            <article><strong>Ambiente individualizado de trabalho</strong></article>
-            <article><strong>Processos, prazos e informações em um só lugar</strong></article>
-            <article><strong>Gestão de usuários e setores</strong></article>
-          </div>
-          <p className="sipro-auth-footnote">{isPreview ? 'Prévia online · Dados fictícios' : 'Sistema local para Windows · Sem Firebase'}</p>
+          <p className="sipro-auth-footnote">{isPreview ? 'Prévia online · Dados fictícios' : 'Aplicativo Windows · Armazenamento local'}</p>
         </section>
         <section className="auth-card" aria-labelledby="login-title">
           <div className="auth-card__header">
             <h2 id="login-title">Entrar no sistema</h2>
-            <p>Selecione um acesso de demonstração para conhecer o ambiente de gestão da Procuradoria.</p>
+            <p>Acesse o Sistema Procuradorias e gerencie o ambiente de gestão jurídica da Procuradoria.</p>
           </div>
           <form className="auth-form" onSubmit={handleSubmit}>
             <label className="form-field">
               <span>E-mail</span>
-              <input type="email" placeholder="nome@sipro.local" autoComplete="off" value={email} required onChange={event => { setEmail(event.target.value); setError('') }} />
+              <div className="login-input-wrap"><LoginIcon name="email"/><input type="email" placeholder="nome@sipro.local" autoComplete="off" value={email} required onChange={event => { setEmail(event.target.value); setError('') }} /></div>
             </label>
             <label className="form-field">
               <span>Senha</span>
-              <input type="password" placeholder="Não exigida na demonstração" disabled aria-describedby="demo-note" />
+              <div className="login-input-wrap"><LoginIcon name="lock"/><input type="password" placeholder="Não exigida na demonstração" disabled aria-describedby="demo-note" /></div>
             </label>
             <button type="submit" className="primary-button auth-form__submit">Entrar</button>
             {error && <div className="form-feedback form-feedback--error" role="alert">{error}</div>}
           </form>
           <div className="auth-demo">
-            <strong>Acessos locais para demonstração</strong>
-            <p id="demo-note">Escolha um perfil e clique em Entrar. A senha e as permissões definitivas ainda não estão configuradas.</p>
+            <strong>Acessos de demonstração</strong>
+            <p id="demo-note">Escolha um perfil e clique em Entrar.</p>
             <div className="auth-demo__list">
               {demoProfiles.map(profile => (
                 <button key={profile.mode} type="button" className={'auth-demo__user' + (email === profile.email ? ' sipro-demo-selected' : '')} aria-pressed={email === profile.email} onClick={() => { setEmail(profile.email); setError('') }}>
-                  <strong>{profile.name}</strong>
-                  <span>{profile.workspace}</span>
-                  <small>{profile.email}</small>
+                  <span className="login-profile-icon"><LoginIcon name={profile.mode === 'admin' ? 'admin' : 'user'}/></span><span className="login-profile-text"><strong>{profile.name}</strong><span>{profile.workspace}</span><small>{profile.email}</small></span>
                 </button>
               ))}
             </div>

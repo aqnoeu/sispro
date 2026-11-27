@@ -60,3 +60,6 @@ Endereço previsto: https://aqnoeu.github.io/sispro/ . Ative Settings → Pages 
 
 ## 1.0.4 — Refinamento UI/UX
 Camada visual compartilhada, navegação com ícones e menu móvel, foco visível, transições discretas e respeito a movimento reduzido. Referências de design: Fluent UI, shadcn/ui e Dashral; implementação própria em CSS e React, sem dependências externas. A paleta oficial permanece inalterada. Revisão visual de cada tela e instalação Windows ainda necessárias.
+
+## 1.0.5 — Login oficial
+Tela de entrada aprovada em 27/11/2026, conforme manual de identidade. Logo em destaque, composição azul/branco, rosa decorativo, formulário e perfis com ícones. Sem alteração da autenticação ou armazenamento.

@@ -89,3 +89,46 @@ button:disabled { cursor:not-allowed; }
 @media (prefers-reduced-motion:reduce) {
  *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.01ms!important; scroll-behavior:auto!important; }
 }
+
+/* Login oficial aprovado em 27/11/2026. */
+.auth-page { background: radial-gradient(ellipse at 0% 0%, #fce7f066, transparent 29%), radial-gradient(ellipse at 85% 25%,#ddf2fc,transparent 65%), #edf5fc; padding:24px 0; }
+.auth-layout.sipro-auth-layout { width:min(1050px,calc(100% - 48px)); grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr); padding:0; border-radius:24px; overflow:hidden; box-shadow:0 20px 65px #16324f13; animation:login-in 340ms ease-out both; }
+.sipro-auth-layout .auth-hero { position:relative; isolation:isolate; overflow:hidden; border:0; border-radius:0; box-shadow:none; display:flex; flex-direction:column; justify-content:space-between; gap:32px; padding:clamp(28px,4.5vw,64px); background:linear-gradient(150deg,#007bad 0%,#006b9a 55%,#0089be 100%); }
+.sipro-auth-layout .auth-hero::before { content:''; position:absolute; z-index:-1; width:150%;height:48%;left:-45%;top:-35%;border-radius:0 0 100% 0;background:#ffffff0c;transform:rotate(-18deg);pointer-events:none; }
+.sipro-auth-layout .auth-hero::after { content:''; position:absolute;z-index:-1; width:150%;height:38%;right:-65%;bottom:-22%;border-radius:100% 0 0 0;background:linear-gradient(130deg,#0098d6 15%,#ef98bc 95%); opacity:.65;pointer-events:none;transform:rotate(-22deg); }
+.login-brand-content { margin:auto 0; }
+.login-brand-symbol { width:clamp(86px,10vw,138px); height:auto; aspect-ratio:1; object-fit:contain; filter:brightness(0) invert(1); display:block; margin-bottom:22px; }
+.sipro-auth-layout .auth-hero h1 { color:#fff; font-size:clamp(2rem,3.4vw,3.15rem); font-weight:750; line-height:1.07; letter-spacing:-.035em; margin:0; }
+.sipro-auth-layout .login-brand-subtitle { margin:12px 0 0; font-size:clamp(1rem,1.6vw,1.35rem); color:#e6f5ff; line-height:1.4; }
+.login-brand-accent { display:block; width:58px; height:4px; border-radius:4px; background:#ef98bc; margin:32px 0 24px; }
+.sipro-auth-layout .login-brand-description { max-width:30ch; font-size:1.1rem; line-height:1.55; color:#fff; margin:0; }
+.sipro-auth-layout .sipro-auth-footnote { margin:0; color:#e6f5ff; font-size:.8rem; }
+.sipro-auth-layout .auth-card { border:0; border-radius:0; box-shadow:none; padding:clamp(28px,4vw,50px); background:#fff; }
+.sipro-auth-layout .auth-card h2 { margin:0; font-size:clamp(1.7rem,2.7vw,2.4rem); line-height:1.15; }
+.sipro-auth-layout .auth-card__header p { font-size:.95rem; line-height:1.55; }
+.sipro-auth-layout .auth-form { gap:18px; }
+.login-input-wrap { position:relative; display:flex; align-items:center; color:#60798f; }
+.login-input-wrap svg { position:absolute; left:13px; pointer-events:none; }
+.sipro-auth-layout .login-input-wrap input { width:100%; padding-left:44px; min-height:48px; border-radius:10px; }
+.sipro-auth-layout .auth-form__submit { min-height:48px; width:100%; }
+.sipro-auth-layout .auth-demo { border-top:1px solid #dce8ef; padding-top:20px; margin-top:24px; background:transparent; border-radius:0; }
+.sipro-auth-layout .auth-demo > strong { font-size:1.12rem; color:#16324f; }
+.sipro-auth-layout .auth-demo__list { gap:10px; }
+.sipro-auth-layout .auth-demo__user { display:flex; align-items:center; gap:14px; text-align:left; padding:12px 14px; background:#f5f9fc; border:1px solid #dce8ef; }
+.login-profile-icon { display:grid!important; place-items:center; width:44px; height:44px; flex:0 0 44px; border-radius:10px; background:#ddf2fc; color:#006b9a!important; }
+.login-profile-text { display:grid!important; gap:3px; min-width:0; }
+.sipro-auth-layout .login-profile-text strong { color:#16324f; }
+.sipro-auth-layout .login-profile-text small { overflow-wrap:anywhere; }
+.sipro-auth-layout .sipro-demo-selected { border-color:#0074a6; background:#ddf2fc; }
+@keyframes login-in { from { opacity:.65; transform:translateY(6px); } to { opacity:1; transform:none; } }
+@media(max-width:899px) {
+ .auth-page { padding:16px 0; }
+ .auth-layout.sipro-auth-layout { width:min(540px,calc(100% - 24px)); grid-template-columns:minmax(0,1fr); border-radius:18px; }
+ .sipro-auth-layout .auth-hero { padding:28px;gap:24px; }
+ .login-brand-symbol { width:80px; margin-bottom:12px; }
+ .sipro-auth-layout .auth-hero h1 { font-size:2rem; }
+ .login-brand-accent { margin:18px 0 12px; }
+ .sipro-auth-layout .login-brand-description { font-size:.95rem; max-width:38ch; }
+ .sipro-auth-layout .auth-card { padding:26px; }
+}
+@media(prefers-reduced-motion:reduce) { .auth-layout.sipro-auth-layout { animation:none; } }
