@@ -87,6 +87,12 @@ export class CloudClient {
     this.assertSession(s)
     if (!Array.isArray(rows)||rows.length!==1) throw new Error('Conflito de gravação ou acesso negado. Recarregue e tente novamente.')
   }
+  async deleteTestRole(roleId,institutionId) {
+    const s=this.requireSession()
+    if(s.mode!=='ceo'||!roleId||!institutionId) throw new Error('Acesso administrativo não autorizado.')
+    await this.request('/rest/v1/rpc/sispro_delete_test_role',{token:s.token,method:'POST',body:{target_role:roleId,target_institution:institutionId}})
+    this.assertSession(s)
+  }
   async adminTable(table, row, id) {
     const s=this.requireSession()
     const allowed=['institutions','roles','sectors','cabinets','members','mechanics','permissions','institution_mechanics']
