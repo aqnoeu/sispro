@@ -18,3 +18,10 @@ Valide CI 1.0.21, corrija falhas e execute os testes disponíveis. Implemente hi
 ## Web — etapa de autenticação
 - Branch de integração: modo web independente, autenticação Supabase por e-mail/senha, perfis autorizados, sessão em memória, RLS proposta, persistência isolada por conta com revisão otimista. SQL preparado; não aplicado até existir projeto dedicado. Ver docs/SISPRO-WEB.md.
 - Próximo: provisionar Supabase dedicado mediante confirmação da organização/custo; aplicar e verificar políticas, configurar variáveis Vercel e usuários fictícios; testar login e isolamento real antes de promoção.
+
+## Homologação Supabase — 27/11/2026
+- Projeto exclusivo sispro na organização homehub, região São Paulo (sa-east-1), custo de criação cotado US$ 0/mês; status ACTIVE_HEALTHY.
+- Migração sispro_web_auth_rls aplicada. Security Advisor: zero alertas retornados no momento da consulta.
+- Banco real: teste SQL transacional com três identidades fictícias e role authenticated/anon simulando claims JWT. Aprovados: leitura isolada, escrita própria, bloqueio de atualização e inserção cruzadas, bloqueio de autopromoção, admin lê perfis mas não dados alheios, desativação revoga acesso, bloqueio anônimo e conflito de revisão. Rollback confirmado: zero contas de teste, perfis e workspaces restantes.
+- Vercel: URL e chave publicável configuradas exclusivamente em preview da branch sispro-web-auth; nenhuma chave privilegiada no código. Deploy anterior da branch READY com 23/23 testes (5 novos com API simulada). Novo deploy conectado deve ser verificado.
+- Pendências impeditivas de produção: desabilitar cadastro público e acesso anônimo no Auth Dashboard; criar contas fictícias pelo Auth Admin; verificar login, logout e RLS pela API com JWT real, revisar MFA, segurança e backup. Ferramentas disponíveis não expõem administração Auth; acesso HTTP direto do ambiente falhou por DNS. Teste SQL não equivale a autenticação HTTP real. Não promover produção nem importar dados jurídicos reais.
