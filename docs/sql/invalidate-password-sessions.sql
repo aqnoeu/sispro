@@ -1,0 +1,3 @@
+create or replace function sispro_private.invalidate_on_password_change() returns trigger language plpgsql security definer set search_path='' as $$ begin if old.encrypted_password is distinct from new.encrypted_password then update public.sispro_profiles set sessions_revoked_before=clock_timestamp() where user_id=new.id; end if; return new; end $$;
+revoke all on function sispro_private.invalidate_on_password_change() from public,anon,authenticated;
+create trigger sispro_invalidate_password_sessions after update of encrypted_password on auth.users for each row execute function sispro_private.invalidate_on_password_change();
