@@ -75,3 +75,6 @@ Reconstrução dimensional do layout a partir da imagem de referência, fundos d
 
 ## 1.0.9 — Navegação personalizável
 Configurações > Aparência: menu lateral compacto/expandido ou superior, mudança imediata, preferências locais por perfil e controle de animações. No celular, menu retrátil com nomes. Sem mudanças na tela de login ou no banco jurídico.
+
+## 1.0.10 — Login ajustado à altura da janela
+Dimensionamento do cartão pela largura e altura úteis (dvh), espaçamentos compactos em janelas menores e rolagem natural de segurança, sem ocultar perfis ou modificar o fundo aprovado.
