@@ -52,3 +52,6 @@ Menu lateral compacto por padrão, ícones com nomes acessíveis e descrição e
 
 ### Complemento visual aprovado do login
 Fundo externo com símbolo oficial ampliado como marca d’água quase imperceptível (opacidade de referência 3,5%) e curvas/tons azul e rosa muito suaves. Rodapé centralizado, sem ícones ou divisores, com texto discreto `v{versão} · Desenvolvido por @aqnoeu`. A versão deriva do package.json no build. Reservar espaço para o rodapé no fluxo da página, mantendo o cartão aprovado e os dois perfis.
+
+### Biblioteca oficial de ícones
+Adotar Lucide (lucide-react, licença ISC) para os ícones de interface; evitar desenhar ícones manualmente. Preservar o símbolo institucional original, que não é um ícone de interface. Usar dimensões e espessura consistentes, empacotamento local sem CDN, e nomes acessíveis. A junção entre cabeçalho e barra lateral deve ser contínua, sem degraus, sobreposições ou recortes.

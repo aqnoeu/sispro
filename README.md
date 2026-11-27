@@ -81,3 +81,6 @@ Dimensionamento do cartão pela largura e altura úteis (dvh), espaçamentos com
 
 ## 1.0.11 — Fundo e créditos do login
 Marca d’água oficial discreta, nuances suaves azul/rosa e rodapé centralizado com versão automática e crédito de desenvolvimento. Preserva cartão, perfis e dimensionamento responsivo.
+
+## 1.0.12 — Ícones Lucide e alinhamento da navegação
+Substitui ícones desenhados manualmente no login e na navegação por Lucide React, incluído localmente. Corrige a altura compartilhada do cabeçalho e o início da barra lateral. Sem alteração de dados ou permissões.

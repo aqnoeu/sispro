@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Mail, LockKeyhole, UserRound, ShieldCheck } from 'lucide-react'
 import { version } from '../../package.json'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/useAuth'
@@ -10,8 +11,8 @@ const demoProfiles = [
   { mode: 'admin', name: 'Administrador', workspace: 'Administração da Procuradoria', email: 'admin@sipro.local' },
 ]
 
-const iconPaths = { email:'M3 5h18v14H3z M3 6l9 7 9-7', lock:'M5 10h14v11H5z M8 10V7a4 4 0 0 1 8 0v3', user:'M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8 M4 21v-2a8 8 0 0 1 16 0v2', admin:'M12 3l8 3v6c0 5-4 8-8 10-4-2-8-5-8-10V6z' }
-function LoginIcon({ name }) { return <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d={iconPaths[name]}/></svg> }
+const loginIcons = { email:Mail, lock:LockKeyhole, user:UserRound, admin:ShieldCheck }
+function LoginIcon({ name }) { const Icon=loginIcons[name]; return <Icon aria-hidden="true" size={22} strokeWidth={1.8}/> }
 
 export function LoginPage() {
   const { currentUser, enter } = useAuth()
