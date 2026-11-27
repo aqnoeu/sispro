@@ -57,3 +57,6 @@ Azul #0098D6, branco #FFFFFF e rosa #EF98BC; verde, amarelo e vermelho reservado
 
 ## Prévia pública no celular
 Endereço previsto: https://aqnoeu.github.io/sispro/ . Ative Settings → Pages → Source → GitHub Actions uma vez. O workflow pages-preview.yml compila a interface em modo preview em cada push a main, sem alterar a versão Windows. Somente exemplos inventados, armazenamento em memória e dois perfis de demonstração; alterações descartadas ao recarregar. Não inserir dados reais ou sigilosos. O acesso ao banco local existente é bloqueado no modo preview. A janela nativa e o atualizador Windows não são simulados.
+
+## 1.0.4 — Refinamento UI/UX
+Camada visual compartilhada, navegação com ícones e menu móvel, foco visível, transições discretas e respeito a movimento reduzido. Referências de design: Fluent UI, shadcn/ui e Dashral; implementação própria em CSS e React, sem dependências externas. A paleta oficial permanece inalterada. Revisão visual de cada tela e instalação Windows ainda necessárias.

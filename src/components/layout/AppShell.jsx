@@ -72,9 +72,10 @@ export function AppShell() {
 
   return (
     <div className="app-shell">
+      <a className="skip-workspace" href="#workspace" onClick={event => { event.preventDefault(); document.getElementById('workspace')?.focus() }}>Ir para área de trabalho</a>
       <Sidebar items={items} />
       {currentUser?.isDemo && <div className="demo-session-banner">Demonstração · Dados temporários · Sem acesso aos registros reais</div>}
-      <div className="app-shell__body">
+      <div className="app-shell__body" id="workspace" tabIndex={-1}>
         {shouldShowTopbar ? (
           <Topbar
             searchTerm={searchTerm}
