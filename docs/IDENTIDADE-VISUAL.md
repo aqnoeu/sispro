@@ -1,0 +1,40 @@
+# Sistema Procuradorias — Identidade visual oficial
+
+**Status:** aprovado pelo responsável do projeto em 27/11/2026. Este documento é a referência normativa para novas telas e revisões de design. A implementação será aperfeiçoada progressivamente; a aprovação da identidade não equivale à validação de todas as telas existentes.
+
+## 1. Marca
+O nome comercial é **Sistema Procuradorias**, sempre por extenso. Não usar SIPRO, SISPRO ou SISPROC como marca ou abreviação comercial. O repositório e identificadores técnicos históricos podem permanecer inalterados por compatibilidade com atualizações e dados locais. A identidade é inspirada nas cores da bandeira do Espírito Santo, sem pretensão de reproduzir uma especificação cromática oficial da bandeira. Preservar o símbolo radial aprovado; não substituir por outros símbolos. Em fundos azuis ou escuros, usar o símbolo integralmente branco, sem fundo; em fundos claros, usar a versão azul aprovada.
+
+## 2. Paleta oficial
+| Papel | Cor | Hex |
+|---|---|---|
+| Azul capixaba — principal | Azul | `#0098D6` |
+| Superfície | Branco | `#FFFFFF` |
+| Contraste decorativo | Rosa capixaba | `#EF98BC` |
+| Azul suave | Azul claro | `#DDF2FC` |
+| Rosa suave | Rosa claro | `#FCE7F0` |
+| Fundo neutro | Branco azulado | `#F5F9FC` |
+| Texto principal | Azul escuro | `#16324F` |
+| Azul de contraste para textos/controles | Azul | `#006B9A` |
+
+A interface deve ser leve, viva e arejada, com espaços livres, superfícies brancas e azul predominante. Evitar cabeçalhos azul-marinho pesados. A referência de proporção visual é aproximadamente 65% neutros, 30% azul e até 5% rosa; trata-se de orientação estética, não de medição obrigatória de cada tela.
+
+## 3. Uso do rosa
+- Uso exclusivamente decorativo, com parcimônia: detalhes gráficos pequenos, curvas e gradientes suaves, principalmente em áreas institucionais sem significado operacional.
+- Não usar rosa para urgência, erro, alerta, prazos, confirmação, seleção, foco, botões de ação, etiquetas de estado ou destaque de registros.
+- Não usar grandes cartões preenchidos em rosa nem rosa como cor dominante. Preferir a versão suave ou baixa opacidade.
+- Caso haja risco de interpretação como alerta, omitir o rosa. Ele não é obrigatório em todas as telas.
+
+## 4. Cores funcionais (fora da identidade de marca)
+| Estado | Referência visual |
+|---|---|
+| Sucesso, confirmação | Verde `#16834B` |
+| Atenção | Amarelo/dourado `#B58116` |
+| Erro, urgência | Vermelho `#D32F2F` |
+
+Usar pontualmente em ícones, marcadores e etiquetas de status com texto explícito. Não comunicar estados apenas por cor. Ajustar contraste quando necessário, especialmente texto pequeno e controles; buscar WCAG AA (4,5:1 para texto normal, 3:1 para texto grande e componentes relevantes). Azul mais escuro pode ser usado onde a legibilidade exigir, sem substituir a identidade clara.
+
+## 5. Processo de evolução
+Antes de alterar uma tela, consultar este documento. Mudanças de paleta, nome ou símbolo exigem aprovação expressa. Ajustes de aplicação e contraste podem ser feitos gradualmente, mantendo estas regras. Revisar especialmente os usos legados de rosa em botões/cartões e de verde/dourado em elementos decorativos. Não declarar conformidade visual integral sem revisar as telas. O CSS atual pode conter usos herdados que ainda precisam de correção.
+
+A referência de logo branca está em `public/logo-branca.svg`; os arquivos históricos azul PNG e SVG permanecem em `public/logo-sipro.png` e `public/logo-sipro.svg`.

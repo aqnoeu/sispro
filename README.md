@@ -1,5 +1,7 @@
 # Sistema Procuradorias
 
+**Identidade visual oficial:** [manual de marca e regras de cores](docs/IDENTIDADE-VISUAL.md). As próximas revisões de interface devem seguir esse padrão.
+
 Aplicativo Windows independente, derivado do código de interface AMUR-PGM. Base inicial vazia; não há conexão, credenciais, dependências, usuários ou dados do Firebase. O original não é alterado.
 
 ## Versão inicial 1.0.0
