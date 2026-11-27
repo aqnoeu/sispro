@@ -64,3 +64,6 @@ Andamento por intimação (campo independente do status temporal do prazo); mat�
 
 ### Seletor e aparência de etiquetas
 Botão único + Etiqueta na consulta, pesquisa por nome, categorias agrupadas, seleção direta e remoção por X. Criação e gerenciamento com paleta de 60 cores, círculos de 20px, intervalo de 3px, hexadecimal e seletor de cor; estilo suave, sólido ou contorno e prévia à direita, empilhados em telas estreitas. Andamento conserva cores funcionais fixas. Catálogo local separado por categoria e escopo; exclusão preserva os processos.
+
+### Lista de processos — cartões
+Grade responsiva como padrão, com alternativa horizontal em lista e preferência por perfil. Cartões brancos, número 16–18px, parte 14px, metadados 13px, sem ornamentos sem função; etiquetas personalizadas preservadas. Ícones Lucide nos filtros, indicadores, cartões, consulta, edição e ações de cadastro. A abertura dos detalhes mantém as funções existentes.

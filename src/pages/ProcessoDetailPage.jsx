@@ -1,3 +1,4 @@
+import { ArrowLeft, ArrowUpRight, Save, Plus, Trash2, FolderOpen, Tags, CalendarClock, ClipboardList, History, FilePenLine, CheckCircle2, Send } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { CollectionStatus } from '../components/ui/CollectionStatus'
@@ -299,7 +300,7 @@ export function ProcessoDetailPage() {
           </div>
           <div className="page-header__action">
             <Link className="secondary-button" to="/processos">
-              Voltar para processos
+              <ArrowLeft size={16} aria-hidden="true"/> Voltar para processos
             </Link>
           </div>
         </section>
@@ -317,11 +318,11 @@ export function ProcessoDetailPage() {
         </div>
         <div className="page-header__actions">
           <Link className="secondary-button" to="/processos">
-            Voltar para processos
+            <ArrowLeft size={16} aria-hidden="true"/> Voltar para processos
           </Link>
           {draft.linkDocumento ? (
             <a className="primary-button" href={draft.linkDocumento} target="_blank" rel="noreferrer">
-              Abrir documento
+              <ArrowUpRight size={16} aria-hidden="true"/> Abrir documento
             </a>
           ) : null}
         </div>
@@ -350,7 +351,7 @@ export function ProcessoDetailPage() {
       <section className="process-detail-grid">
         <article className="panel-card">
           <div className="panel-card__header">
-            <h4>Cabeçalho do processo</h4>
+            <h4 className="process-icon-text"><FolderOpen size={18} aria-hidden="true"/> Cabeçalho do processo</h4>
             <span>Informações estratégicas</span>
           </div>
           <dl className="process-detail-meta">
@@ -391,7 +392,7 @@ export function ProcessoDetailPage() {
 
         <article className="panel-card">
           <div className="panel-card__header">
-            <h4>Área de tags</h4>
+            <h4 className="process-icon-text"><Tags size={18} aria-hidden="true"/> Área de tags</h4>
             <span>{processTags.length} tag(s) associada(s)</span>
           </div>
           <div className="process-detail-tags">
@@ -429,7 +430,7 @@ export function ProcessoDetailPage() {
       <section className="process-detail-grid">
         <article className="panel-card">
           <div className="panel-card__header">
-            <h4>Prazos e demandas do processo</h4>
+            <h4 className="process-icon-text"><CalendarClock size={18} aria-hidden="true"/> Prazos e demandas do processo</h4>
             <span>{draft.prazos.length} demanda(s) vinculada(s)</span>
           </div>
           <div className="process-demand-list">
@@ -487,7 +488,7 @@ export function ProcessoDetailPage() {
                       className="secondary-button secondary-button--danger"
                       onClick={() => removeDraftDemanda(index, setDraft)}
                     >
-                      Excluir prazo
+                      <Trash2 size={16} aria-hidden="true"/> Excluir prazo
                     </button>
                   </div>
                 </div>
@@ -502,14 +503,14 @@ export function ProcessoDetailPage() {
               className="secondary-button"
               onClick={() => addDraftDemanda(setDraft, draft, currentUser)}
             >
-              Adicionar prazo
+              <Plus size={16} aria-hidden="true"/> Adicionar prazo
             </button>
           </div>
         </article>
 
         <article className="panel-card">
           <div className="panel-card__header">
-            <h4>Área de andamento</h4>
+            <h4 className="process-icon-text"><ClipboardList size={18} aria-hidden="true"/> Área de andamento</h4>
             <span>Histórico e atualização do fluxo</span>
           </div>
           <form className="record-form" onSubmit={handleSave}>
@@ -558,7 +559,7 @@ export function ProcessoDetailPage() {
 
             <div className="record-form__actions process-detail-actions">
               <button type="submit" className="primary-button" disabled={submitting || !localEnabled}>
-                {submitting ? 'Salvando...' : 'Salvar alterações'}
+                <Save size={17} aria-hidden="true"/> {submitting ? 'Salvando...' : 'Salvar alterações'}
               </button>
               <button
                 type="button"
@@ -593,7 +594,7 @@ export function ProcessoDetailPage() {
 
         <article className="panel-card">
           <div className="panel-card__header">
-            <h4>Histórico de alterações</h4>
+            <h4 className="process-icon-text"><History size={18} aria-hidden="true"/> Histórico de alterações</h4>
             <span>{draft.historico.length} registro(s)</span>
           </div>
           <div className="process-history-list">

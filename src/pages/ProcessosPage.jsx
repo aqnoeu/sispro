@@ -1,7 +1,8 @@
+import { useAppearance } from '../components/layout/AppearanceContext'
 import { Labels, WorkflowLabel, LabelPicker, useLabels } from '../components/ui/Labels'
 import { classification, processLabels, workflow, WORKFLOW } from '../utils/labels'
 import { useMemo, useState } from 'react'
-import { FolderOpen, Pencil, Save, Plus, Trash2 } from 'lucide-react'
+import { FolderOpen, Pencil, Save, Plus, Trash2, LayoutGrid, List, Landmark, FileText, CalendarDays, ChevronRight, Search, SlidersHorizontal, X, UserRound, Tags, ClipboardList, NotebookPen, CalendarClock, FilePenLine, FileCheck, Send, ArrowUpRight, CircleAlert } from 'lucide-react'
 import { ProcessDialog } from '../components/ui/ProcessDialog'
 import { useSearchParams } from 'react-router-dom'
 import { CollectionStatus } from '../components/ui/CollectionStatus'
@@ -43,6 +44,8 @@ const PROCESSO_EMPTY_FORM = {
 export function ProcessosPage() {
   const { currentUser } = useAuth()
   const assignments = useLabels()
+  const {appearance,update}=useAppearance()
+  const view=appearance.processView
   const [labelFilter,setLabelFilter]=useState('')
   const [searchParams] = useSearchParams()
   const isAdmin = currentUser?.isAdmin
@@ -405,7 +408,7 @@ export function ProcessosPage() {
               setShowCadastroModal(true)
             }}
           >
-            Cadastrar Processo
+            <Plus size={18} aria-hidden="true"/> Cadastrar Processo
           </button>
         </div>
       </section>
@@ -435,13 +438,13 @@ export function ProcessosPage() {
 
       <section id="pesquisa-processos" className="processos-search-card">
         <div className="panel-card__header">
-          <h4>Pesquisa e filtros</h4>
+          <h4 className="process-icon-text"><SlidersHorizontal size={18} aria-hidden="true"/> Pesquisa e filtros</h4>
           <span>Busca por CNJ, parte, assunto, órgão e status</span>
         </div>
 
         <div className="processos-filters">
           <label className="form-field">
-            <span>Pesquisar processo</span>
+            <span className="process-icon-text"><Search size={15} aria-hidden="true"/> Pesquisar processo</span>
             <input
               type="text"
               placeholder="Número CNJ, parte, assunto ou órgão"
@@ -466,7 +469,7 @@ export function ProcessosPage() {
           </label>
 
           <label className="form-field">
-            <span>Prioridade</span>
+            <span className="process-icon-text"><CircleAlert size={15} aria-hidden="true"/> Prioridade</span>
             <select
               value={filters.prioridade}
               onChange={(event) => setFilters((current) => ({ ...current, prioridade: event.target.value }))}
@@ -481,7 +484,7 @@ export function ProcessosPage() {
           </label>
 
           <label className="form-field">
-            <span>Órgão</span>
+            <span className="process-icon-text"><Landmark size={15} aria-hidden="true"/> Órgão</span>
             <select
               value={filters.orgao}
               onChange={(event) => setFilters((current) => ({ ...current, orgao: event.target.value }))}
@@ -495,7 +498,7 @@ export function ProcessosPage() {
             </select>
           </label>
 
-          <label className="form-field"><span>Etiqueta</span><select value={labelFilter} onChange={e=>setLabelFilter(e.target.value)}><option value="">Todas</option>{[...new Set([...WORKFLOW.map(x=>"andamento:"+x),...processosCollection.rows.flatMap(row=>processLabels(row,assignments).map(t=>t.scope+":"+t.name))])].sort().map(v=><option key={v} value={v}>{v.replace(":"," — ")}</option>)}</select></label>
+          <label className="form-field"><span className="process-icon-text"><Tags size={15} aria-hidden="true"/> Etiqueta</span><select value={labelFilter} onChange={e=>setLabelFilter(e.target.value)}><option value="">Todas</option>{[...new Set([...WORKFLOW.map(x=>"andamento:"+x),...processosCollection.rows.flatMap(row=>processLabels(row,assignments).map(t=>t.scope+":"+t.name))])].sort().map(v=><option key={v} value={v}>{v.replace(":"," — ")}</option>)}</select></label>
           <label className="processos-checkbox">
             <input
               type="checkbox"
@@ -507,67 +510,16 @@ export function ProcessosPage() {
         </div>
       </section>
 
-      <section className="processos-layout">
-        <div className="processos-main">
-          <section className="panel-card">
-            <div className="panel-card__header">
-              <h4>Lista de processos</h4>
-              <span>{filteredProcessos.length} registro(s) encontrados</span>
-            </div>
-
-            <div className="processos-list">
-              {filteredProcessos.length ? (
-                filteredProcessos.map((processo) => (
-                  <button
-                    key={processo.id ?? processo.numero}
-                    type="button"
-                    className="processo-row processo-row--static"
-                    onClick={() => setSelectedProcessNumero(processo.numero)}
-                  >
-                    <div className="processo-row__identity">
-                      <span className="processo-row__eyebrow">Processo</span>
-                      <strong>{processo.numero}</strong>
-                      <p>{processo.parte}</p><Labels row={processo} assignments={assignments}/>
-                    </div>
-
-                    <div className="processo-row__summary processo-row__summary--stacked">
-                      <div>
-                        <span className="processo-row__label">Órgão</span>
-                        <strong>{processo.orgao || 'Órgão não informado'}</strong>
-                      </div>
-                      <div>
-                        <span className="processo-row__label">Última atuação</span>
-                        <strong>{processo.nomeDocumento || 'Primeiro Protocolo'}</strong>
-                      </div>
-                    </div>
-
-                    <div className="processo-row__spacer" aria-hidden="true" />
-
-                    <div className="processo-row__actions">
-                      <div className="processo-row__badge-group">
-                        <span className="processo-row__micro-label">Ação</span>
-                        <StatusChip value={processo.andamentoAtual} />
-                      </div>
-
-                      <div className="processo-row__badge-group">
-                        <span className="processo-row__micro-label">Prazo</span>
-                        <span className="processo-row__date-chip">{formatDayMonth(processo.prazo)}</span>
-                      </div>
-
-                    </div>
-
-                    <div className="processo-row__ornament" aria-hidden="true">
-                      <i />
-                      <i />
-                      <i />
-                    </div>
-                  </button>
-                ))
-              ) : (
-                <div className="empty-state">Nenhum processo encontrado para os filtros atuais.</div>
-              )}
-            </div>
-          </section>
+      <section className="process-gallery">
+        <header className="process-gallery__header">
+          <h4 className="process-icon-text"><FolderOpen size={19} aria-hidden="true"/> Lista de processos</h4>
+          <div className="process-gallery__controls"><span>{filteredProcessos.length} registro(s)</span><div className="process-view-switch" role="group" aria-label="Modo de visualização">
+            <button type="button" aria-label="Exibir em lista" title="Lista" aria-pressed={view==='list'} onClick={()=>update({processView:'list'})}><List size={19}/></button>
+            <button type="button" aria-label="Exibir em grade" title="Grade" aria-pressed={view==='grid'} onClick={()=>update({processView:'grid'})}><LayoutGrid size={19}/></button>
+          </div></div>
+        </header>
+        <div className={'process-gallery__items process-gallery__items--'+view}>
+          {filteredProcessos.length ? filteredProcessos.map(processo=><ProcessCard key={processo.documentId??processo.id??processo.numero} row={processo} assignments={assignments} onOpen={()=>setSelectedProcessNumero(processo.numero)}/>) : <div className="empty-state process-gallery__empty">Nenhum processo encontrado para os filtros atuais.</div>}
         </div>
       </section>
 
@@ -575,7 +527,7 @@ export function ProcessosPage() {
         <div className="auth-modal-backdrop">
           <section className="auth-modal processos-modal">
             <div className="panel-card__header">
-              <h4>Cadastrar processo</h4>
+              <h4 className="process-icon-text"><FolderOpen size={19} aria-hidden="true"/> Cadastrar processo</h4>
               <button
                 type="button"
                 className="secondary-button"
@@ -584,7 +536,7 @@ export function ProcessosPage() {
                   setProcessFeedback({ type: '', message: '' })
                 }}
               >
-                Fechar
+                <X size={16} aria-hidden="true"/> Fechar
               </button>
             </div>
 
@@ -614,7 +566,7 @@ export function ProcessosPage() {
 
               <div className="record-form__actions">
                 <button type="submit" className="primary-button" disabled={submittingProcess || !localEnabled}>
-                  {submittingProcess ? 'Salvando...' : 'Salvar processo'}
+                  <Save size={17} aria-hidden="true"/> {submittingProcess ? 'Salvando...' : 'Salvar processo'}
                 </button>
               </div>
 
@@ -630,27 +582,27 @@ export function ProcessosPage() {
 
       {selectedProcess ? (
         <ProcessDialog editing={editingSelectedProcess} saving={savingSelectedProcess} onClose={closeSelectedProcessModal}
-          title={selectedProcess.numero} icon={<FolderOpen size={24} aria-hidden="true"/>}
+          title={selectedProcess.numero} icon={editingSelectedProcess?<FilePenLine size={24} aria-hidden="true"/>:<FolderOpen size={24} aria-hidden="true"/>}
           footer={editingSelectedProcess ? <>
-            <button type="button" className="secondary-button" onClick={handleCancelEditSelectedProcess} disabled={savingSelectedProcess}>Cancelar</button>
+            <button type="button" className="secondary-button" onClick={handleCancelEditSelectedProcess} disabled={savingSelectedProcess}><X size={17} aria-hidden="true"/>Cancelar</button>
             <button type="button" className="primary-button" onClick={handleSaveSelectedProcess} disabled={savingSelectedProcess || !localEnabled}><Save size={17} aria-hidden="true"/>{savingSelectedProcess ? 'Salvando...' : 'Salvar alterações'}</button>
           </> : <>
-            <button type="button" className="secondary-button" onClick={closeSelectedProcessModal}>Fechar</button>
+            <button type="button" className="secondary-button" onClick={closeSelectedProcessModal}><X size={17} aria-hidden="true"/>Fechar</button>
             <button type="button" className="primary-button" onClick={handleStartEditSelectedProcess} disabled={!localEnabled}><Pencil size={17} aria-hidden="true"/>Editar processo</button>
           </>}
-          tabs={editingSelectedProcess ? <div className="process-dialog-tabs" role="group" aria-label="Seções de edição">{[['geral','Dados gerais'],['demandas','Demandas e prazos'],['obs','Observações']].map(([id,label])=><button key={id} type="button" aria-pressed={editTab===id} onClick={()=>setEditTab(id)}>{label}</button>)}</div> : null}
+          tabs={editingSelectedProcess ? <div className="process-dialog-tabs" role="group" aria-label="Seções de edição">{[['geral','Dados gerais',ClipboardList],['demandas','Demandas e prazos',CalendarClock],['obs','Observações',NotebookPen]].map(([id,label,Icon])=><button key={id} type="button" aria-pressed={editTab===id} onClick={()=>setEditTab(id)}><Icon size={16} aria-hidden="true"/>{label}</button>)}</div> : null}
           feedback={selectedProcessFeedback.message ? <div role={selectedProcessFeedback.type==='error'?'alert':'status'} className={`form-feedback form-feedback--${selectedProcessFeedback.type}`}>{selectedProcessFeedback.message}</div> : null}>
           {(!editingSelectedProcess || editTab==='geral') && <section className="process-modal__section process-dialog-summary">
             <div className="process-dialog-fields">
-              <div><span>Parte</span><strong>{selectedProcess.parte || 'Não informada'}</strong></div>
+              <div><span className="process-icon-text"><UserRound size={15} aria-hidden="true"/> Parte</span><strong>{selectedProcess.parte || 'Não informada'}</strong></div>
               <div>{editingSelectedProcess ? <TextField label="Órgão" value={selectedProcessDraft.orgao} onChange={value=>setSelectedProcessDraft(current=>({...current,orgao:value}))}/> : <><span>Órgão</span><strong>{selectedProcess.orgao || 'Não informado'}</strong></>}</div>
             </div>
-            <div className="process-dialog-tags"><span>Etiquetas</span><LabelPicker key={selectedProcess.documentId} row={selectedProcess} assignments={assignments} classificationDraft={editingSelectedProcess?selectedProcessDraft.classificacao:undefined} onClassificationChange={editingSelectedProcess?value=>setSelectedProcessDraft(c=>({...c,classificacao:value})):undefined} disabled={savingSelectedProcess||!localEnabled}/></div>
+            <div className="process-dialog-tags"><span className="process-icon-text"><Tags size={15} aria-hidden="true"/> Etiquetas</span><LabelPicker key={selectedProcess.documentId} row={selectedProcess} assignments={assignments} classificationDraft={editingSelectedProcess?selectedProcessDraft.classificacao:undefined} onClassificationChange={editingSelectedProcess?value=>setSelectedProcessDraft(c=>({...c,classificacao:value})):undefined} disabled={savingSelectedProcess||!localEnabled}/></div>
           </section>}
           {(!editingSelectedProcess || editTab==='demandas') && (
               <section className="process-modal__section">
                 <div className="panel-card__header">
-                  <h4>Demandas e prazos</h4>
+                  <h4 className="process-icon-text"><CalendarClock size={18} aria-hidden="true"/> Demandas e prazos</h4>
                   <span>{editingSelectedProcess ? selectedProcessDraft.prazos.length : selectedProcessDemandas.length} registro(s)</span>
                 </div>
                 <div className="process-demand-list">
@@ -700,7 +652,7 @@ export function ProcessosPage() {
                           </>
                         ) : item.anexoUrl ? (
                           <a className="table-link" href={item.anexoUrl} target="_blank" rel="noreferrer">
-                            {item.anexo || 'Abrir petição'}
+                            <ArrowUpRight size={14} aria-hidden="true"/> {item.anexo || 'Abrir petição'}
                           </a>
                         ) : null}
                       </div>
@@ -725,7 +677,7 @@ export function ProcessosPage() {
 
           )}
           {(!editingSelectedProcess || editTab==='obs') && <section className="process-modal__section process-modal__section--observacoes">
-            <div className="panel-card__header"><h4>Observações</h4></div>
+            <div className="panel-card__header"><h4 className="process-icon-text"><NotebookPen size={18} aria-hidden="true"/> Observações</h4></div>
             {editingSelectedProcess ? <label className="form-field"><span>Observações do processo</span><textarea rows={6} value={selectedProcessDraft.observacoes ?? ''} onChange={event=>setSelectedProcessDraft(current=>({...current,observacoes:event.target.value}))}/></label> : <p>{selectedProcess.observacoes || 'Sem observações registradas para este processo.'}</p>}
           </section>}
         </ProcessDialog>
@@ -734,10 +686,19 @@ export function ProcessosPage() {
   )
 }
 
+function ProcessCard({row,assignments,onOpen}) {
+ return <button type="button" className="process-card" onClick={onOpen} aria-label={'Abrir processo '+row.numero}>
+  <div className="process-card__identity"><div className="process-card__heading"><span className="process-card__folder"><FolderOpen size={19} aria-hidden="true"/></span><strong>{row.numero}</strong></div><p>{row.parte||'Parte não informada'}</p><Labels row={row} assignments={assignments}/></div>
+  <div className="process-card__meta"><span><Landmark size={16} aria-hidden="true"/><span><small>Órgão</small>{row.orgao||'Não informado'}</span></span><span><FileText size={16} aria-hidden="true"/><span><small>Última atuação</small>{row.nomeDocumento||'Primeiro protocolo'}</span></span></div>
+  <div className="process-card__footer"><span className="process-card__date" title={formatDateLabel(row.prazo)}><CalendarDays size={16} aria-hidden="true"/>{row.prazo?formatDayMonth(row.prazo):'Sem prazo'}</span>{row.andamentoAtual&&<StatusChip value={row.andamentoAtual}/>}<span className="process-card__details">Detalhes <ChevronRight size={16} aria-hidden="true"/></span></div>
+ </button>
+}
+
 function IndicatorCard({ label, value, tone }) {
+  const Icon=({blue:CalendarDays,gold:FilePenLine,danger:FileCheck,green:Send})[tone]||FolderOpen
   return (
     <article className={`processos-kpi processos-kpi--${tone}`}>
-      <strong>{value}</strong>
+      <div className="process-kpi-value"><Icon size={22} aria-hidden="true"/><strong>{value}</strong></div>
       <span>{label}</span>
     </article>
   )
