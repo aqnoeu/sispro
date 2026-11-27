@@ -69,3 +69,6 @@ Curva inferior direita com transição azul–rosa mais visível, conforme refer
 
 ## 1.0.7 — Hierarquia visual do login
 Amplia símbolo oficial, nome, subtítulo, frase institucional e tipografia do formulário para aproximar as proporções da referência aprovada. Mantém responsividade, curva rosa e funcionamento existente.
+
+## 1.0.8 — Fidelidade ao login aprovado
+Reconstrução dimensional do layout a partir da imagem de referência, fundos decorativos SVG locais com curvas sobrepostas e tipografia proporcional ao cartão. Mantém a logo oficial e as diferenças necessárias para demonstração segura e responsividade. Ainda requer comparação de renderização.

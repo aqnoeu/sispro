@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 530 1050" preserveAspectRatio="none">
+<defs>
+<linearGradient id="base" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#0179b0"/><stop offset=".48" stop-color="#00699f"/><stop offset=".82" stop-color="#0074af"/><stop offset="1" stop-color="#1698cc"/></linearGradient>
+<linearGradient id="top" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0792c4" stop-opacity=".08"/><stop offset="1" stop-color="#44b3dc" stop-opacity=".32"/></linearGradient>
+<radialGradient id="glow" cx="1" cy="1" r=".76" gradientTransform="translate(0 .28) scale(1 .72)"><stop stop-color="#f6b5e6" stop-opacity=".9"/><stop offset=".48" stop-color="#749fda" stop-opacity=".5"/><stop offset="1" stop-color="#179ad1" stop-opacity="0"/></radialGradient>
+<linearGradient id="wave" x1="0" y1=".4" x2="1" y2=".8"><stop stop-color="#0696ce"/><stop offset=".56" stop-color="#369dd5"/><stop offset="1" stop-color="#d4aee0"/></linearGradient>
+<linearGradient id="pink" x1="0" y1=".2" x2="1" y2=".8"><stop stop-color="#279ed2"/><stop offset=".42" stop-color="#94a9db"/><stop offset="1" stop-color="#f6b5e6"/></linearGradient>
+</defs><path fill="url(#base)" d="M0 0h530v1050H0z"/><path fill="url(#top)" d="M0 0H508C430 92 296 150 203 245S55 399 0 411Z"/><path fill="url(#glow)" d="M0 0h530v1050H0z"/><path fill="url(#wave)" opacity=".64" d="M0 1050C168 1038 366 920 530 802V1050Z"/><path fill="url(#pink)" d="M302 1050C387 1006 475 966 530 906V1050Z"/></svg>

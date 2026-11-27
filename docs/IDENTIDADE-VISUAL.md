@@ -41,3 +41,6 @@ A referência de logo branca está em `public/logo-branca.svg`; os arquivos hist
 
 ## 6. Tela de login oficial — aprovada em 27/11/2026
 Modelo de dois painéis unidos, cantos arredondados, fundo claro azulado, painel institucional azul com símbolo oficial branco em tamanho destacado, nome por extenso em duas linhas, subtítulo “Gestão jurídica institucional”, traço rosa exclusivamente decorativo e frase “Organize processos, prazos e compromissos da Procuradoria em um ambiente simples, claro e profissional.” Ondas discretas no canto inferior. Painel branco com formulário, ícones lineares e perfis de demonstração secundários. No celular, empilhar os painéis. Não simular autenticação real enquanto não implementada; preservar o acesso local exclusivo do Windows. Implementação em React/CSS, sem usar a imagem como interface estática.
+
+### Referência dimensional do login
+Imagem de referência: 1229 × 1536; cartão aproximado 1128 × 1050, divisão 530/598, marca ~150 px, título ~58 px. Usar proporções do cartão, não apenas viewport, para preservar a hierarquia. Fundos decorativos locais `src/assets/login-background.svg` e `src/assets/login-page-background.svg`. Não substituir textos, formulário ou logo por imagem raster. A fidelidade deve ser verificada visualmente; diferenças de fonte, viewport e avisos de demonstração são esperadas.

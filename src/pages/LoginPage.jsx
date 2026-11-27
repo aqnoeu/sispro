@@ -62,7 +62,7 @@ export function LoginPage() {
           </form>
           <div className="auth-demo">
             <strong>Acessos de demonstração</strong>
-            <p id="demo-note">Escolha um perfil e clique em Entrar.</p>
+            <p id="demo-note" className="login-sr-only">Escolha um perfil e clique em Entrar. A senha está desabilitada na demonstração.</p>
             <div className="auth-demo__list">
               {demoProfiles.map(profile => (
                 <button key={profile.mode} type="button" className={'auth-demo__user' + (email === profile.email ? ' sipro-demo-selected' : '')} aria-pressed={email === profile.email} onClick={() => { setEmail(profile.email); setError('') }}>
