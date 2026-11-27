@@ -55,3 +55,6 @@ Fundo externo com símbolo oficial ampliado como marca d’água quase impercept
 
 ### Biblioteca oficial de ícones
 Adotar Lucide (lucide-react, licença ISC) para os ícones de interface; evitar desenhar ícones manualmente. Preservar o símbolo institucional original, que não é um ícone de interface. Usar dimensões e espessura consistentes, empacotamento local sem CDN, e nomes acessíveis. A junção entre cabeçalho e barra lateral deve ser contínua, sem degraus, sobreposições ou recortes.
+
+### Janelas operacionais
+Padrão de diálogo branco, cabeçalho e rodapé fora da área de rolagem, ícones Lucide, formulário responsivo, abas de edição quando necessário, sem cartões aninhados excessivos. Não exibir botões ou tags fictícios; preservar funções existentes e explicitar campos somente leitura. Aplicar progressivamente aos demais diálogos. Primeiro caso: detalhes de processos, com abas Dados gerais, Demandas e prazos, Observações.

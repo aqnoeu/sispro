@@ -1,0 +1,44 @@
+/* Standard operational dialog: header and actions remain outside scroll area. */
+.work-dialog { box-sizing:border-box; border:1px solid #dce8ef; border-radius:16px; padding:0; background:#fff; color:#16324f; width:min(760px,calc(100% - 32px)); max-width:none; max-height:calc(100dvh - 32px); margin:auto; box-shadow:0 24px 70px #16324f30; overflow:hidden; }
+.work-dialog[open] { display:flex; flex-direction:column; }
+.work-dialog--editing { width:min(900px,calc(100% - 32px)); }
+.work-dialog::backdrop { background:#16324f66; backdrop-filter:blur(3px); }
+.work-dialog__header { display:flex; align-items:center; gap:14px; padding:20px 24px; border-bottom:1px solid #dce8ef; flex-shrink:0; }
+.work-dialog__icon { background:#ddf2fc; color:#006b9a; border-radius:12px; width:48px; height:48px; flex:0 0 48px; display:grid; place-items:center; }
+.work-dialog__heading { min-width:0; flex:1; }
+.work-dialog__heading > span { font-size:.85rem; color:#53647b; }
+.work-dialog__heading h2 { margin:4px 0 0; font-size:1.45rem; line-height:1.25; overflow-wrap:anywhere; color:#16324f; }
+.work-dialog__close { border:0; background:transparent; color:#53647b; width:44px;height:44px; flex:0 0 44px; display:grid;place-items:center;border-radius:8px; }
+.work-dialog__close:hover { background:#f0f7fc; }
+.work-dialog__close:disabled { opacity:.35; }
+.work-dialog__body { min-height:0; overflow:auto; overscroll-behavior:contain; padding:20px 24px; display:flex; flex-direction:column; gap:20px; }
+.work-dialog__footer { flex-shrink:0; display:flex; justify-content:flex-end; gap:10px; padding:14px 24px; border-top:1px solid #dce8ef; background:#fff; flex-wrap:wrap; }
+.work-dialog__footer button,.work-dialog .record-form__actions button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; white-space:normal; }
+.work-dialog__feedback { flex-shrink:0; padding:0 24px 8px; }
+.process-dialog-tabs { flex-shrink:0; display:flex; gap:8px; padding:10px 24px; border-bottom:1px solid #dce8ef; overflow-x:auto; }
+.process-dialog-tabs button { flex:0 0 auto; min-height:44px; border:0; border-radius:8px; background:transparent; color:#53647b; padding:8px 14px; font-weight:600; white-space:nowrap; }
+.process-dialog-tabs button[aria-pressed=true] { background:#ddf2fc; color:#006b9a; }
+.work-dialog .process-modal__section { padding:0; border:0; border-radius:0; background:transparent; box-shadow:none; min-width:0; }
+.work-dialog .process-modal__section + .process-modal__section { border-top:1px solid #dce8ef; padding-top:20px; }
+.process-dialog-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
+.process-dialog-fields > div > span,.process-dialog-tags > span { display:block; color:#53647b; font-size:.85rem; margin-bottom:6px; }
+.process-dialog-fields strong { color:#16324f; overflow-wrap:anywhere; font-size:1rem; }
+.process-dialog-tags { margin-top:18px; }
+.process-dialog-tags p { margin:0;color:#53647b;font-size:.9rem; }
+.process-dialog-tags > div { display:flex; flex-wrap:wrap; gap:8px; }
+.process-dialog-tag { padding:5px 10px; border-radius:20px; background:#ddf2fc;color:#006b9a;font-size:.85rem; overflow-wrap:anywhere; }
+.work-dialog .panel-card__header { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.work-dialog .panel-card__header h4 { font-size:1.05rem; color:#16324f; margin:0; }
+.work-dialog .panel-card__header span { color:#53647b; font-size:.85rem; }
+.work-dialog .process-demand-item { padding:16px; border:1px solid #dce8ef; background:#f5f9fc; border-radius:12px; min-width:0; }
+.work-dialog .process-demand-item__top { display:flex; align-items:flex-start; gap:10px; flex-wrap:wrap; }
+.work-dialog .process-demand-item__top strong { font-size:1rem; color:#16324f; overflow-wrap:anywhere; }
+.work-dialog .process-demand-item__meta { display:flex; flex-wrap:wrap; gap:8px 18px; font-size:.85rem; color:#53647b; margin:10px 0; }
+.work-dialog .process-demand-item__meta span { overflow-wrap:anywhere; }
+.work-dialog .record-form__grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:16px; }
+.work-dialog .form-field { min-width:0; }
+.work-dialog .form-field span { font-size:.9rem; color:#16324f; }
+.work-dialog .form-field :is(input,select,textarea) { width:100%; min-width:0; max-width:100%; border:1px solid #cbdbe7; border-radius:8px; font-size:1rem; min-height:44px; padding:10px 12px; background:#fff; }
+.work-dialog textarea { resize:vertical; }
+.work-dialog .process-modal__section--observacoes p { color:#53647b; font-size:.95rem; white-space:pre-wrap; overflow-wrap:anywhere; }
+@media(max-width:600px) { .work-dialog,.work-dialog--editing { width:calc(100% - 16px); max-height:calc(100dvh - 16px); border-radius:12px; } .work-dialog__header,.work-dialog__body,.work-dialog__footer,.process-dialog-tabs { padding-inline:14px; } .work-dialog .record-form__grid,.process-dialog-fields { grid-template-columns:minmax(0,1fr); } .work-dialog__footer button { flex:1; } }

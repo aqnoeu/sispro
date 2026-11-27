@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import { FolderOpen, Pencil, Save, Plus, Trash2 } from 'lucide-react'
+import { ProcessDialog } from '../components/ui/ProcessDialog'
 import { useSearchParams } from 'react-router-dom'
 import { CollectionStatus } from '../components/ui/CollectionStatus'
 import { useAuth } from '../contexts/useAuth'
@@ -20,7 +22,6 @@ import {
 } from '../utils/processos'
 
 const PROCESSO_PRIORIDADES = ['Crítica', 'Alta', 'Média', 'Baixa']
-const PROCESS_TAG_PLACEHOLDERS = ['tag-1', 'tag-2', 'tag-3', 'tag-4']
 const PRAZO_STATUS_OPTIONS = ['Planejado', 'Em andamento', 'Protocolado', 'Concluído', 'Suspenso']
 const PROCESSO_EMPTY_FORM = {
   numero: '',
@@ -73,6 +74,7 @@ export function ProcessosPage() {
   const [showCadastroModal, setShowCadastroModal] = useState(false)
   const [selectedProcessNumero, setSelectedProcessNumero] = useState('')
   const [editingSelectedProcess, setEditingSelectedProcess] = useState(false)
+  const [editTab, setEditTab] = useState('geral')
   const [selectedProcessDraft, setSelectedProcessDraft] = useState({ orgao: '', prazos: [] })
   const [processFeedback, setProcessFeedback] = useState({ type: '', message: '' })
   const [selectedProcessFeedback, setSelectedProcessFeedback] = useState({ type: '', message: '' })
@@ -177,8 +179,10 @@ export function ProcessosPage() {
       return
     }
 
+    setEditTab('geral')
     setEditingSelectedProcess(true)
     setSelectedProcessDraft({
+      observacoes: selectedProcess.observacoes ?? '',
       orgao: selectedProcess.orgao ?? '',
       prazos: selectedProcessDemandas.map((item) => ({
         id: item.id ?? item.documentId ?? `prazo-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -253,6 +257,7 @@ export function ProcessosPage() {
     )
 
     if (invalidPrazo) {
+      setEditTab('demandas')
       setSelectedProcessFeedback({ type: 'error', message: 'Todos os prazos precisam ter descrição e vencimento.' })
       return
     }
@@ -342,6 +347,7 @@ export function ProcessosPage() {
         documentId: selectedProcess.documentId,
         values: {
           orgao: selectedProcessDraft.orgao,
+          observacoes: selectedProcessDraft.observacoes ?? '',
           prazo: nextPrimaryPrazo,
           prazos: normalizedPrazos.map((item) => ({
             id: item.id,
@@ -359,7 +365,7 @@ export function ProcessosPage() {
       })
 
       setEditingSelectedProcess(false)
-      setSelectedProcessFeedback({ type: 'success', message: 'Órgão e prazos atualizados com sucesso.' })
+      setSelectedProcessFeedback({ type: 'success', message: 'Processo atualizado com sucesso.' })
     } catch (error) {
       setSelectedProcessFeedback({ type: 'error', message: error.message || 'Falha ao salvar alterações do processo.' })
     } finally {
@@ -611,108 +617,29 @@ export function ProcessosPage() {
       ) : null}
 
       {selectedProcess ? (
-        <div className="auth-modal-backdrop">
-          <section className="auth-modal processos-modal process-detail-modal">
-            <div className="process-modal__content">
-              <section className="process-detail-summary-card">
-                <div className="process-detail-summary">
-                  <div className="process-detail-summary__main">
-                    <div className="process-detail-summary__block">
-                      <span className="process-detail-summary__label">Processo</span>
-                      <strong>{selectedProcess.numero}</strong>
-                    </div>
-
-                    <div className="process-detail-summary__block">
-                      <span className="process-detail-summary__label">Parte</span>
-                      <p>{selectedProcess.parte}</p>
-                    </div>
-                  </div>
-
-                  <div className="process-detail-summary__side">
-                    <div className="process-detail-summary__topline">
-                      <span className="process-detail-summary__label">Órgão</span>
-
-                      <div className="process-detail-summary__controls">
-                        {editingSelectedProcess ? (
-                          <>
-                            <button
-                              type="button"
-                              className="process-detail-summary__action"
-                              onClick={handleSaveSelectedProcess}
-                              disabled={savingSelectedProcess || !localEnabled}
-                            >
-                              {savingSelectedProcess ? 'Salvando...' : 'Salvar'}
-                            </button>
-                            <button
-                              type="button"
-                              className="process-detail-summary__action"
-                              onClick={handleCancelEditSelectedProcess}
-                              disabled={savingSelectedProcess}
-                            >
-                              Cancelar
-                            </button>
-                          </>
-                        ) : (
-                          <button
-                            type="button"
-                            className="process-detail-summary__action"
-                            onClick={handleStartEditSelectedProcess}
-                          >
-                            Editar
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          className="process-detail-summary__close"
-                          aria-label="Fechar detalhes do processo"
-                          onClick={closeSelectedProcessModal}
-                        >
-                          x
-                        </button>
-                      </div>
-                    </div>
-
-                    <strong className="process-detail-summary__orgao">
-                      {editingSelectedProcess ? (
-                        <input
-                          type="text"
-                          value={selectedProcessDraft.orgao}
-                          onChange={(event) => {
-                            setSelectedProcessDraft((current) => ({ ...current, orgao: event.target.value }))
-                            setSelectedProcessFeedback({ type: '', message: '' })
-                          }}
-                          disabled={savingSelectedProcess || !localEnabled}
-                        />
-                      ) : (
-                        selectedProcess.orgao || 'Órgão não informado'
-                      )}
-                    </strong>
-
-                    <div className="process-detail-summary__tags-head">
-                      <span className="process-detail-summary__label">Tags</span>
-                      <div className="process-detail-summary__tag-actions">
-                        <button type="button" className="process-detail-summary__tag-control" aria-label="Adicionar tag">
-                          +
-                        </button>
-                        <button type="button" className="process-detail-summary__tag-control" aria-label="Remover tag">
-                          -
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="process-detail-summary__tags" aria-hidden="true">
-                      {PROCESS_TAG_PLACEHOLDERS.map((tag) => (
-                        <span key={tag} className="process-detail-summary__tag-placeholder" />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              <section className="panel-card process-modal__section">
+        <ProcessDialog editing={editingSelectedProcess} saving={savingSelectedProcess} onClose={closeSelectedProcessModal}
+          title={selectedProcess.numero} icon={<FolderOpen size={24} aria-hidden="true"/>}
+          footer={editingSelectedProcess ? <>
+            <button type="button" className="secondary-button" onClick={handleCancelEditSelectedProcess} disabled={savingSelectedProcess}>Cancelar</button>
+            <button type="button" className="primary-button" onClick={handleSaveSelectedProcess} disabled={savingSelectedProcess || !localEnabled}><Save size={17} aria-hidden="true"/>{savingSelectedProcess ? 'Salvando...' : 'Salvar alterações'}</button>
+          </> : <>
+            <button type="button" className="secondary-button" onClick={closeSelectedProcessModal}>Fechar</button>
+            <button type="button" className="primary-button" onClick={handleStartEditSelectedProcess} disabled={!localEnabled}><Pencil size={17} aria-hidden="true"/>Editar processo</button>
+          </>}
+          tabs={editingSelectedProcess ? <div className="process-dialog-tabs" role="group" aria-label="Seções de edição">{[['geral','Dados gerais'],['demandas','Demandas e prazos'],['obs','Observações']].map(([id,label])=><button key={id} type="button" aria-pressed={editTab===id} onClick={()=>setEditTab(id)}>{label}</button>)}</div> : null}
+          feedback={selectedProcessFeedback.message ? <div role={selectedProcessFeedback.type==='error'?'alert':'status'} className={`form-feedback form-feedback--${selectedProcessFeedback.type}`}>{selectedProcessFeedback.message}</div> : null}>
+          {(!editingSelectedProcess || editTab==='geral') && <section className="process-modal__section process-dialog-summary">
+            <div className="process-dialog-fields">
+              <div><span>Parte</span><strong>{selectedProcess.parte || 'Não informada'}</strong></div>
+              <div>{editingSelectedProcess ? <TextField label="Órgão" value={selectedProcessDraft.orgao} onChange={value=>setSelectedProcessDraft(current=>({...current,orgao:value}))}/> : <><span>Órgão</span><strong>{selectedProcess.orgao || 'Não informado'}</strong></>}</div>
+            </div>
+            <div className="process-dialog-tags"><span>Tags</span>{Array.isArray(selectedProcess.tags) && selectedProcess.tags.length ? <div>{selectedProcess.tags.map((tag,index)=><span className="process-dialog-tag" key={index}>{typeof tag==='string'?tag:tag?.label || tag?.nome || 'Tag'}</span>)}</div> : <p>Nenhuma tag cadastrada.</p>}</div>
+          </section>}
+          {(!editingSelectedProcess || editTab==='demandas') && (
+              <section className="process-modal__section">
                 <div className="panel-card__header">
                   <h4>Demandas e prazos</h4>
-                  <span>{editingSelectedProcess ? selectedProcessDraft.prazos.length : selectedProcessDemandas.length} item(ns)</span>
+                  <span>{editingSelectedProcess ? selectedProcessDraft.prazos.length : selectedProcessDemandas.length} registro(s)</span>
                 </div>
                 <div className="process-demand-list">
                   {(editingSelectedProcess ? selectedProcessDraft.prazos : selectedProcessDemandas).length ? (
@@ -754,7 +681,7 @@ export function ProcessosPage() {
                                 onClick={() => handleRemoveSelectedProcessPrazo(index)}
                                 disabled={savingSelectedProcess || !localEnabled}
                               >
-                                Excluir prazo
+                                <Trash2 size={16} aria-hidden="true"/> Excluir prazo
                               </button>
                             </div>
                           </>
@@ -777,25 +704,19 @@ export function ProcessosPage() {
                       onClick={handleAddSelectedProcessPrazo}
                       disabled={savingSelectedProcess || !localEnabled}
                     >
-                      Adicionar novo prazo
+                      <Plus size={17} aria-hidden="true"/> Adicionar novo prazo
                     </button>
                   </div>
                 ) : null}
               </section>
 
-              <section className="panel-card process-modal__section process-modal__section--observacoes">
-                <div className="panel-card__header">
-                  <h4>Observações</h4>
-                  <span>Resumo operacional</span>
-                </div>
-                <p>{selectedProcess.observacoes || 'Sem observações registradas para este processo.'}</p>
-              </section>
-
-              {selectedProcessFeedback.message ? (
-                <div className={`form-feedback${selectedProcessFeedback.type === 'error' ? ' form-feedback--error' : ' form-feedback--success'}`}>
-                  {selectedProcessFeedback.message}
-                </div>
-              ) : null}
+          )}
+          {(!editingSelectedProcess || editTab==='obs') && <section className="process-modal__section process-modal__section--observacoes">
+            <div className="panel-card__header"><h4>Observações</h4></div>
+            {editingSelectedProcess ? <label className="form-field"><span>Observações do processo</span><textarea rows={6} value={selectedProcessDraft.observacoes ?? ''} onChange={event=>setSelectedProcessDraft(current=>({...current,observacoes:event.target.value}))}/></label> : <p>{selectedProcess.observacoes || 'Sem observações registradas para este processo.'}</p>}
+          </section>}
+        </ProcessDialog>
+      ) : null}
             </div>
           </section>
         </div>

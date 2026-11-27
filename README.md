@@ -84,3 +84,6 @@ Marca d’água oficial discreta, nuances suaves azul/rosa e rodapé centralizad
 
 ## 1.0.12 — Ícones Lucide e alinhamento da navegação
 Substitui ícones desenhados manualmente no login e na navegação por Lucide React, incluído localmente. Corrige a altura compartilhada do cabeçalho e o início da barra lateral. Sem alteração de dados ou permissões.
+
+## 1.0.13 — Janela de detalhes do processo
+Consulta limpa, diálogo nativo responsivo, edição em três abas, ações fixas, observações editáveis, Lucide e remoção de controles de tags fictícios. Número e parte do processo permanecem somente leitura neste diálogo; edição de tags não implementada. Padrão documentado para futura adoção em outras janelas.
