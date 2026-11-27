@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import { PageHeader } from '../components/ui/PageHeader'
 import { useAuth } from '../contexts/useAuth'
 
 export function PerfilPage() {
-  const { currentUser } = useAuth()
+  const { currentUser, changePassword } = useAuth()
+  const [oldPassword,setOldPassword]=useState(''),[newPassword,setNewPassword]=useState(''),[confirmation,setConfirmation]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false)
+  async function submit(e){e.preventDefault();setError('');if(newPassword!==confirmation){setError('As senhas não coincidem.');return}setBusy(true);try{await changePassword(oldPassword,newPassword)}catch(e){setError(e.message)}finally{setOldPassword('');setNewPassword('');setConfirmation('');setBusy(false)}}
   const isAdmin = currentUser?.isAdmin
 
   return (
@@ -54,6 +57,7 @@ export function PerfilPage() {
           </article>
         </div>
       </section>
+      {currentUser?.isCloud&&<section className="panel-card" style={{padding:24}}><h3>Alterar minha senha</h3><p>Confirme sua senha atual. Após a alteração, entre novamente.</p><form onSubmit={submit} style={{display:'grid',gap:12,maxWidth:480}}><label className="form-field">Senha atual<input type="password" autoComplete="current-password" required value={oldPassword} onChange={e=>setOldPassword(e.target.value)}/></label><label className="form-field">Nova senha<input type="password" autoComplete="new-password" required minLength={12} maxLength={128} value={newPassword} onChange={e=>setNewPassword(e.target.value)}/></label><label className="form-field">Confirmar nova senha<input type="password" autoComplete="new-password" required value={confirmation} onChange={e=>setConfirmation(e.target.value)}/></label>{error&&<p role="alert">{error}</p>}<button className="primary-button" disabled={busy}>Alterar senha</button></form></section>}
     </div>
   )
 }

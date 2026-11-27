@@ -83,6 +83,19 @@ export class CloudClient {
     if(row&&rows?.length!==1) throw new Error('Gravação não autorizada.')
     return rows
   }
+  async changePassword(currentPassword,newPassword) {
+    const s=this.requireSession()
+    if(typeof newPassword!=='string'||newPassword.length<12||newPassword.length>128||newPassword===currentPassword) throw new Error('Escolha uma nova senha de 12 a 128 caracteres.')
+    const verified=await this.request('/auth/v1/token?grant_type=password',{method:'POST',body:{email:s.user.email,password:currentPassword}})
+    if(verified?.user?.id!==s.uid||!verified.access_token) throw new Error('Não foi possível confirmar a identidade.')
+    try {
+      this.assertSession(s)
+      await this.request('/auth/v1/user',{token:verified.access_token,method:'PUT',body:{password:newPassword}})
+    } finally {
+      this.session=null
+      await this.request('/auth/v1/logout?scope=global',{token:verified.access_token,method:'POST'}).catch(()=>{})
+    }
+  }
   async manageAccount(body) {
     const s=this.requireSession()
     if(s.mode!=='ceo') throw new Error('Acesso administrativo não autorizado.')
