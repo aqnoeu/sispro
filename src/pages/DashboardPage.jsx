@@ -1,3 +1,4 @@
+import { canOpenRoute, canAccess } from '../utils/mechanicAccess.js'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { agenda, precedentes, processos, prazos, setores, usuarios } from '../data/mockData'
@@ -214,7 +215,7 @@ function ProcuradorDashboard({
     [visibleMonthDate],
   )
   const selectedDateLabel = formatDateLabel(selectedDateKey)
-  const quickActions = buildQuickActions(selectedDateKey)
+  const quickActions = buildQuickActions(selectedDateKey).filter(a=>{const root=a.href.split('?')[0].slice(1);return canAccess(currentUser,root,2)&&(root!=='prazos'||canAccess(currentUser,'processos',2))})
   const precedentSummary = truncateText(latestPrecedent?.ementa ?? '', 200)
 
   useEffect(() => {
@@ -234,7 +235,7 @@ function ProcuradorDashboard({
   }, [latestPrecedent?.documentId, latestPrecedent?.id])
 
   function handleQuickAction(href) {
-    navigate(href)
+    if(quickActions.some(a=>a.href===href))navigate(href)
   }
 
   return (
@@ -269,15 +270,15 @@ function ProcuradorDashboard({
           </p>
 
           <div className="hero-actions">
-            <Link className="hero-action hero-action--blue" to="/jurisprudencia">
+            {canOpenRoute(currentUser,'/jurisprudencia')&&<Link className="hero-action hero-action--blue" to="/jurisprudencia">
               Jurisprudência
-            </Link>
-            <Link className="hero-action hero-action--green" to="/jurisprudencia/cadastro">
+            </Link>}
+            {canOpenRoute(currentUser,'/jurisprudencia/cadastro')&&<Link className="hero-action hero-action--green" to="/jurisprudencia/cadastro">
               Novo registro
-            </Link>
-            <Link className="hero-action hero-action--gold" to="/agenda">
+            </Link>}
+            {canOpenRoute(currentUser,'/agenda')&&<Link className="hero-action hero-action--gold" to="/agenda">
               Agenda
-            </Link>
+            </Link>}
           </div>
         </div>
 
@@ -407,7 +408,7 @@ function ProcuradorDashboard({
                 <button
                   type="button"
                   className={`secondary-button secondary-button--accent${showQuickCreate ? ' secondary-button--active' : ''}`}
-                  onClick={() => setShowQuickCreate((current) => !current)}
+                  disabled={!quickActions.length} onClick={() => setShowQuickCreate((current) => !current)}
                 >
                   +
                 </button>

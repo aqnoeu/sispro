@@ -1,3 +1,4 @@
+import { createCollectionTransaction } from '../services/local/localCrud'
 import { canAccess } from '../utils/mechanicAccess.js'
 import { useAppearance } from '../components/layout/AppearanceContext'
 import { Labels, WorkflowLabel, LabelPicker, useLabels } from '../components/ui/Labels'
@@ -11,8 +12,6 @@ import { useAuth } from '../contexts/useAuth'
 import { processos as fallbackProcessos, prazos as fallbackPrazos } from '../data/mockData'
 import {
   createCollectionDocument,
-  deleteCollectionDocument,
-  updateCollectionDocument,
 } from '../services/local/localCrud'
 import { hasLocalDatabase } from '../services/local/client'
 import { useCollectionData } from '../services/local/useCollectionData'
@@ -45,6 +44,7 @@ const PROCESSO_EMPTY_FORM = {
 export function ProcessosPage() {
   const { currentUser } = useAuth()
  const canWrite=canAccess(currentUser,'processos',2)
+ const canSync=canWrite&&canAccess(currentUser,'prazos',2)
   const assignments = useLabels()
   const {appearance,update}=useAppearance()
   const view=appearance.processView
@@ -139,6 +139,7 @@ export function ProcessosPage() {
 
   async function handleProcessSubmit(event) {
     event.preventDefault()
+    if(!canWrite)return
     setSubmittingProcess(true)
     setProcessFeedback({ type: '', message: '' })
 
@@ -184,7 +185,7 @@ export function ProcessosPage() {
   }
 
   function handleStartEditSelectedProcess() {
-    if (!selectedProcess) {
+    if (!canSync || !selectedProcess) {
       return
     }
 
@@ -229,6 +230,7 @@ export function ProcessosPage() {
   }
 
   function handleAddSelectedProcessPrazo() {
+    if(!canSync)return
     setSelectedProcessDraft((current) => ({
       ...current,
       prazos: [
@@ -252,6 +254,7 @@ export function ProcessosPage() {
   }
 
   function handleRemoveSelectedProcessPrazo(index) {
+    if(!canSync||!canAccess(currentUser,'prazos',3))return
     setSelectedProcessDraft((current) => ({
       ...current,
       prazos: current.prazos.filter((_, itemIndex) => itemIndex !== index),
@@ -259,6 +262,7 @@ export function ProcessosPage() {
   }
 
   async function handleSaveSelectedProcess() {
+    if(!canSync)return
     if (!selectedProcess?.documentId) {
       setSelectedProcessFeedback({ type: 'error', message: 'Processo não localizado para edição.' })
       return
@@ -278,6 +282,7 @@ export function ProcessosPage() {
     setSelectedProcessFeedback({ type: '', message: '' })
 
     try {
+      const tx=createCollectionTransaction()
       const accessContext = buildUserAccessContext(currentUser)
       const normalizedPrazos = selectedProcessDraft.prazos.map((item) => ({
         ...item,
@@ -297,7 +302,7 @@ export function ProcessosPage() {
       )
 
       await Promise.all(
-        deletedPrazos.map((item) => deleteCollectionDocument({
+        deletedPrazos.map((item) => tx.delete({
           collectionName: 'prazos',
           documentId: item.documentId,
         })),
@@ -306,7 +311,7 @@ export function ProcessosPage() {
       await Promise.all(
         normalizedPrazos
           .filter((item) => item.documentId)
-          .map((item) => updateCollectionDocument({
+          .map((item) => tx.update({
             collectionName: 'prazos',
             documentId: item.documentId,
             values: {
@@ -330,7 +335,7 @@ export function ProcessosPage() {
       await Promise.all(
         normalizedPrazos
           .filter((item) => !item.documentId)
-          .map((item) => createCollectionDocument({
+          .map((item) => tx.create({
             collectionName: 'prazos',
             values: {
               processo: selectedProcess.numero,
@@ -356,7 +361,7 @@ export function ProcessosPage() {
         .filter(Boolean)
         .sort((left, right) => compareByDateDesc(right, left))[0] ?? selectedProcess.prazo
 
-      await updateCollectionDocument({
+      await tx.update({
         collectionName: 'processos',
         documentId: selectedProcess.documentId,
         values: {
@@ -380,6 +385,7 @@ export function ProcessosPage() {
         },
       })
 
+      await tx.commit()
       setEditingSelectedProcess(false)
       setSelectedProcessFeedback({ type: 'success', message: 'Processo atualizado com sucesso.' })
     } catch (error) {
@@ -404,7 +410,7 @@ export function ProcessosPage() {
         <div className="processos-hero__actions">
           <button
             type="button"
-            className="primary-button processos-hero__primary"
+            className="primary-button processos-hero__primary" disabled={!canWrite}
             onClick={() => {
               setProcessFeedback({ type: '', message: '' })
               setShowCadastroModal(true)
@@ -587,10 +593,10 @@ export function ProcessosPage() {
           title={selectedProcess.numero} icon={editingSelectedProcess?<FilePenLine size={24} aria-hidden="true"/>:<FolderOpen size={24} aria-hidden="true"/>}
           footer={editingSelectedProcess ? <>
             <button type="button" className="secondary-button" onClick={handleCancelEditSelectedProcess} disabled={savingSelectedProcess}><X size={17} aria-hidden="true"/>Cancelar</button>
-            <button type="button" className="primary-button" onClick={handleSaveSelectedProcess} disabled={!canWrite || savingSelectedProcess || !localEnabled}><Save size={17} aria-hidden="true"/>{savingSelectedProcess ? 'Salvando...' : 'Salvar alterações'}</button>
+            <button type="button" className="primary-button" onClick={handleSaveSelectedProcess} disabled={!canSync || savingSelectedProcess || !localEnabled}><Save size={17} aria-hidden="true"/>{savingSelectedProcess ? 'Salvando...' : 'Salvar alterações'}</button>
           </> : <>
             <button type="button" className="secondary-button" onClick={closeSelectedProcessModal}><X size={17} aria-hidden="true"/>Fechar</button>
-            <button type="button" className="primary-button" onClick={handleStartEditSelectedProcess} disabled={!canWrite || !localEnabled}><Pencil size={17} aria-hidden="true"/>Editar processo</button>
+            <button type="button" className="primary-button" onClick={handleStartEditSelectedProcess} disabled={!canSync || !localEnabled}><Pencil size={17} aria-hidden="true"/>Editar processo</button>
           </>}
           tabs={editingSelectedProcess ? <div className="process-dialog-tabs" role="group" aria-label="Seções de edição">{[['geral','Dados gerais',ClipboardList],['demandas','Demandas e prazos',CalendarClock],['obs','Observações',NotebookPen]].map(([id,label,Icon])=><button key={id} type="button" aria-pressed={editTab===id} onClick={()=>setEditTab(id)}><Icon size={16} aria-hidden="true"/>{label}</button>)}</div> : null}
           feedback={selectedProcessFeedback.message ? <div role={selectedProcessFeedback.type==='error'?'alert':'status'} className={`form-feedback form-feedback--${selectedProcessFeedback.type}`}>{selectedProcessFeedback.message}</div> : null}>

@@ -1,3 +1,4 @@
+import { createCollectionTransaction } from '../services/local/localCrud'
 import { canAccess } from '../utils/mechanicAccess.js'
 import { ArrowLeft, ArrowUpRight, Save, Plus, Trash2, FolderOpen, Tags, CalendarClock, ClipboardList, History, FilePenLine, CheckCircle2, Send } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
@@ -11,9 +12,6 @@ import {
 } from '../data/mockData'
 import { hasLocalDatabase } from '../services/local/client'
 import {
-  createCollectionDocument,
-  deleteCollectionDocument,
-  updateCollectionDocument,
 } from '../services/local/localCrud'
 import { useCollectionData } from '../services/local/useCollectionData'
 import { compareByDateDesc, formatDateLabel, formatDayMonth } from '../utils/dates'
@@ -47,7 +45,7 @@ const PRAZO_STATUS_OPTIONS = ['Planejado', 'Em andamento', 'Protocolado', 'Concl
 export function ProcessoDetailPage() {
   const { numero } = useParams()
   const { currentUser } = useAuth()
- const canWrite=canAccess(currentUser,'processos',2)
+ const canWrite=canAccess(currentUser,'processos',2)&&canAccess(currentUser,'prazos',2)
   const isAdmin = currentUser?.isAdmin
   const localEnabled = hasLocalDatabase()
   const [draft, setDraft] = useState(EMPTY_DRAFT)
@@ -154,6 +152,7 @@ export function ProcessoDetailPage() {
     setFeedback({ type: '', message: '' })
 
     try {
+      const tx=createCollectionTransaction()
       const accessContext = buildUserAccessContext(currentUser)
       const nextHistorico = newHistoryEntry.trim()
         ? [
@@ -185,13 +184,13 @@ export function ProcessoDetailPage() {
       )
 
       await Promise.all(
-        removedPrazos.map((item) => deleteCollectionDocument({
+        removedPrazos.map((item) => tx.delete({
           collectionName: 'prazos',
           documentId: item.documentId,
         })),
       )
 
-      await updateCollectionDocument({
+      await tx.update({
         collectionName: 'processos',
         documentId: processo.documentId ?? processo.id,
         values: {
@@ -228,7 +227,7 @@ export function ProcessoDetailPage() {
         normalizedPrazos
           .filter((item) => item.documentId)
           .map((item) =>
-            updateCollectionDocument({
+            tx.update({
               collectionName: 'prazos',
               documentId: item.documentId,
               values: {
@@ -257,7 +256,7 @@ export function ProcessoDetailPage() {
         normalizedPrazos
           .filter((item) => !item.documentId)
           .map((item) =>
-            createCollectionDocument({
+            tx.create({
               collectionName: 'prazos',
               values: {
                 processo: processo.numero,
@@ -284,6 +283,7 @@ export function ProcessoDetailPage() {
 
       setDraft((current) => ({ ...current, historico: nextHistorico }))
       setNewHistoryEntry('')
+      await tx.commit()
       setFeedback({ type: 'success', message: 'Alterações do processo salvas com sucesso.' })
     } catch (error) {
       setFeedback({ type: 'error', message: error.message || 'Falha ao salvar o processo.' })
@@ -489,7 +489,7 @@ export function ProcessoDetailPage() {
                     <button
                       type="button"
                       className="secondary-button secondary-button--danger"
-                      disabled={!canWrite} onClick={() => removeDraftDemanda(index, setDraft)}
+                      disabled={!canWrite||!canAccess(currentUser,'prazos',3)} onClick={() => removeDraftDemanda(index, setDraft)}
                     >
                       <Trash2 size={16} aria-hidden="true"/> Excluir prazo
                     </button>

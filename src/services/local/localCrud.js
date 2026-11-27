@@ -127,3 +127,17 @@ function removeEmptyValues(values) {
     Object.entries(values).filter(([, value]) => value !== '' && value !== null && value !== undefined),
   )
 }
+
+// Stage cross-collection changes; one batch commit uses the authorized RPC and one revision.
+export function createCollectionTransaction() {
+  const {db}=getLocalServices()
+  if(!db||!hasLocalDatabase())throw new Error('Base de dados indisponível.')
+  const batch=writeBatch(db)
+  const payload=({values={},additionalValues={}})=>removeEmptyValues({...values,...additionalValues})
+  return {
+    create(o){const ref=doc(collection(db,o.collectionName));batch.set(ref,payload(o));return ref.id},
+    update(o){if(!o.documentId)throw new Error('Documento não informado.');batch.set(doc(db,o.collectionName,o.documentId),payload(o),{merge:true})},
+    delete(o){if(!o.documentId)throw new Error('Documento não informado.');batch.delete(doc(db,o.collectionName,o.documentId))},
+    commit(){return batch.commit()}
+  }
+}

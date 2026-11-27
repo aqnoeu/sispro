@@ -1,3 +1,4 @@
+import { canAccess } from '../utils/mechanicAccess.js'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { doc, onSnapshot } from '../services/local/database'
@@ -84,7 +85,7 @@ export function JurisprudenciaDetailPage() {
   }, [collectionName, documentId, fallbackRecord, tipo])
 
   useEffect(() => {
-    if (!record || !tipo || !documentId) {
+    if (!record || !tipo || !documentId || !canAccess(currentUser,'jurisprudencia',2)) {
       return undefined
     }
 
@@ -98,7 +99,7 @@ export function JurisprudenciaDetailPage() {
   }, [currentUser, documentId, record, tipo])
 
   async function handleDelete() {
-    if (!record || !canDeleteJurisprudenciaRecord(record, currentUser)) {
+    if (!record || !canAccess(currentUser,'jurisprudencia',3) || !canDeleteJurisprudenciaRecord(record, currentUser)) {
       return
     }
 
@@ -136,7 +137,7 @@ export function JurisprudenciaDetailPage() {
   }
 
   const viewers = Array.isArray(record.visualizacoes) ? record.visualizacoes : []
-  const canDelete = canDeleteJurisprudenciaRecord(record, currentUser)
+  const canDelete = canAccess(currentUser,'jurisprudencia',3) && canDeleteJurisprudenciaRecord(record, currentUser)
 
   return (
     <div className="page-stack">
@@ -149,12 +150,12 @@ export function JurisprudenciaDetailPage() {
             <Link className="secondary-button" to="/jurisprudencia">
               Voltar
             </Link>
-            <Link
+            {canAccess(currentUser,'jurisprudencia',2)&&<Link
               className="secondary-button"
               to={`/jurisprudencia/cadastro?modo=editar&tipo=${tipo}&id=${record.documentId ?? record.id}`}
             >
               Editar
-            </Link>
+            </Link>}
             {canDelete ? (
               <button type="button" className="secondary-button secondary-button--danger" onClick={handleDelete} disabled={deleting}>
                 {deleting ? 'Excluindo...' : 'Excluir'}
