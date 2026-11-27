@@ -195,3 +195,16 @@ button:disabled { cursor:not-allowed; }
  .sipro-auth-layout .auth-demo { margin-top:2cqw; padding-top:1.4cqw; }
  .sipro-auth-layout .auth-demo__user { min-height:7.5cqw; }
 }
+
+/* Approved subtle background and centered credit; keep footer in document flow. */
+.auth-page { isolation:isolate; position:relative; grid-template-rows:minmax(min-content,1fr) auto; row-gap:12px; background-color:#e6effa; }
+.auth-page::before { content:''; position:absolute; z-index:-1; inset:0; pointer-events:none; background:radial-gradient(ellipse at 96% 94%,#ef98bc12,transparent 39%),radial-gradient(ellipse at 5% 85%,#0098d60b,transparent 45%); }
+.auth-page::after { content:''; position:absolute; z-index:-1; pointer-events:none; top:0; left:0; width:min(34vw,540px); height:min(54vh,540px); background:#0098d6; mask:url('../assets/sipro.svg') left top/contain no-repeat; opacity:.035; }
+.login-credits { text-align:center; color:#61758a; font-size:12px; font-weight:400; line-height:18px; padding:0 12px; margin:0; }
+@media(min-width:900px) {
+ .auth-layout.sipro-auth-layout { width:min(1128px,calc(100% - 48px),max(720px,calc((100dvh - 70px) * 1.08))); }
+}
+@media(max-width:899px) {
+ .auth-page::after { width:55vw; height:40vh; }
+ .login-credits { font-size:11px; }
+}

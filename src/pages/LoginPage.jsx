@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { version } from '../../package.json'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/useAuth'
 import logo from '../assets/sipro.svg'
@@ -75,6 +76,7 @@ export function LoginPage() {
           </div>
         </section>
       </div>
+      <footer className="login-credits">v{version} · Desenvolvido por @aqnoeu</footer>
     </main>
   )
 }

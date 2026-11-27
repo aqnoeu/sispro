@@ -78,3 +78,6 @@ Configurações > Aparência: menu lateral compacto/expandido ou superior, mudan
 
 ## 1.0.10 — Login ajustado à altura da janela
 Dimensionamento do cartão pela largura e altura úteis (dvh), espaçamentos compactos em janelas menores e rolagem natural de segurança, sem ocultar perfis ou modificar o fundo aprovado.
+
+## 1.0.11 — Fundo e créditos do login
+Marca d’água oficial discreta, nuances suaves azul/rosa e rodapé centralizado com versão automática e crédito de desenvolvimento. Preserva cartão, perfis e dimensionamento responsivo.
