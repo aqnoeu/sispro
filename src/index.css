@@ -4,6 +4,7 @@
 @import './styles/dialogs.css';
 @import './styles/labels.css';
 @import './styles/process-cards.css';
+@import './styles/autos.css';
 
 * {
   box-sizing: border-box;

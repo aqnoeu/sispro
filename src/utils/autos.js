@@ -1,0 +1,4 @@
+export function safeExternalUrl(value){try{const url=new URL(value);return url.protocol==='https:'||url.protocol==='http:'?url.href:''}catch{return ''}}
+export function linkedDocuments(process,demands=[]){const rows=[];const add=(name,url,date)=>{const href=safeExternalUrl(url);if(href&&!rows.some(r=>r.url===href))rows.push({id:'link:'+href,name:name||'Documento vinculado',url:href,date:date||'',source:'link'})};add(process?.nomeDocumento,process?.linkDocumento,process?.dataUltimoProtocolo);for(const d of [...demands,...(Array.isArray(process?.prazos)?process.prazos:[])])add(d.nomeDocumento||d.anexo,d.linkPeticao||d.anexoUrl,d.vencimento);return rows}
+export const MAX_FILE_BYTES=25*1024*1024
+export function validPdf(bytes){return bytes?.length>=5&&bytes[0]===37&&bytes[1]===80&&bytes[2]===68&&bytes[3]===70&&bytes[4]===45}

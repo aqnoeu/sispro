@@ -12,6 +12,13 @@ function trusted(event) { return event.sender === win?.webContents && event.send
 function handler(channel, callback) { ipcMain.on(channel, (event, value) => { try { if (!trusted(event)) throw new Error('Origem não autorizada'); event.returnValue = { ok: true, value: callback(value) }; } catch (error) { event.returnValue = { ok: false, error: error.message }; } }); }
 handler('sipro:read', () => { try { return JSON.parse(fs.readFileSync(store(), 'utf8')); } catch (e) { if (e.code === 'ENOENT') return {}; throw e; } });
 handler('sipro:write', (value) => { if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Dados inválidos'); const file = store(); const temporary = file + '.tmp'; fs.mkdirSync(path.dirname(file), { recursive: true }); const fd = fs.openSync(temporary, 'w'); try { fs.writeFileSync(fd, JSON.stringify(value), 'utf8'); fs.fsyncSync(fd); } finally { fs.closeSync(fd); } fs.renameSync(temporary, file); return true; });
+const {createFileStore}=require('./autos.cjs');
+const files=()=>createFileStore(path.join(app.getPath('userData'),'autos'));
+function authorizedProcess(pid){const data=JSON.parse(fs.readFileSync(store(),'utf8'));if(!Object.hasOwn(data.processos||{},pid))throw Error('Processo local não encontrado');return pid;}
+handler('sipro:files:list',pid=>files().list(authorizedProcess(pid)));
+handler('sipro:files:import',v=>files().import(authorizedProcess(v.pid),v.name,v.bytes));
+handler('sipro:files:read',v=>files().read(authorizedProcess(v.pid),v.id));
+handler('sipro:files:remove',v=>files().remove(authorizedProcess(v.pid),v.id));
 function createWindow() { win = new BrowserWindow({ width: 1440, height: 900, minWidth: 900, minHeight: 600, title: 'Sistema Procuradorias', webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true } }); win.webContents.setWindowOpenHandler(({ url }) => { if (/^https?:\/\//i.test(url)) shell.openExternal(url).catch(console.error); return { action: 'deny' }; }); win.webContents.on('will-navigate', (event, url) => { if (url.split('#')[0] !== entryURL) event.preventDefault(); }); win.loadFile(entry); }
 if (!app.requestSingleInstanceLock()) app.quit(); else {
  app.on('second-instance', () => { if (win?.isMinimized()) win.restore(); win?.focus(); });

@@ -9,3 +9,5 @@
 - A prévia pública do GitHub Pages deve usar exclusivamente dados inventados em memória; nunca publicar dados reais, credenciais ou banco local. Preservar o build Windows independente.
 
 - Preservar escolhas de navegação e regras de qualidade visual da seção 7 do manual. Verificar ícones, textos, botões e responsividade em ambos os perfis.
+
+- Ao finalizar cada implementação, apresentar checklist do feito (distinguir código, testes e publicação) e pendências, com comando pronto de próximo passo. Atualizar docs/ROADMAP.md. Não afirmar integração real sem teste.

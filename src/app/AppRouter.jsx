@@ -1,3 +1,4 @@
+import { AutosPage } from '../pages/AutosPage'
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/useAuth'
 import { LoginPage } from '../pages/LoginPage'
@@ -33,6 +34,7 @@ export function AppRouter() {
 
 
           <Route path="processos" element={<ProcessosPage />} />
+          <Route path="processos/:numero/autos" element={<AutosPage />} />
           <Route path="processos/:numero" element={<ProcessoDetailPage />} />
           <Route path="usuarios" element={<AdminPreviewPage kind="users" />} />
           <Route path="setores" element={<AdminPreviewPage kind="sectors" />} />

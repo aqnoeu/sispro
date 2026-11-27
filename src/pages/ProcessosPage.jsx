@@ -4,7 +4,7 @@ import { classification, processLabels, workflow, WORKFLOW } from '../utils/labe
 import { useMemo, useState } from 'react'
 import { FolderOpen, Pencil, Save, Plus, Trash2, LayoutGrid, List, Landmark, FileText, CalendarDays, ChevronRight, Search, SlidersHorizontal, X, UserRound, Tags, ClipboardList, NotebookPen, CalendarClock, FilePenLine, FileCheck, Send, ArrowUpRight, CircleAlert } from 'lucide-react'
 import { ProcessDialog } from '../components/ui/ProcessDialog'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { CollectionStatus } from '../components/ui/CollectionStatus'
 import { useAuth } from '../contexts/useAuth'
 import { processos as fallbackProcessos, prazos as fallbackPrazos } from '../data/mockData'
@@ -687,11 +687,12 @@ export function ProcessosPage() {
 }
 
 function ProcessCard({row,assignments,onOpen}) {
- return <button type="button" className="process-card" onClick={onOpen} aria-label={'Abrir processo '+row.numero}>
-  <div className="process-card__identity"><div className="process-card__heading"><span className="process-card__folder"><FolderOpen size={19} aria-hidden="true"/></span><strong>{row.numero}</strong></div><p>{row.parte||'Parte não informada'}</p><Labels row={row} assignments={assignments}/></div>
+ const to='/processos/'+encodeURIComponent(row.numero)+'/autos'
+ return <article className="process-card">
+  <div className="process-card__identity"><div className="process-card__heading"><Link className="process-card__number" to={to}><span className="process-card__folder"><FolderOpen size={19} aria-hidden="true"/></span><strong>{row.numero}</strong></Link><Link className="process-card__access" to={to} aria-label={'Acessar autos de '+row.numero}>Acessar autos <ArrowUpRight size={15} aria-hidden="true"/></Link></div><p>{row.parte||'Parte não informada'}</p><Labels row={row} assignments={assignments}/></div>
   <div className="process-card__meta"><span><Landmark size={16} aria-hidden="true"/><span><small>Órgão</small>{row.orgao||'Não informado'}</span></span><span><FileText size={16} aria-hidden="true"/><span><small>Última atuação</small>{row.nomeDocumento||'Primeiro protocolo'}</span></span></div>
-  <div className="process-card__footer"><span className="process-card__date" title={formatDateLabel(row.prazo)}><CalendarDays size={16} aria-hidden="true"/>{row.prazo?formatDayMonth(row.prazo):'Sem prazo'}</span>{row.andamentoAtual&&<StatusChip value={row.andamentoAtual}/>}<span className="process-card__details">Detalhes <ChevronRight size={16} aria-hidden="true"/></span></div>
- </button>
+  <div className="process-card__footer"><span className="process-card__date" title={formatDateLabel(row.prazo)}><CalendarDays size={16} aria-hidden="true"/>{row.prazo?formatDayMonth(row.prazo):'Sem prazo'}</span>{row.andamentoAtual&&<StatusChip value={row.andamentoAtual}/>}<button type="button" className="process-card__details" onClick={onOpen}>Detalhes <ChevronRight size={16} aria-hidden="true"/></button></div>
+ </article>
 }
 
 function IndicatorCard({ label, value, tone }) {

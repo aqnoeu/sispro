@@ -1,3 +1,4 @@
+import { AutosPage } from '../../pages/AutosPage'
 import { useDeferredValue, useState } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
@@ -55,6 +56,7 @@ function Workspace() {
       return <ProcessosPage />
     }
 
+    if (/^\/processos\/[^/]+\/autos$/.test(location.pathname)) return <AutosPage />
     if (location.pathname.startsWith('/processos/')) {
       return <ProcessoDetailPage />
     }
