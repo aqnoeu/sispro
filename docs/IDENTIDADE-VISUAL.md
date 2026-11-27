@@ -58,3 +58,6 @@ Adotar Lucide (lucide-react, licença ISC) para os ícones de interface; evitar 
 
 ### Janelas operacionais
 Padrão de diálogo branco, cabeçalho e rodapé fora da área de rolagem, ícones Lucide, formulário responsivo, abas de edição quando necessário, sem cartões aninhados excessivos. Não exibir botões ou tags fictícios; preservar funções existentes e explicitar campos somente leitura. Aplicar progressivamente aos demais diálogos. Primeiro caso: detalhes de processos, com abas Dados gerais, Demandas e prazos, Observações.
+
+### Etiquetas
+Andamento por intimação (campo independente do status temporal do prazo); matéria e competência inferidas do assunto e órgão, editáveis no processo; etiquetas personalizadas vinculadas separadamente ao setor/gabinete ou UID do perfil. Visibilidade por perfil, andamento sempre exibido. Não há integração externa de intimações nem autenticação real nesta fase.

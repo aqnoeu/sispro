@@ -1,3 +1,4 @@
+import { workflow } from '../../utils/labels.js'
 import { addDoc, collection, doc, getDocs, limit, or, query, setDoc, where, writeBatch } from './database.js'
 import { getLocalServices, hasLocalDatabase } from './client.js'
 
@@ -213,6 +214,7 @@ function buildPrazoEntry(values) {
     item: values.item,
     vencimento: values.vencimento,
     status: values.status,
+    andamentoIntimacao: workflow(values),
     parte: values.parte,
     origem: values.origem || 'Cadastro de prazo',
     nomeDocumento: values.anexo ?? values.nomeDocumento ?? '',
@@ -239,6 +241,7 @@ function normalizePrazoPayload(values, context) {
     parte: values.parte ?? values.item ?? 'Parte não informada',
     vencimento: normalizeDate(values.vencimento),
     status: values.status ?? 'Planejado',
+    andamentoIntimacao: values.andamentoIntimacao || 'Nova intimação',
     origem: values.origem ?? 'Cadastro individual',
     responsavel: values.responsavel ?? context.ownerName,
   })

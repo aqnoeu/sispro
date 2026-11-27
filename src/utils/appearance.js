@@ -2,7 +2,7 @@ const key = 'procuradorias.appearance.v1'
 const memory = new Map()
 export const defaults = Object.freeze({ menu:'side', expanded:false, motion:true })
 export function normalizeAppearance(value) {
- return { menu:value?.menu === 'top' ? 'top' : 'side', expanded:value?.expanded === true, motion:value?.motion !== false }
+ return { menu:value?.menu === 'top' ? 'top' : 'side', expanded:value?.expanded === true, motion:value?.motion !== false, ...(value?.labelVisibility ? {labelVisibility:Object.fromEntries(['materia','competencia','gabinete','perfil'].map(k=>[k,value.labelVisibility[k]!==false]))}: {}) }
 }
 export function loadAppearance(userId, storage) {
  const id = key + ':' + String(userId || 'local')

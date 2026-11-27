@@ -1,3 +1,5 @@
+import { WorkflowLabel } from '../components/ui/Labels'
+import { WORKFLOW, workflow } from '../utils/labels'
 import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { useMemo, useState } from 'react'
 import { DataTable } from '../components/ui/DataTable'
@@ -24,6 +26,7 @@ const EMPTY_FORM = {
   prioridade: 'Média',
   vencimento: '',
   status: 'Planejado',
+  andamentoIntimacao: 'Nova intimação',
   observacoes: '',
   anexo: '',
   anexoUrl: '',
@@ -48,7 +51,9 @@ export function PrazosPage() {
     orderByField: 'vencimento',
     clientFilter: isAdmin ? null : (item) => canAccessOwnedRow(item, currentUser),
   })
-  const filteredRows = usePageSearch(rows)
+  const [workflowFilter,setWorkflowFilter]=useState('')
+  const searchedRows = usePageSearch(rows)
+  const filteredRows = searchedRows.filter(row=>!workflowFilter||workflow(row)===workflowFilter)
   const sortedRows = useMemo(
     () => [...filteredRows].sort((left, right) => compareByDateDesc(left.vencimento, right.vencimento)),
     [filteredRows],
@@ -166,6 +171,7 @@ export function PrazosPage() {
                   <option value="Concluído">Concluído</option>
                 </select>
               </label>
+              <label className="form-field"><span>Andamento da intimação</span><select value={formValues.andamentoIntimacao} onChange={e=>setFormValues(c=>({...c,andamentoIntimacao:e.target.value}))}>{WORKFLOW.map(v=><option key={v}>{v}</option>)}</select></label>
               <Field label="Nome da petição" value={formValues.anexo} onChange={(value) => setFormValues((current) => ({ ...current, anexo: value }))} />
               <Field label="Link da petição" value={formValues.anexoUrl} onChange={(value) => setFormValues((current) => ({ ...current, anexoUrl: value }))} />
               <label className="form-field form-field--full">
@@ -194,6 +200,7 @@ export function PrazosPage() {
         </section>
       ) : null}
 
+      <label className="form-field"><span>Filtrar andamento da intimação</span><select value={workflowFilter} onChange={e=>setWorkflowFilter(e.target.value)}><option value="">Todos</option>{WORKFLOW.map(v=><option key={v}>{v}</option>)}</select></label>
       <DataTable
         columns={[
           { key: 'id', label: 'Código' },
@@ -208,6 +215,7 @@ export function PrazosPage() {
             render: (row) => row.parte ?? row.item ?? 'Não informada',
           },
           { key: 'item', label: 'Item' },
+          { key:'andamentoIntimacao',label:'Andamento',render:row=><WorkflowLabel row={row}/> },
           { key: 'setor', label: 'Setor' },
           { key: 'anexo', label: 'Documento', type: 'link', hrefKey: 'anexoUrl' },
           { key: 'responsavel', label: 'Responsável' },

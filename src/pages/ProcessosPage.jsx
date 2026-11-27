@@ -1,3 +1,5 @@
+import { Labels, WorkflowLabel, ClassificationEditor, ScopedLabelsEditor, useLabels } from '../components/ui/Labels'
+import { classification, processLabels, workflow, WORKFLOW } from '../utils/labels'
 import { useMemo, useState } from 'react'
 import { FolderOpen, Pencil, Save, Plus, Trash2 } from 'lucide-react'
 import { ProcessDialog } from '../components/ui/ProcessDialog'
@@ -40,6 +42,8 @@ const PROCESSO_EMPTY_FORM = {
 
 export function ProcessosPage() {
   const { currentUser } = useAuth()
+  const assignments = useLabels()
+  const [labelFilter,setLabelFilter]=useState('')
   const [searchParams] = useSearchParams()
   const isAdmin = currentUser?.isAdmin
   const localEnabled = hasLocalDatabase()
@@ -82,8 +86,8 @@ export function ProcessosPage() {
   const [savingSelectedProcess, setSavingSelectedProcess] = useState(false)
 
   const filteredProcessos = useMemo(
-    () => filterProcessos(processosCollection.rows, filters, []),
-    [filters, processosCollection.rows],
+    () => filterProcessos(processosCollection.rows, filters, []).filter(row=>!labelFilter||processLabels(row,assignments).some(t=>t.scope+':'+t.name===labelFilter)||prazosCollection.rows.some(p=>(p.processo??p.numeroProcesso)===row.numero&&'andamento:'+workflow(p)===labelFilter)),
+    [filters, processosCollection.rows, assignments, labelFilter, prazosCollection.rows],
   )
   const processoStats = useMemo(
     () => buildProcessoStats(filteredProcessos),
@@ -183,6 +187,7 @@ export function ProcessosPage() {
     setEditingSelectedProcess(true)
     setSelectedProcessDraft({
       observacoes: selectedProcess.observacoes ?? '',
+      classificacao: classification(selectedProcess),
       orgao: selectedProcess.orgao ?? '',
       prazos: selectedProcessDemandas.map((item) => ({
         id: item.id ?? item.documentId ?? `prazo-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -190,6 +195,7 @@ export function ProcessosPage() {
         item: item.item ?? 'Prazo processual',
         vencimento: item.vencimento ?? '',
         status: item.status ?? 'Planejado',
+        andamentoIntimacao: workflow(item),
         parte: item.parte ?? selectedProcess.parte ?? '',
         responsavel: item.responsavel ?? currentUser?.displayName ?? '',
         origem: item.origem ?? 'Cadastro de prazo',
@@ -228,6 +234,7 @@ export function ProcessosPage() {
           item: '',
           vencimento: selectedProcess?.prazo ?? '',
           status: 'Planejado',
+          andamentoIntimacao: 'Nova intimação',
           parte: selectedProcess?.parte ?? '',
           responsavel: currentUser?.displayName ?? '',
           origem: 'Cadastro de prazo',
@@ -304,6 +311,7 @@ export function ProcessosPage() {
               item: item.item,
               vencimento: item.vencimento,
               status: item.status,
+              andamentoIntimacao: workflow(item),
               parte: item.parte,
               responsavel: item.responsavel,
               origem: item.origem,
@@ -326,6 +334,7 @@ export function ProcessosPage() {
               item: item.item,
               vencimento: item.vencimento,
               status: item.status,
+              andamentoIntimacao: workflow(item),
               parte: item.parte,
               responsavel: item.responsavel,
               origem: item.origem,
@@ -348,12 +357,14 @@ export function ProcessosPage() {
         values: {
           orgao: selectedProcessDraft.orgao,
           observacoes: selectedProcessDraft.observacoes ?? '',
+          classificacao: selectedProcessDraft.classificacao,
           prazo: nextPrimaryPrazo,
           prazos: normalizedPrazos.map((item) => ({
             id: item.id,
             item: item.item,
             vencimento: item.vencimento,
             status: item.status,
+              andamentoIntimacao: workflow(item),
             parte: item.parte,
             responsavel: item.responsavel,
             origem: item.origem,
@@ -484,6 +495,7 @@ export function ProcessosPage() {
             </select>
           </label>
 
+          <label className="form-field"><span>Etiqueta</span><select value={labelFilter} onChange={e=>setLabelFilter(e.target.value)}><option value="">Todas</option>{[...new Set([...WORKFLOW.map(x=>"andamento:"+x),...processosCollection.rows.flatMap(row=>processLabels(row,assignments).map(t=>t.scope+":"+t.name))])].sort().map(v=><option key={v} value={v}>{v.replace(":"," — ")}</option>)}</select></label>
           <label className="processos-checkbox">
             <input
               type="checkbox"
@@ -515,7 +527,7 @@ export function ProcessosPage() {
                     <div className="processo-row__identity">
                       <span className="processo-row__eyebrow">Processo</span>
                       <strong>{processo.numero}</strong>
-                      <p>{processo.parte}</p>
+                      <p>{processo.parte}</p><Labels row={processo} assignments={assignments}/>
                     </div>
 
                     <div className="processo-row__summary processo-row__summary--stacked">
@@ -633,7 +645,7 @@ export function ProcessosPage() {
               <div><span>Parte</span><strong>{selectedProcess.parte || 'Não informada'}</strong></div>
               <div>{editingSelectedProcess ? <TextField label="Órgão" value={selectedProcessDraft.orgao} onChange={value=>setSelectedProcessDraft(current=>({...current,orgao:value}))}/> : <><span>Órgão</span><strong>{selectedProcess.orgao || 'Não informado'}</strong></>}</div>
             </div>
-            <div className="process-dialog-tags"><span>Tags</span>{Array.isArray(selectedProcess.tags) && selectedProcess.tags.length ? <div>{selectedProcess.tags.map((tag,index)=><span className="process-dialog-tag" key={index}>{typeof tag==='string'?tag:tag?.label || tag?.nome || 'Tag'}</span>)}</div> : <p>Nenhuma tag cadastrada.</p>}</div>
+            <div className="process-dialog-tags"><span>Etiquetas</span>{editingSelectedProcess?<ClassificationEditor row={selectedProcess} value={selectedProcessDraft.classificacao} onChange={value=>setSelectedProcessDraft(c=>({...c,classificacao:value}))}/>:<Labels row={selectedProcess} assignments={assignments}/>}<ScopedLabelsEditor row={selectedProcess} assignments={assignments}/></div>
           </section>}
           {(!editingSelectedProcess || editTab==='demandas') && (
               <section className="process-modal__section">
@@ -647,7 +659,7 @@ export function ProcessosPage() {
                       <div key={item.id ?? item.documentId ?? `prazo-${index}`} className="process-demand-item">
                         <div className="process-demand-item__top">
                           <strong>{item.item ?? 'Prazo processual'}</strong>
-                          <StatusChip value={item.status ?? 'Planejado'} />
+                          <WorkflowLabel row={item}/><StatusChip value={item.status ?? 'Planejado'} />
                         </div>
                         <div className="process-demand-item__meta">
                           <span>Vencimento: {formatDateLabel(item.vencimento)}</span>
@@ -661,7 +673,8 @@ export function ProcessosPage() {
                               <TextField label="Vencimento" value={item.vencimento ?? ''} onChange={(value) => updateSelectedProcessPrazo(index, 'vencimento', value)} placeholder="25/03/2026" required />
                               <TextField label="Parte" value={item.parte ?? ''} onChange={(value) => updateSelectedProcessPrazo(index, 'parte', value)} />
                               <TextField label="Responsável" value={item.responsavel ?? ''} onChange={(value) => updateSelectedProcessPrazo(index, 'responsavel', value)} />
-                              <SelectField label="Status" value={item.status ?? 'Planejado'} options={PRAZO_STATUS_OPTIONS} onChange={(value) => updateSelectedProcessPrazo(index, 'status', value)} />
+                              <SelectField label="Andamento da intimação" value={workflow(item)} options={WORKFLOW} onChange={value=>updateSelectedProcessPrazo(index, "andamentoIntimacao", value)} />
+                              <SelectField label="Status do prazo" value={item.status ?? 'Planejado'} options={PRAZO_STATUS_OPTIONS} onChange={(value) => updateSelectedProcessPrazo(index, 'status', value)} />
                               <TextField label="Origem" value={item.origem ?? ''} onChange={(value) => updateSelectedProcessPrazo(index, 'origem', value)} />
                               <TextField label="Nome do documento" value={item.nomeDocumento ?? item.anexo ?? ''} onChange={(value) => updateSelectedProcessPrazo(index, 'nomeDocumento', value)} />
                               <TextField label="Link da petição" value={item.linkPeticao ?? item.anexoUrl ?? ''} onChange={(value) => updateSelectedProcessPrazo(index, 'linkPeticao', value)} placeholder="https://..." />
