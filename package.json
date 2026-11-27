@@ -54,7 +54,8 @@
           ]
         }
       ],
-      "artifactName": "SIPRO-Setup-${version}.${ext}"
+      "artifactName": "SIPRO-Setup-${version}.${ext}",
+      "icon": "public/logo-sipro.png"
     },
     "nsis": {
       "oneClick": false,

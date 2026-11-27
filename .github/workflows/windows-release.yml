@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '22.23.5'
       - name: Verificar versão
         id: version
         shell: pwsh
@@ -29,18 +29,23 @@ jobs:
           if ($version -notmatch '^\d+\.\d+\.\d+$') { throw 'Versão inválida' }
           $tag = "v$version"
           if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne $tag) { throw 'Tag deve corresponder à versão do package.json' }
-          $releases = gh release list --limit 100 --json tagName,isDraft
+          $releases = gh release list --limit 100 --json tagName,isDraft | Out-String
           if ($LASTEXITCODE -ne 0) { throw 'Falha ao consultar releases' }
           $existing = @($releases | ConvertFrom-Json | Where-Object { $_.tagName -eq $tag })
           if ($existing.Count -gt 0) {
             if ($existing[0].isDraft) { throw 'Já existe uma release em rascunho; confira antes de publicar' }
             "needed=false" >> $env:GITHUB_OUTPUT
           } else {
-            $tagCommit = git rev-list -n 1 "refs/tags/$tag" 2>$null
-            if ($LASTEXITCODE -eq 0 -and $tagCommit -ne $env:GITHUB_SHA) { throw 'Tag existente aponta para outro commit' }
+            $existingTag = git tag --list $tag
+            if ($LASTEXITCODE -ne 0) { throw 'Falha ao consultar tags' }
+            if ($existingTag) {
+              $tagCommit = git rev-list -n 1 "refs/tags/$tag"
+              if ($LASTEXITCODE -ne 0 -or $tagCommit -ne $env:GITHUB_SHA) { throw 'Tag existente aponta para outro commit' }
+            }
             "needed=true" >> $env:GITHUB_OUTPUT
           }
           "tag=$tag" >> $env:GITHUB_OUTPUT
+          exit 0
       - run: npm install --no-audit --no-fund
       - run: npm test
       - name: Compilar instalador
