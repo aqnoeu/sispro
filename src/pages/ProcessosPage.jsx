@@ -717,10 +717,6 @@ export function ProcessosPage() {
           </section>}
         </ProcessDialog>
       ) : null}
-            </div>
-          </section>
-        </div>
-      ) : null}
     </div>
   )
 }
