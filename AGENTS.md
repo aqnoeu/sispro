@@ -7,3 +7,5 @@
 - Alterações da identidade oficial exigem aprovação expressa. Diferenciar documentação aprovada de conformidade visual efetivamente verificada.
 
 - A prévia pública do GitHub Pages deve usar exclusivamente dados inventados em memória; nunca publicar dados reais, credenciais ou banco local. Preservar o build Windows independente.
+
+- Preservar escolhas de navegação e regras de qualidade visual da seção 7 do manual. Verificar ícones, textos, botões e responsividade em ambos os perfis.

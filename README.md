@@ -72,3 +72,6 @@ Amplia símbolo oficial, nome, subtítulo, frase institucional e tipografia do f
 
 ## 1.0.8 — Fidelidade ao login aprovado
 Reconstrução dimensional do layout a partir da imagem de referência, fundos decorativos SVG locais com curvas sobrepostas e tipografia proporcional ao cartão. Mantém a logo oficial e as diferenças necessárias para demonstração segura e responsividade. Ainda requer comparação de renderização.
+
+## 1.0.9 — Navegação personalizável
+Configurações > Aparência: menu lateral compacto/expandido ou superior, mudança imediata, preferências locais por perfil e controle de animações. No celular, menu retrátil com nomes. Sem mudanças na tela de login ou no banco jurídico.

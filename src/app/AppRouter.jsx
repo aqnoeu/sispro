@@ -9,6 +9,7 @@ import { DashboardPage } from '../pages/DashboardPage'
 import { JurisprudenciaCadastroPage } from '../pages/JurisprudenciaCadastroPage'
 import { JurisprudenciaDetailPage } from '../pages/JurisprudenciaDetailPage'
 import { JurisprudenciaPage } from '../pages/JurisprudenciaPage'
+import { SettingsPage } from '../pages/SettingsPage'
 import { PerfilPage } from '../pages/PerfilPage'
 import { PrazosBatchPage } from '../pages/PrazosBatchPage'
 import { PrazosPage } from '../pages/PrazosPage'
@@ -25,6 +26,7 @@ export function AppRouter() {
         <Route element={<AppShell />}>
           <Route index element={<DashboardPage />} />
           <Route path="perfil" element={<PerfilPage />} />
+          <Route path="configuracoes" element={<SettingsPage />} />
           <Route path="jurisprudencia" element={<JurisprudenciaPage />} />
           <Route path="jurisprudencia/cadastro" element={<JurisprudenciaCadastroPage />} />
           <Route path="jurisprudencia/:tab/:documentId" element={<JurisprudenciaDetailPage />} />

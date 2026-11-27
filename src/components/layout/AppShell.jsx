@@ -1,6 +1,8 @@
 import { useDeferredValue, useState } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
+import { AppearanceProvider, useAppearance } from './AppearanceContext'
+import { SettingsPage } from '../../pages/SettingsPage'
 import { Topbar } from './Topbar'
 import { useAuth } from '../../contexts/useAuth'
 import { PageSearchProvider } from '../../contexts/PageSearchContext'
@@ -17,7 +19,12 @@ import { ProcessoDetailPage } from '../../pages/ProcessoDetailPage'
 import { ProcessosPage } from '../../pages/ProcessosPage'
 
 export function AppShell() {
+ const { currentUser } = useAuth()
+ return <AppearanceProvider key={currentUser?.uid} userId={currentUser?.uid}><Workspace /></AppearanceProvider>
+}
+function Workspace() {
   const { currentUser } = useAuth()
+  const { appearance } = useAppearance()
   const location = useLocation()
   const [searchTerm, setSearchTerm] = useState('')
   const deferredSearch = useDeferredValue(searchTerm)
@@ -27,6 +34,7 @@ export function AppShell() {
   const shouldShowTopbar = location.pathname === '/perfil'
 
   function renderUserContent() {
+    if (location.pathname === '/configuracoes') return <SettingsPage />
     if (location.pathname === '/perfil') {
       return <PerfilPage />
     }
@@ -71,7 +79,7 @@ export function AppShell() {
   }
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell nav-${appearance.menu}${appearance.expanded ? ' nav-wide' : ' nav-compact'}${appearance.motion ? '' : ' motion-off'}`}>
       <a className="skip-workspace" href="#workspace" onClick={event => { event.preventDefault(); document.getElementById('workspace')?.focus() }}>Ir para área de trabalho</a>
       <Sidebar items={items} />
       {currentUser?.isDemo && <div className="demo-session-banner">Demonstração · Dados temporários · Sem acesso aos registros reais</div>}

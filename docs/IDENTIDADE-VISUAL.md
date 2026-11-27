@@ -44,3 +44,6 @@ Modelo de dois painéis unidos, cantos arredondados, fundo claro azulado, painel
 
 ### Referência dimensional do login
 Imagem de referência: 1229 × 1536; cartão aproximado 1128 × 1050, divisão 530/598, marca ~150 px, título ~58 px. Usar proporções do cartão, não apenas viewport, para preservar a hierarquia. Fundos decorativos locais `src/assets/login-background.svg` e `src/assets/login-page-background.svg`. Não substituir textos, formulário ou logo por imagem raster. A fidelidade deve ser verificada visualmente; diferenças de fonte, viewport e avisos de demonstração são esperadas.
+
+## 7. Navegação e qualidade visual
+Menu lateral compacto por padrão, ícones com nomes acessíveis e descrição em hover/foco, expansão por clique e alternativa superior. Preferências locais por perfil, mudança imediata, opção de reduzir animações. Em telas móveis, menu retrátil com rótulos completos. Ícones SVG de dimensão e traço consistentes, áreas de clique de pelo menos 44px sempre que possível, sem deformação, sobreposição ou corte de texto; tabelas largas com rolagem própria. Validar ambos os perfis e menus em 1920×1080, 1366×768, 1024×768 e celular, teclado, zoom e movimento reduzido. Não declarar validação visual concluída sem teste real.
