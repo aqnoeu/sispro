@@ -63,3 +63,6 @@ Camada visual compartilhada, navegação com ícones e menu móvel, foco visíve
 
 ## 1.0.5 — Login oficial
 Tela de entrada aprovada em 27/11/2026, conforme manual de identidade. Logo em destaque, composição azul/branco, rosa decorativo, formulário e perfis com ícones. Sem alteração da autenticação ou armazenamento.
+
+## 1.0.6 — Ajuste visual do login
+Curva inferior direita com transição azul–rosa mais visível, conforme referência aprovada. Rosa permanece exclusivamente decorativo. Nenhuma alteração funcional.
