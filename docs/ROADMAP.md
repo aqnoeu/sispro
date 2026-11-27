@@ -14,3 +14,7 @@
 
 ## Prompt próximo passo
 Valide CI 1.0.21, corrija falhas e execute os testes disponíveis. Implemente histórico de alterações documentais e backup/restauração local de arquivos e metadados, com confirmação, validação de integridade e sem incluir tokens OAuth. Preserve os arquivos do Drive e a identidade visual. Se não houver credencial autorizada ou Windows interativo, registre a limitação. Atualize ROADMAP.md, publique a versão e apresente checklist e botão de próximo passo.
+
+
+## Web oficial — administração CEO
+- Migração administrativa aplicada no Supabase existente: instituições, cargos, membros, setores, gabinetes, catálogo e permissões. RLS restrito ao CEO ativo. Procuradoria de Teste cadastrada. Cadastro Auth, painel e aplicação das permissões aos módulos ainda pendentes; não usar dados reais até validação.
