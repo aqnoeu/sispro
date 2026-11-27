@@ -66,3 +66,6 @@ Tela de entrada aprovada em 27/11/2026, conforme manual de identidade. Logo em d
 
 ## 1.0.6 — Ajuste visual do login
 Curva inferior direita com transição azul–rosa mais visível, conforme referência aprovada. Rosa permanece exclusivamente decorativo. Nenhuma alteração funcional.
+
+## 1.0.7 — Hierarquia visual do login
+Amplia símbolo oficial, nome, subtítulo, frase institucional e tipografia do formulário para aproximar as proporções da referência aprovada. Mantém responsividade, curva rosa e funcionamento existente.

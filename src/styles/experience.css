@@ -134,3 +134,28 @@ button:disabled { cursor:not-allowed; }
  .sipro-auth-layout .auth-card { padding:26px; }
 }
 @media(prefers-reduced-motion:reduce) { .auth-layout.sipro-auth-layout { animation:none; } }
+
+/* Proporções da referência oficial: marca dominante, leitura confortável. */
+.auth-layout.sipro-auth-layout { container-type:inline-size; }
+.sipro-auth-layout .auth-hero { padding:clamp(28px,6.4cqw,72px); }
+.login-brand-symbol { width:clamp(112px,14.5cqw,166px); margin-bottom:26px; }
+.sipro-auth-layout .auth-hero h1 { font-size:clamp(2.35rem,5.1cqw,3.55rem); font-weight:800; letter-spacing:-.045em; line-height:1.04; }
+.sipro-auth-layout .login-brand-subtitle { font-size:clamp(1.15rem,2.6cqw,1.7rem); }
+.sipro-auth-layout .login-brand-description { font-size:clamp(1.12rem,2.2cqw,1.5rem); line-height:1.45; max-width:30ch; }
+.login-brand-accent { width:72px; height:5px; }
+.sipro-auth-layout .auth-card h2 { font-size:clamp(1.9rem,4.4cqw,2.85rem); font-weight:750; letter-spacing:-.035em; }
+.sipro-auth-layout .auth-card__header p { font-size:1.05rem; }
+.sipro-auth-layout .form-field > span { font-size:1rem; font-weight:650; color:#16324f; }
+.sipro-auth-layout .login-input-wrap input,.sipro-auth-layout .auth-form__submit { font-size:1rem; min-height:50px; }
+.sipro-auth-layout .auth-demo > strong { font-size:1.25rem; font-weight:700; }
+.sipro-auth-layout .login-profile-text strong { font-size:1.05rem; font-weight:700; }
+.sipro-auth-layout .login-profile-text span { font-size:.94rem; }
+.sipro-auth-layout .login-profile-text small { font-size:.85rem; }
+@media(max-width:899px) {
+ .sipro-auth-layout .auth-hero { padding:30px; }
+ .login-brand-symbol { width:110px; margin-bottom:18px; }
+ .sipro-auth-layout .auth-hero h1 { font-size:clamp(2rem,8.5cqw,2.85rem); }
+ .sipro-auth-layout .login-brand-subtitle { font-size:1.15rem; }
+ .sipro-auth-layout .login-brand-description { font-size:1.05rem; }
+ .sipro-auth-layout .auth-card h2 { font-size:2rem; }
+}
