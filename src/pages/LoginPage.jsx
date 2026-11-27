@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Mail, LockKeyhole, UserRound, ShieldCheck } from 'lucide-react'
+import { Mail, LockKeyhole, UserRound, ShieldCheck, Eye, EyeOff } from 'lucide-react'
 import { version } from '../../package.json'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/useAuth'
@@ -19,6 +19,7 @@ export function LoginPage() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password,setPassword]=useState('')
+  const [showPassword,setShowPassword]=useState(false)
   const [busy,setBusy]=useState(false)
   const [error, setError] = useState('')
   if (currentUser) return <Navigate to="/" replace />
@@ -26,7 +27,7 @@ export function LoginPage() {
   function choose(mode) { enter(mode); navigate('/', { replace: true }) }
   async function handleSubmit(event) {
     event.preventDefault()
-    if (isCloud) { if (busy || !cloudReady) return; setBusy(true); setError(''); try { await signIn(email.trim(),password); navigate('/',{replace:true}) } catch(e) { setError(e.message) } finally { setPassword(''); setBusy(false) } return }
+    if (isCloud) { if (busy || !cloudReady) return; setBusy(true); setShowPassword(false); setError(''); try { await signIn(email.trim(),password); navigate('/',{replace:true}) } catch(e) { setError(e.message) } finally { setPassword(''); setShowPassword(false); setBusy(false) } return }
     const profile = demoProfiles.find(item => item.email === email.trim().toLowerCase())
     if (!profile) {
       setError('Selecione um dos perfis de demonstração abaixo.')
@@ -58,10 +59,14 @@ export function LoginPage() {
               <span>E-mail</span>
               <div className="login-input-wrap"><LoginIcon name="email"/><input type="email" placeholder={isCloud ? "nome@exemplo.com" : "nome@sipro.local"} autoComplete={isCloud ? "username" : "off"} value={email} required onChange={event => { setEmail(event.target.value); setError('') }} /></div>
             </label>
-            <label className="form-field">
-              <span>Senha</span>
-              <div className="login-input-wrap"><LoginIcon name="lock"/><input type="password" placeholder={isCloud ? "Sua senha" : "Não exigida na demonstração"} disabled={!isCloud || busy} required={isCloud} value={password} onChange={e=>setPassword(e.target.value)} autoComplete={isCloud ? "current-password" : "off"} aria-describedby={isCloud ? undefined : "demo-note"} /></div>
-            </label>
+            <div className="form-field">
+              <label htmlFor="sipro-login-password">Senha</label>
+              <div className={'login-input-wrap' + (isCloud ? ' login-password-wrap' : '')}>
+                <LoginIcon name="lock"/>
+                <input id="sipro-login-password" type={isCloud && showPassword ? 'text' : 'password'} placeholder={isCloud ? "Sua senha" : "Não exigida na demonstração"} disabled={!isCloud || busy} required={isCloud} value={password} onChange={e=>setPassword(e.target.value)} autoComplete={isCloud ? "current-password" : "off"} aria-describedby={isCloud ? undefined : "demo-note"} />
+                {isCloud && <button type="button" className="login-password-toggle" disabled={busy} aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'} aria-controls="sipro-login-password" title={showPassword ? 'Ocultar senha' : 'Mostrar senha'} onClick={()=>setShowPassword(value=>!value)}>{showPassword ? <EyeOff aria-hidden="true"/> : <Eye aria-hidden="true"/>}</button>}
+              </div>
+            </div>
             <button type="submit" className="primary-button auth-form__submit" disabled={isCloud && (!cloudReady || busy)}>{busy ? "Entrando…" : "Entrar"}</button>
             {error && <div className="form-feedback form-feedback--error" role="alert">{error}</div>}
           </form>

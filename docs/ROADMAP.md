@@ -42,3 +42,7 @@ Valide CI 1.0.21, corrija falhas e execute os testes disponíveis. Implemente hi
 ## Correção de CSP da versão web
 - Causa encontrada: index.html herdou `connect-src 'none'` do Desktop e bloqueava a API no navegador. Vite agora permite somente o origin HTTPS do Supabase dedicado no modo web. Desktop, GitHub Pages e demais diretivas permanecem inalterados.
 - Dois testes de política adicionados e verificação do HTML compilado. Validar login real pelo navegador antes de promoção. Não mudar credenciais nem RLS.
+
+## Login confirmado e visibilidade da senha
+- Usuário confirmou login real bem-sucedido na homologação após correção da CSP. Ainda faltam isolamento entre contas via JWT real, logout/revogação e MFA.
+- Botão de mostrar/ocultar senha com Eye/EyeOff (Lucide), acessível por teclado, ocultação padrão e ao enviar, sem efeito em perfis de demonstração ou Desktop. Produção permanece inalterada.
