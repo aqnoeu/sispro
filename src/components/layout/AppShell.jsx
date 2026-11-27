@@ -4,7 +4,7 @@ import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { useAuth } from '../../contexts/useAuth'
 import { PageSearchProvider } from '../../contexts/PageSearchContext'
-import { navigationItems } from '../../data/mockData'
+import { navigationItems, adminNavigationItems } from '../../data/mockData'
 import { AgendaPage } from '../../pages/AgendaPage'
 import { DashboardPage } from '../../pages/DashboardPage'
 import { JurisprudenciaCadastroPage } from '../../pages/JurisprudenciaCadastroPage'
@@ -21,8 +21,8 @@ export function AppShell() {
   const location = useLocation()
   const [searchTerm, setSearchTerm] = useState('')
   const deferredSearch = useDeferredValue(searchTerm)
-  const items = navigationItems
   const isAdmin = currentUser?.isAdmin
+  const items = isAdmin ? [...adminNavigationItems, ...navigationItems.filter(item => item.path !== '/')] : navigationItems
   const isReadOnlyJurisprudenciaRoute = location.pathname === '/jurisprudencia' || /^\/jurisprudencia\/(precedentes|pareceres|teses|referencias)\//.test(location.pathname)
   const shouldShowTopbar = location.pathname === '/perfil'
 
@@ -73,6 +73,7 @@ export function AppShell() {
   return (
     <div className="app-shell">
       <Sidebar items={items} />
+      {currentUser?.isDemo && <div className="demo-session-banner">Demonstração · Dados temporários · Sem acesso aos registros reais</div>}
       <div className="app-shell__body">
         {shouldShowTopbar ? (
           <Topbar

@@ -1,4 +1,8 @@
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
+import { useAuth } from '../contexts/useAuth'
+import { LoginPage } from '../pages/LoginPage'
+import { AdminPreviewPage } from '../pages/AdminPreviewPage'
+import { ProcessoDetailPage } from '../pages/ProcessoDetailPage'
 import { AppShell } from '../components/layout/AppShell'
 import { AgendaPage } from '../pages/AgendaPage'
 import { DashboardPage } from '../pages/DashboardPage'
@@ -16,6 +20,7 @@ export function AppRouter() {
   return (
     <Routes location={location} key={location.pathname}>
 
+      <Route path="/login" element={<LoginPage />} />
       <Route path="/" element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
           <Route index element={<DashboardPage />} />
@@ -26,6 +31,9 @@ export function AppRouter() {
 
 
           <Route path="processos" element={<ProcessosPage />} />
+          <Route path="processos/:numero" element={<ProcessoDetailPage />} />
+          <Route path="usuarios" element={<AdminPreviewPage kind="users" />} />
+          <Route path="setores" element={<AdminPreviewPage kind="sectors" />} />
           <Route path="prazos" element={<PrazosPage />} />
           <Route path="prazos/lote" element={<PrazosBatchPage />} />
           <Route path="agenda" element={<AgendaPage />} />
@@ -36,4 +44,4 @@ export function AppRouter() {
   )
 }
 
-function ProtectedRoute() { return <Outlet /> }
+function ProtectedRoute() { const { currentUser } = useAuth(); return currentUser ? <Outlet /> : <Navigate to="/login" replace /> }

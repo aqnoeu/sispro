@@ -43,3 +43,6 @@ O workflow `.github/workflows/windows-release.yml` valida a versão, executa os 
 ## Validação disponível
 
 Teste automatizado do adaptador local (CRUD, consultas, lote, persistência e observação) aprovado no ambiente Node.js; sintaxe do renderer e arquivos Electron conferida. A compilação Vite, a geração NSIS, o teste de instalação no Windows e o teste de atualização entre duas versões ainda não foram executados. O repositório foi criado; confira a publicação e os resultados do workflow no GitHub.
+
+## Versão 1.0.1 — entrada e prévia de perfis
+A tela de entrada permite conhecer os dois perfis sem autenticação real. A demonstração usa armazenamento temporário em memória, separado do banco existente, e permite alternar perfis após sair. O acesso local original continua disponível. As telas administrativas de usuários e setores são prévias, não cadastro real. Não use esta versão como mecanismo de controle de acesso a dados sigilosos.

@@ -1,8 +1,11 @@
 // Offline document store. Electron persists the data in its per-user directory.
 const key = 'sipro-local-v1'
 const bridge = () => globalThis.siproStorage
-const read = () => bridge() ? bridge().read() : JSON.parse(globalThis.localStorage.getItem(key) || '{}')
-const write = (data) => bridge() ? bridge().write(data) : globalThis.localStorage.setItem(key, JSON.stringify(data))
+let demoMode = false
+let demoData = {}
+export function setDemoMode(enabled) { demoMode = enabled }
+const read = () => demoMode ? clone(demoData) : bridge() ? bridge().read() : JSON.parse(globalThis.localStorage.getItem(key) || '{}')
+const write = (data) => { if (demoMode) { demoData = clone(data); return } return bridge() ? bridge().write(data) : globalThis.localStorage.setItem(key, JSON.stringify(data)) }
 const listeners = new Set()
 const clone = (value) => JSON.parse(JSON.stringify(value))
 const notify = () => { for (const listener of [...listeners]) queueMicrotask(listener) }

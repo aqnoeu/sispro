@@ -2543,3 +2543,28 @@
     min-width: 0;
   }
 }
+
+/* Entrada local e prévia de perfis */
+.access-screen { min-height:100vh; display:grid; grid-template-columns: minmax(300px, 0.9fr) minmax(400px, 1.1fr); padding:clamp(20px,5vw,80px); gap:0; align-items:stretch; max-width:1440px; margin:auto; }
+.access-brand { padding:clamp(30px,5vw,75px); background:linear-gradient(145deg,#10274f,#17478d); color:white; border-radius:28px 0 0 28px; display:flex; flex-direction:column; justify-content:center; align-items:flex-start; }
+.access-brand img { width:105px; height:105px; object-fit:contain; margin-bottom:25px; }
+.access-brand > span { font-size:2.5rem; font-weight:800; letter-spacing:.06em; }
+.access-brand h1 { font-size:clamp(1.8rem,3vw,3rem); margin:10px 0; font-weight:650; }
+.access-brand p { color:#dceaff; line-height:1.6; max-width:330px; }
+.access-brand small { margin-top:38px; color:#b9d2f5; }
+.access-panel { display:flex; flex-direction:column; justify-content:center; gap:16px; padding:clamp(25px,5vw,65px); border:1px solid var(--color-border); border-left:0; border-radius:0 28px 28px 0; background:#fff; box-shadow:var(--shadow-soft); }
+.access-eyebrow { color:#2b5c9e; font-size:.8rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+.access-panel h2 { margin:0; color:#14213d; font-size:2rem; }
+.access-panel p { margin:0 0 5px; color:var(--color-text-soft); line-height:1.5; }
+.access-role { width:100%; display:grid; grid-template-columns:52px 1fr 20px; align-items:center; text-align:left; gap:14px; background:white; color:#14213d; border:1px solid #d8e2f0; border-radius:16px; padding:18px; }
+.access-role:hover,.access-role:focus-visible { border-color:#2169cc; background:#f3f7ff; outline:2px solid #2169cc; outline-offset:2px; }
+.access-role strong,.access-role small { display:block; }
+.access-role small { margin-top:5px; color:var(--color-text-soft); line-height:1.35; }
+.access-role-icon { display:grid; place-items:center; width:48px; height:48px; border-radius:14px; background:#e9f2ff; color:#17478d; font-weight:800; font-size:1.3rem; }
+.access-role-icon.admin { background:#17478d; color:#fff; }
+.access-panel .access-notice { font-size:.82rem; padding:12px; border:1px solid #e2e8f0; border-radius:12px; background:#f8fafc; }
+.access-local { border:0; background:transparent; color:#17478d; text-decoration:underline; padding:10px; }
+.access-footer { color:#65758a; text-align:center; }
+.access-exit { border:1px solid rgba(255,255,255,.35); background:transparent; border-radius:12px; color:white; padding:9px 12px; }
+.demo-session-banner { margin:10px auto 0; width:min(1320px,calc(100% - 32px)); padding:10px 16px; font-size:.85rem; color:#17478d; background:#e8f1ff; border:1px solid #c7d9f5; border-radius:10px; }
+@media (max-width:800px) { .access-screen { grid-template-columns:1fr; padding:16px; } .access-brand { border-radius:24px 24px 0 0; padding:24px; } .access-brand img { width:55px; height:55px; margin-bottom:10px; } .access-brand small { margin-top:8px; } .access-panel { border-radius:0 0 24px 24px; border-left:1px solid var(--color-border); } }

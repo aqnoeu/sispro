@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/useAuth'
 import siproLogo from '../../assets/sipro.svg'
 
 export function Sidebar({ items }) {
-  const { currentUser, isLocalEnabled } = useAuth()
+  const { currentUser, isLocalEnabled, signOut } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -52,6 +52,7 @@ export function Sidebar({ items }) {
             <strong>{currentUser?.displayName ?? 'Autenticação pendente'}</strong>
             <small>{currentUser?.workspace ?? currentUser?.role ?? currentUser?.email ?? 'Sem usuário ativo'}</small>
           </button>
+          <button type="button" className="access-exit" onClick={() => { signOut(); navigate('/login', { replace: true }) }}>Sair</button>
         </div>
       </div>
     </header>
