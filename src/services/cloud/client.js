@@ -1,9 +1,9 @@
 // Supabase Auth and Data API. Session lives only in memory; no browser storage.
 export class CloudClient {
-  constructor({ url, key, fetcher = globalThis.fetch }) {
+  constructor({ url, key, fetcher = (...args) => globalThis.fetch(...args) }) {
     this.url = String(url || '').replace(/\/$/, '')
     this.key = String(key || '')
-    this.fetcher = fetcher
+    this.fetcher = (...args) => fetcher(...args)
     this.session = null
   }
   get configured() { return /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(this.url) && /^sb_publishable_[A-Za-z0-9_-]+$/.test(this.key) }
@@ -12,8 +12,15 @@ export class CloudClient {
     const headers = { apikey: this.key, 'Content-Type': 'application/json' }
     if (token) headers.Authorization = 'Bearer ' + token
     if (prefer) headers.Prefer = prefer
-    const response = await this.fetcher(this.url + path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body), cache: 'no-store', credentials: 'omit', redirect: 'error' })
-    if (!response.ok) { const error = new Error(response.status === 409 ? 'Conflito de gravação. Recarregue e tente novamente.' : response.status === 401 || response.status === 403 ? 'Acesso não autorizado ou sessão expirada.' : 'Não foi possível concluir a operação no servidor.'); error.status = response.status; throw error }
+    let response
+    try { response = await this.fetcher(this.url + path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body), cache: 'no-store', credentials: 'omit', redirect: 'error', signal: AbortSignal.timeout(20000) }) }
+    catch { throw new Error('Não foi possível conectar ao Supabase. Verifique sua internet e tente novamente.') }
+    if (!response.ok) {
+      let code; try { const payload = await response.json(); code = payload?.error_code ?? payload?.code } catch { /* no response body */ }
+      const passwordGrant = path === '/auth/v1/token?grant_type=password'
+      const message = passwordGrant && code === 'invalid_credentials' ? 'E-mail ou senha incorretos.' : passwordGrant && code === 'email_not_confirmed' ? 'Confirme seu e-mail antes de entrar.' : response.status === 429 ? 'Muitas tentativas. Aguarde alguns instantes e tente novamente.' : response.status === 409 ? 'Conflito de gravação. Recarregue e tente novamente.' : response.status === 401 || response.status === 403 ? 'Acesso não autorizado ou sessão expirada.' : 'Não foi possível concluir a operação no servidor.'
+      const error = new Error(message); error.status = response.status; throw error
+    }
     return response.status === 204 ? null : response.json()
   }
   async signIn(email, password) {

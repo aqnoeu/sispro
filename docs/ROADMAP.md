@@ -34,3 +34,7 @@ Valide CI 1.0.21, corrija falhas e execute os testes disponíveis. Implemente hi
 - Deploy 3b6903b READY: 23/23 testes e smoke HTTP real via Vercel. Auth settings acessível, leitura sem autenticação bloqueada e login inválido rejeitado. `disable_signup=false`; estado de login anônimo não retornado no endpoint. Cadastro público ainda precisa ser desligado no painel.
 - Migração sispro_deny_anonymous_jwt aplicada: políticas restritivas negam JWT anônimo mesmo com perfil ativo de administrador. Teste transacional com claims simuladas aprovado; conta fictícia revertida. SQL em supabase/schema/sispro-deny-anonymous-jwt.sql. Não equivale a desabilitar criação de contas no Auth.
 - Primeira conta administrativa, login válido, logout real e isolamento com JWT emitido permanecem pendentes. Manter produção sem promoção. MFA TOTP recomendado com AAL2 obrigatório para operações sensíveis, ainda não implementado.
+
+## Correção do login web
+- Conta administrativa criada pelo titular, e-mail confirmado e perfil ativo. Nenhuma entrada bem-sucedida registrada antes da correção.
+- Corrigida chamada fetch no navegador (preserva o receptor global, evita Illegal invocation), timeout e mensagens de erro específicas sem divulgar resposta bruta. Dois testes adicionados. Causa exata do relato ainda não confirmada; Vercel Authentication permanece habilitada em homologação. Repetir login pelo usuário, sem compartilhar senha. Não promover produção.
