@@ -1,3 +1,4 @@
+import { canAccess } from '../utils/mechanicAccess.js'
 import { WorkflowLabel } from '../components/ui/Labels'
 import { WORKFLOW, workflow } from '../utils/labels'
 import { Link, Navigate, useSearchParams } from 'react-router-dom'
@@ -34,6 +35,7 @@ const EMPTY_FORM = {
 
 export function PrazosPage() {
   const { currentUser } = useAuth()
+ const canWrite=canAccess(currentUser,'prazos',2)&&canAccess(currentUser,'processos',2)
   const [searchParams] = useSearchParams()
   const isAdmin = currentUser?.isAdmin
   const [showForm, setShowForm] = useState(false)
@@ -65,6 +67,7 @@ export function PrazosPage() {
 
   async function handleSubmit(event) {
     event.preventDefault()
+    if(!canWrite)return
     setSubmitting(true)
     setFeedback({ type: '', message: '' })
 
@@ -101,10 +104,10 @@ export function PrazosPage() {
         description="Cada prazo agora pode criar o processo automaticamente ou alimentar um processo já existente como nova demanda vinculada."
         action={
           <div className="page-header__actions">
-            <Link className="secondary-button" to="/prazos/lote">
+            {canWrite&&<Link className="secondary-button" to="/prazos/lote">
               Cadastro em Lote
-            </Link>
-            <button type="button" className="primary-button" onClick={() => setShowForm((current) => !current)}>
+            </Link>}
+            <button type="button" className="primary-button" disabled={!canWrite} onClick={() => setShowForm((current) => !current)}>
               {showForm ? 'Fechar cadastro' : 'Cadastrar prazo'}
             </button>
           </div>
@@ -186,7 +189,7 @@ export function PrazosPage() {
             </div>
 
             <div className="record-form__actions">
-              <button type="submit" className="primary-button" disabled={submitting || !localEnabled}>
+              <button type="submit" className="primary-button" disabled={!canWrite || submitting || !localEnabled}>
                 {submitting ? 'Salvando...' : 'Salvar prazo'}
               </button>
             </div>

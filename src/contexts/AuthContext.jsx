@@ -16,7 +16,10 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!cloud || !currentUser) return
     const timer=setTimeout(() => { cloud.signOut().catch(()=>{}); setCurrentUser(null) }, Math.max(0,cloud.session.expires-Date.now()))
-    return () => clearTimeout(timer)
+    let running=false,stopped=false
+    const refresh=async()=>{if(running||stopped)return;running=true;const session=cloud.session;try{const user=await cloud.refreshAccess();if(!stopped&&cloud.session===session&&user)setCurrentUser(user)}catch(e){if(!stopped&&cloud.session===session&&(e.status===401||e.status===403)){cloud.signOut().catch(()=>{});setCurrentUser(null)}}finally{running=false}}
+    const interval=setInterval(refresh,30000)
+    return () => {stopped=true;clearTimeout(timer);clearInterval(interval)}
   }, [currentUser])
   async function signIn(email,password) { if (!cloud) throw new Error('Login web indisponível.'); const user=await cloud.signIn(email,password); setCurrentUser(user) }
   async function switchProfile(mode) { if (!cloud) throw new Error('Subperfil indisponível.'); const user=await cloud.switchProfile(mode); setCurrentUser(user) }

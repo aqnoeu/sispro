@@ -1,3 +1,4 @@
+import { canAccess } from '../utils/mechanicAccess.js'
 import { Fragment, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { CollectionStatus } from '../components/ui/CollectionStatus'
@@ -30,6 +31,7 @@ const singularLabelByTipo = {
 export function JurisprudenciaPage() {
   const navigate = useNavigate()
   const { currentUser } = useAuth()
+ const canWrite=canAccess(currentUser,'jurisprudencia',2)
   const isAdmin = currentUser?.isAdmin
   const [activeTab, setActiveTab] = useState('precedente')
   const [searchQuery, setSearchQuery] = useState('')
@@ -89,7 +91,7 @@ export function JurisprudenciaPage() {
   const activeRows = filteredRowsByTab[activeTab] ?? []
 
   async function handleDelete(tipo, row) {
-    if (!canDeleteJurisprudenciaRecord(row, currentUser)) {
+    if (!canAccess(currentUser,'jurisprudencia',3)||!canDeleteJurisprudenciaRecord(row, currentUser)) {
       return
     }
 
@@ -118,9 +120,9 @@ export function JurisprudenciaPage() {
         title="Central de precedentes, pareceres e teses"
         description="Consulta institucional do acervo jurídico, com busca por palavras ou trechos exatos entre aspas, destaque visual dos achados e contagem de correspondências por registro."
         action={(
-          <Link className="primary-button" to="/jurisprudencia/cadastro">
+          canWrite ? <Link className="primary-button" to="/jurisprudencia/cadastro">
             Novo cadastro
-          </Link>
+          </Link> : null
         )}
       />
 
@@ -168,7 +170,7 @@ export function JurisprudenciaPage() {
           const viewers = Array.isArray(item.visualizacoes) ? item.visualizacoes : []
           const routeSegment = resolveJurisprudenciaRouteSegment(activeTab)
           const rowId = item.documentId ?? item.id
-          const canDelete = canDeleteJurisprudenciaRecord(item, currentUser)
+          const canDelete = canAccess(currentUser,'jurisprudencia',3)&&canDeleteJurisprudenciaRecord(item, currentUser)
           const isExpanded = expandedOriginalId === rowId
 
           return (
@@ -179,7 +181,7 @@ export function JurisprudenciaPage() {
                   <button type="button" className="table-link" onClick={() => navigate(`/jurisprudencia/${routeSegment}/${rowId}`)}>
                     Abrir
                   </button>
-                  <button type="button" className="table-link" onClick={() => navigate(`/jurisprudencia/cadastro?modo=editar&tipo=${activeTab}&id=${rowId}`)}>
+                  <button type="button" className="table-link" disabled={!canWrite} onClick={() => navigate(`/jurisprudencia/cadastro?modo=editar&tipo=${activeTab}&id=${rowId}`)}>
                     Editar
                   </button>
                   {canDelete ? (

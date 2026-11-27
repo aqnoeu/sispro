@@ -1,3 +1,4 @@
+import { canAccess } from '../utils/mechanicAccess.js'
 import { ArrowLeft, ArrowUpRight, Save, Plus, Trash2, FolderOpen, Tags, CalendarClock, ClipboardList, History, FilePenLine, CheckCircle2, Send } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
@@ -46,6 +47,7 @@ const PRAZO_STATUS_OPTIONS = ['Planejado', 'Em andamento', 'Protocolado', 'Concl
 export function ProcessoDetailPage() {
   const { numero } = useParams()
   const { currentUser } = useAuth()
+ const canWrite=canAccess(currentUser,'processos',2)
   const isAdmin = currentUser?.isAdmin
   const localEnabled = hasLocalDatabase()
   const [draft, setDraft] = useState(EMPTY_DRAFT)
@@ -141,6 +143,7 @@ export function ProcessoDetailPage() {
 
   async function handleSave(event) {
     event.preventDefault()
+    if(!canWrite)return
 
     if (!processo?.documentId && !processo?.id) {
       setFeedback({ type: 'error', message: 'Processo não localizado para atualização.' })
@@ -486,7 +489,7 @@ export function ProcessoDetailPage() {
                     <button
                       type="button"
                       className="secondary-button secondary-button--danger"
-                      onClick={() => removeDraftDemanda(index, setDraft)}
+                      disabled={!canWrite} onClick={() => removeDraftDemanda(index, setDraft)}
                     >
                       <Trash2 size={16} aria-hidden="true"/> Excluir prazo
                     </button>
@@ -501,7 +504,7 @@ export function ProcessoDetailPage() {
             <button
               type="button"
               className="secondary-button"
-              onClick={() => addDraftDemanda(setDraft, draft, currentUser)}
+              disabled={!canWrite} onClick={() => addDraftDemanda(setDraft, draft, currentUser)}
             >
               <Plus size={16} aria-hidden="true"/> Adicionar prazo
             </button>
@@ -558,7 +561,7 @@ export function ProcessoDetailPage() {
             </div>
 
             <div className="record-form__actions process-detail-actions">
-              <button type="submit" className="primary-button" disabled={submitting || !localEnabled}>
+              <button type="submit" className="primary-button" disabled={!canWrite || submitting || !localEnabled}>
                 <Save size={17} aria-hidden="true"/> {submitting ? 'Salvando...' : 'Salvar alterações'}
               </button>
               <button

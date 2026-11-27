@@ -14,5 +14,7 @@ export function canOpenRoute(user,path){
  const m=routeMechanic(path)
  if(!m)return true
  const needed=path==='/jurisprudencia/cadastro'||path==='/prazos/lote'?2:1
+ if(path==='/prazos/lote'&&!canAccess(user,'processos',2))return false
+ if(m==='autos'&&!canAccess(user,'processos',1))return false
  return canAccess(user,m,needed)&&(!['usuarios','setores','gabinetes'].includes(m)||user.profileMode==='ceo'||!user.isCloud||user.profileMode==='pgm')
 }

@@ -1,3 +1,4 @@
+import { canAccess } from '../utils/mechanicAccess.js'
 import { useAppearance } from '../components/layout/AppearanceContext'
 import { Labels, WorkflowLabel, LabelPicker, useLabels } from '../components/ui/Labels'
 import { classification, processLabels, workflow, WORKFLOW } from '../utils/labels'
@@ -43,6 +44,7 @@ const PROCESSO_EMPTY_FORM = {
 
 export function ProcessosPage() {
   const { currentUser } = useAuth()
+ const canWrite=canAccess(currentUser,'processos',2)
   const assignments = useLabels()
   const {appearance,update}=useAppearance()
   const view=appearance.processView
@@ -565,7 +567,7 @@ export function ProcessosPage() {
               </div>
 
               <div className="record-form__actions">
-                <button type="submit" className="primary-button" disabled={submittingProcess || !localEnabled}>
+                <button type="submit" className="primary-button" disabled={!canWrite || submittingProcess || !localEnabled}>
                   <Save size={17} aria-hidden="true"/> {submittingProcess ? 'Salvando...' : 'Salvar processo'}
                 </button>
               </div>
@@ -585,10 +587,10 @@ export function ProcessosPage() {
           title={selectedProcess.numero} icon={editingSelectedProcess?<FilePenLine size={24} aria-hidden="true"/>:<FolderOpen size={24} aria-hidden="true"/>}
           footer={editingSelectedProcess ? <>
             <button type="button" className="secondary-button" onClick={handleCancelEditSelectedProcess} disabled={savingSelectedProcess}><X size={17} aria-hidden="true"/>Cancelar</button>
-            <button type="button" className="primary-button" onClick={handleSaveSelectedProcess} disabled={savingSelectedProcess || !localEnabled}><Save size={17} aria-hidden="true"/>{savingSelectedProcess ? 'Salvando...' : 'Salvar alterações'}</button>
+            <button type="button" className="primary-button" onClick={handleSaveSelectedProcess} disabled={!canWrite || savingSelectedProcess || !localEnabled}><Save size={17} aria-hidden="true"/>{savingSelectedProcess ? 'Salvando...' : 'Salvar alterações'}</button>
           </> : <>
             <button type="button" className="secondary-button" onClick={closeSelectedProcessModal}><X size={17} aria-hidden="true"/>Fechar</button>
-            <button type="button" className="primary-button" onClick={handleStartEditSelectedProcess} disabled={!localEnabled}><Pencil size={17} aria-hidden="true"/>Editar processo</button>
+            <button type="button" className="primary-button" onClick={handleStartEditSelectedProcess} disabled={!canWrite || !localEnabled}><Pencil size={17} aria-hidden="true"/>Editar processo</button>
           </>}
           tabs={editingSelectedProcess ? <div className="process-dialog-tabs" role="group" aria-label="Seções de edição">{[['geral','Dados gerais',ClipboardList],['demandas','Demandas e prazos',CalendarClock],['obs','Observações',NotebookPen]].map(([id,label,Icon])=><button key={id} type="button" aria-pressed={editTab===id} onClick={()=>setEditTab(id)}><Icon size={16} aria-hidden="true"/>{label}</button>)}</div> : null}
           feedback={selectedProcessFeedback.message ? <div role={selectedProcessFeedback.type==='error'?'alert':'status'} className={`form-feedback form-feedback--${selectedProcessFeedback.type}`}>{selectedProcessFeedback.message}</div> : null}>
@@ -597,7 +599,7 @@ export function ProcessosPage() {
               <div><span className="process-icon-text"><UserRound size={15} aria-hidden="true"/> Parte</span><strong>{selectedProcess.parte || 'Não informada'}</strong></div>
               <div>{editingSelectedProcess ? <TextField label="Órgão" value={selectedProcessDraft.orgao} onChange={value=>setSelectedProcessDraft(current=>({...current,orgao:value}))}/> : <><span>Órgão</span><strong>{selectedProcess.orgao || 'Não informado'}</strong></>}</div>
             </div>
-            <div className="process-dialog-tags"><span className="process-icon-text"><Tags size={15} aria-hidden="true"/> Etiquetas</span><LabelPicker key={selectedProcess.documentId} row={selectedProcess} assignments={assignments} classificationDraft={editingSelectedProcess?selectedProcessDraft.classificacao:undefined} onClassificationChange={editingSelectedProcess?value=>setSelectedProcessDraft(c=>({...c,classificacao:value})):undefined} disabled={savingSelectedProcess||!localEnabled}/></div>
+            <div className="process-dialog-tags"><span className="process-icon-text"><Tags size={15} aria-hidden="true"/> Etiquetas</span><LabelPicker key={selectedProcess.documentId} row={selectedProcess} assignments={assignments} classificationDraft={editingSelectedProcess?selectedProcessDraft.classificacao:undefined} onClassificationChange={editingSelectedProcess?value=>setSelectedProcessDraft(c=>({...c,classificacao:value})):undefined} disabled={!canWrite||savingSelectedProcess||!localEnabled}/></div>
           </section>}
           {(!editingSelectedProcess || editTab==='demandas') && (
               <section className="process-modal__section">

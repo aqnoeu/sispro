@@ -1,3 +1,4 @@
+import { canAccess } from '../utils/mechanicAccess.js'
 import { useMemo } from 'react'
 import { Navigate, useSearchParams } from 'react-router-dom'
 import { RecordForm } from '../components/forms/RecordForm'
@@ -13,6 +14,7 @@ import { compareByDateDesc, formatDayMonth, isToday } from '../utils/dates'
 
 export function AgendaPage() {
   const { currentUser } = useAuth()
+ const canWrite=canAccess(currentUser,'agenda',2)
   const [searchParams] = useSearchParams()
   const isAdmin = currentUser?.isAdmin
   const prefilledDate = searchParams.get('data') ?? ''
@@ -76,7 +78,7 @@ export function AgendaPage() {
             : 'Compromissos e expedientes exibidos de forma privada para o procurador autenticado.'
         }
         action={
-          <button type="button" className="secondary-button" onClick={handleScrollToForm}>
+          <button type="button" className="secondary-button" disabled={!canWrite} onClick={handleScrollToForm}>
             Ir para cadastro
           </button>
         }
@@ -90,7 +92,7 @@ export function AgendaPage() {
         label="agenda"
       />
 
-      <RecordForm
+      <fieldset disabled={!canWrite} style={{border:0,padding:0,minWidth:0}}><RecordForm
         config={formConfigs.agenda}
         formId="cadastro-agenda"
         initialValuesOverride={{
@@ -103,7 +105,7 @@ export function AgendaPage() {
             ? 'Este cadastro será salvo na leitura administrativa consolidada do sistema.'
             : `Este cadastro será salvo apenas no ambiente de ${currentUser?.displayName ?? 'usuário ativo'}.`
         }
-      />
+      /></fieldset>
 
       <DataTable
         columns={[

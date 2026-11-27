@@ -97,6 +97,26 @@ export class CloudClient {
     if(row&&rows?.length!==1) throw new Error('Gravação não autorizada.')
     return rows
   }
+  async refreshAccess() {
+    const s=this.requireSession()
+    const profiles=await this.request('/rest/v1/sispro_profiles?select=user_id,active,role,platform_role&user_id=eq.'+encodeURIComponent(s.uid),{token:s.token})
+    this.assertSession(s)
+    const p=profiles?.[0]
+    if(!p?.active||(s.user.profileMode==='ceo'&&(p.role!=='admin'||p.platform_role!=='ceo'))) {const e=new Error('Sessão revogada.');e.status=403;throw e}
+    if(s.mode==='pgm'){
+      const rows=await this.request('/rest/v1/sispro_test_pgm_workspaces?select=user_id,active&user_id=eq.'+encodeURIComponent(s.uid),{token:s.token})
+      this.assertSession(s)
+      if(!rows?.some(r=>r.active&&r.user_id===s.uid)){const e=new Error('Subperfil revogado.');e.status=403;throw e}
+      return null
+    }
+    if(s.mode==='ceo')return null
+    const result=await this.request('/rest/v1/rpc/sispro_read_workspace',{token:s.token,method:'POST',body:{}})
+    this.assertSession(s)
+    const levels=result.levels||{}
+    if(JSON.stringify(levels)===JSON.stringify(s.user.levels))return null
+    s.user={...s.user,levels}
+    return s.user
+  }
   async changePassword(currentPassword,newPassword) {
     const s=this.requireSession()
     if(typeof newPassword!=='string'||newPassword.length<12||newPassword.length>128||newPassword===currentPassword) throw new Error('Escolha uma nova senha de 12 a 128 caracteres.')
