@@ -4,77 +4,8 @@ import { getLocalServices, hasLocalDatabase } from './client.js'
 
 export async function createPrazoWithProcessSync({ prazoValues, context }) {
   ensureLocalAvailable()
-  const { db } = getLocalServices()
-  const normalizedPrazo = normalizePrazoPayload(prazoValues, context)
-  const processoSnapshot = await findProcessoByNumero(db, normalizedPrazo.processo)
-  const existingProcesso = processoSnapshot?.docs[0]
-  const nextPrazoEntry = buildPrazoEntry(normalizedPrazo)
-
-  if (existingProcesso) {
-    const processoData = existingProcesso.data()
-    const currentPrazos = Array.isArray(processoData.prazos) ? processoData.prazos : []
-    const currentHistorico = Array.isArray(processoData.historico) ? processoData.historico : []
-
-    await setDoc(
-      doc(db, 'processos', existingProcesso.id),
-      removeEmptyValues({
-        prazos: [...currentPrazos, nextPrazoEntry],
-        historico: [
-          ...currentHistorico,
-          buildHistoricoEntry(normalizedPrazo, `Novo prazo registrado para o processo em ${formatDisplayDate(normalizedPrazo.vencimento)}.`),
-        ],
-        parte: processoData.parte ?? normalizedPrazo.parte,
-        dataUltimoProtocolo: processoData.dataUltimoProtocolo ?? normalizedPrazo.vencimento,
-        observacoes: processoData.observacoes ?? '',
-      }),
-      { merge: true },
-    )
-  } else {
-    await addDoc(
-      collection(db, 'processos'),
-      removeEmptyValues({
-        numero: normalizedPrazo.processo,
-        parte: normalizedPrazo.parte,
-        assunto: normalizedPrazo.assunto || normalizedPrazo.item || 'Processo cadastrado a partir de prazo',
-        orgao: normalizedPrazo.orgao || 'Órgão não informado',
-        fase: normalizedPrazo.fase || 'Acompanhamento de prazo',
-        prioridade: normalizedPrazo.prioridade || 'Média',
-        prazo: normalizedPrazo.vencimento,
-        dataUltimoProtocolo: normalizedPrazo.vencimento,
-        andamentoAtual: normalizedPrazo.andamentoAtual || 'Fazer',
-        observacoes: normalizedPrazo.observacoes || 'Processo criado automaticamente a partir do cadastro de prazo.',
-        ownerId: context.ownerId,
-        ownerUid: context.ownerUid,
-        ownerName: context.ownerName,
-        responsavel: context.ownerName,
-        setorId: context.setorId,
-        setorNome: context.setorNome,
-        tags: normalizedPrazo.tags ?? [],
-        prazos: [nextPrazoEntry],
-        historico: [
-          buildHistoricoEntry(normalizedPrazo, `Processo criado automaticamente a partir do prazo com vencimento em ${formatDisplayDate(normalizedPrazo.vencimento)}.`),
-        ],
-      }),
-    )
-  }
-
-  const prazoDocRef = await addDoc(
-    collection(db, 'prazos'),
-    removeEmptyValues({
-      ...normalizedPrazo,
-      ownerId: context.ownerId,
-      ownerUid: context.ownerUid,
-      ownerName: context.ownerName,
-      responsavel: normalizedPrazo.responsavel || context.ownerName,
-      setorId: context.setorId,
-      setorNome: context.setorNome,
-    }),
-  )
-
-  return {
-    prazoId: prazoDocRef.id,
-    processAction: existingProcesso ? 'updated' : 'created',
-  }
+  const [saved]=await createPrazosBatchWithProcessSync({prazoValuesList:[prazoValues],context})
+  return saved
 }
 
 export async function createPrazosBatchWithProcessSync({ prazoValuesList, context }) {

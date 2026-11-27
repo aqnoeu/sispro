@@ -36,6 +36,10 @@ export class CloudClient {
       const grants=ceo?await this.request('/rest/v1/sispro_test_pgm_workspaces?select=user_id,active&user_id=eq.'+encodeURIComponent(s.uid),{token:s.token}):[]
       const canTestPgm=grants?.some(g=>g.user_id===s.uid&&g.active===true)===true
       const user={uid:s.uid,email:auth.user.email,displayName:p.display_name,isAdmin:p.role==='admin',role:ceo?'CEO':p.role==='admin'?'Administrador':'Usuário',workspace:ceo?'SISPRO · CEO':'Sispro Web',sectorId:'web',sectorName:ceo?'SISPRO':'Ambiente individual',sectorSigla:'WEB',isCloud:true,profileMode:ceo?'ceo':'standard',canTestPgm}
+      if(!ceo){
+        const access=await this.request('/rest/v1/rpc/sispro_read_workspace',{token:s.token,method:'POST',body:{}})
+        user.levels=access.levels||{}
+      }
       this.session={...s,user,mode:user.profileMode}
       return user
     } catch (e) { try { await this.request('/auth/v1/logout?scope=local',{token:s.token,method:'POST'}) } catch { /* session discarded */ } throw e }

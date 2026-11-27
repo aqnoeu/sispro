@@ -1,3 +1,4 @@
+import { canOpenRoute } from '../../utils/mechanicAccess.js'
 import { CeoPanel } from '../../pages/CeoPanel'
 import { AutosPage } from '../../pages/AutosPage'
 import { useDeferredValue, useState } from 'react'
@@ -85,7 +86,7 @@ function Workspace() {
   return (
     <div className={`app-shell nav-${appearance.menu}${appearance.expanded ? ' nav-wide' : ' nav-compact'}${appearance.motion ? '' : ' motion-off'}`}>
       <a className="skip-workspace" href="#workspace" onClick={event => { event.preventDefault(); document.getElementById('workspace')?.focus() }}>Ir para área de trabalho</a>
-      <Sidebar items={items} />
+      <Sidebar items={items.filter(item=>canOpenRoute(currentUser,item.path))} />
       {currentUser?.isTestPgm && <div className="demo-session-banner">PGM · Procuradoria de teste · Utilize somente dados fictícios</div>}
       {currentUser?.isDemo && <div className="demo-session-banner">Demonstração · Dados temporários · Sem acesso aos registros reais</div>}
       <div className="app-shell__body" id="workspace" tabIndex={-1}>
@@ -98,7 +99,7 @@ function Workspace() {
         ) : null}
         <PageSearchProvider searchTerm={deferredSearch}>
           <main key={location.pathname + location.hash} className="app-shell__content">
-            {isCeo ? (['/','/usuarios','/setores'].includes(location.pathname) ? <CeoPanel/> : ['/perfil','/configuracoes'].includes(location.pathname) ? <Outlet/> : <Navigate to="/" replace/>) : isAdmin ? <Outlet /> : renderUserContent()}
+            {!canOpenRoute(currentUser,location.pathname) ? <Navigate to="/" replace/> : isCeo ? (['/','/usuarios','/setores'].includes(location.pathname) ? <CeoPanel/> : ['/perfil','/configuracoes'].includes(location.pathname) ? <Outlet/> : <Navigate to="/" replace/>) : isAdmin ? <Outlet /> : renderUserContent()}
           </main>
         </PageSearchProvider>
       </div>
