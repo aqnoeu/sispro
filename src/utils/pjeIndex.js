@@ -35,13 +35,16 @@ export function parsePjeIndex(text,allowedIds){
   }
   if(!inside)continue
   if(/^(?:data (?:da |de )?(?:assinatura|juntada|protocolo)|documento(?: tipo)?|tipo|documentos|id\.?)$/.test(n))continue
-  let m=raw.match(/^\s*(\d{4,16})\s+(\d{2}\/\d{2}\/\d{4})\s+(\d{2}:\d{2}(?::\d{2})?)\s*(.*)$/)
+  let m=raw.match(/^\s*(\d{4,16})\s+(\d{2}\/\d{2}\/\d{4})(?:\s+(\d{2}:\d{2}(?::\d{2})?))?\s*(.*)$/)
   if(!m&&/^\d{4,16}$/.test(line)){
-   const next=rows.slice(i+1,i+4).map(clean).filter(Boolean).join(' ')
-   const d=next.match(/^(\d{2}\/\d{2}\/\d{4})\s+(\d{2}:\d{2}(?::\d{2})?)(?:\s+(.*))?$/)
-   if(d){m=[line,line,d[1],d[2],d[3]||''];i+=3}
+   const next=rows[i+1]||'',d=next.match(/^\s*(\d{2}\/\d{2}\/\d{4})(?:\s+(\d{2}:\d{2}(?::\d{2})?))?\s*(.*)$/)
+   if(d){m=[line,line,d[1],d[2],d[3]||''];i++}
   }
-  if(m){flush();current={id:m[1],date:dateKey(m[2]),time:m[3],body:m[4]||''};continue}
+  if(m){flush();current={id:m[1],date:dateKey(m[2]),time:m[3]||'',body:m[4]||''};continue}
+  if(current&&!current.time){
+   const clock=raw.match(/^\s*(\d{2}:\d{2}(?::\d{2})?)\s*(.*)$/)
+   if(clock){current.time=clock[1];if(clock[2])current.body+=(current.body?' ':'')+clock[2];continue}
+  }
   // A new unknown row or footer must not contaminate the preceding title.
   if(/^\d{4,16}\b|^num\.|^pagina |^pág\.|^https?:|^assinado eletronicamente|^numero do processo/i.test(n)){flush();continue}
   if(current&&current.body.length<400)current.body+=(current.body?' ':'')+raw.trim()

@@ -88,3 +88,5 @@ Valide CI 1.0.21, corrija falhas e execute os testes disponíveis. Implemente hi
 - 1.4.11: largura padrão da árvore aumentada de 320 para 330 px, sem sobrescrever ajustes personalizados salvos. Duplo clique na divisória restaura o padrão; arraste e teclado preservados. Linha cronológica conecta somente marcadores consecutivos do mesmo dia, sem pontas antes do primeiro ou após o último; registro isolado mostra apenas a bolinha. Testes de regressão atualizados; CI/deployment a confirmar.
 
 - 1.4.12: capa PJe arquivada fora da navegação normal, acessível no menu e ZIP. Índice da capa fornece ID, título, tipo, data e hora, distingue assinatura/juntada/protocolo; metadados vinculados ao documento por ID, sem substituir campos manuais. Recuperação de metadados pela capa arquivada ou PDF original, sem reenvio. Testes sintéticos; PDF original e produção a homologar.
+
+- 1.4.13: índice aceita data e hora quebradas em linhas físicas distintas e evita reexaminar páginas anteriores durante leitura. Testes sintéticos adicionados.

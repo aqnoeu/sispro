@@ -15,3 +15,9 @@ test('index ignores unverified dates, unrelated IDs and conflicting rows',()=>{
  assert.equal(parsePjeIndex(text,['123456','234567']).size,0)
  assert.equal(parsePjeIndex('123456 25/11/2026 10:00 Petição').size,0)
 })
+
+test('PJe rows with date and time on separate physical lines',()=>{
+ const index=parsePjeIndex('Id.\nData da Assinatura\nDocumento\tTipo\n123456\t25/11/2026\tPetição de defesa\tContestação\n15:32\n234567\n25/11/2026\n14:18\nCertidão\tCertidão',['123456','234567'])
+ assert.equal(index.get('123456').indexTime,'15:32');assert.equal(index.get('123456').title,'Petição de defesa')
+ assert.equal(index.get('234567').indexTime,'14:18');assert.equal(index.get('234567').title,'Certidão')
+})
