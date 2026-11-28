@@ -42,7 +42,7 @@ const EMPTY_DRAFT = {
 }
 const PRAZO_STATUS_OPTIONS = ['Planejado', 'Em andamento', 'Protocolado', 'Concluído', 'Suspenso']
 
-export function ProcessoDetailPage() {
+export function ProcessoDetailPage({embedded=false}={}) {
   const { numero } = useParams()
   const { currentUser } = useAuth()
  const canWrite=canAccess(currentUser,'processos',2)&&canAccess(currentUser,'prazos',2)
@@ -313,7 +313,7 @@ export function ProcessoDetailPage() {
 
   return (
     <div className="page-stack">
-      <section className="process-detail-hero">
+      {!embedded&&<section className="process-detail-hero">
         <div>
           <span className="processos-hero__eyebrow">Processo individual</span>
           <h3>{processo?.numero ?? numero}</h3>
@@ -329,7 +329,7 @@ export function ProcessoDetailPage() {
             </a>
           ) : null}
         </div>
-      </section>
+      </section>}
 
       <CollectionStatus
         loading={processosCollection.loading || tagsCollection.loading || prazosCollection.loading}

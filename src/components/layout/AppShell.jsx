@@ -35,6 +35,7 @@ function Workspace() {
   const isCeo=currentUser?.profileMode==='ceo'
   const items = isCeo ? [{path:'/',label:'Início'},{path:'/usuarios',label:'Usuários'},{path:'/setores',label:'Instituições'}] : isAdmin ? [...adminNavigationItems, ...navigationItems.filter(item => item.path !== '/')] : navigationItems
   const isReadOnlyJurisprudenciaRoute = location.pathname === '/jurisprudencia' || /^\/jurisprudencia\/(precedentes|pareceres|teses|referencias)\//.test(location.pathname)
+  const isAutosRoute=/^\/processos\/[^/]+\/autos$/.test(location.pathname)&&canOpenRoute(currentUser,location.pathname)&&!isCeo
   const shouldShowTopbar = location.pathname === '/perfil'
 
   function renderUserContent() {
@@ -84,7 +85,7 @@ function Workspace() {
   }
 
   return (
-    <div className={`app-shell nav-${appearance.menu}${appearance.expanded ? ' nav-wide' : ' nav-compact'}${appearance.motion ? '' : ' motion-off'}`}>
+    <div className={`app-shell${isAutosRoute?' app-shell--autos':''} nav-${appearance.menu}${appearance.expanded ? ' nav-wide' : ' nav-compact'}${appearance.motion ? '' : ' motion-off'}`}>
       <a className="skip-workspace" href="#workspace" onClick={event => { event.preventDefault(); document.getElementById('workspace')?.focus() }}>Ir para área de trabalho</a>
       <Sidebar items={items.filter(item=>canOpenRoute(currentUser,item.path))} />
       {currentUser?.isTestPgm && <div className="demo-session-banner">PGM · Procuradoria de teste · Utilize somente dados fictícios</div>}
