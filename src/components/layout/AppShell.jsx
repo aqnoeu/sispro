@@ -88,7 +88,6 @@ function Workspace() {
     <div className={`app-shell${isAutosRoute?' app-shell--autos':''} nav-${appearance.menu}${appearance.expanded ? ' nav-wide' : ' nav-compact'}${appearance.motion ? '' : ' motion-off'}`}>
       <a className="skip-workspace" href="#workspace" onClick={event => { event.preventDefault(); document.getElementById('workspace')?.focus() }}>Ir para área de trabalho</a>
       <Sidebar items={items.filter(item=>canOpenRoute(currentUser,item.path))} />
-      {currentUser?.isTestPgm && <div className="demo-session-banner">PGM · Procuradoria de teste · Utilize somente dados fictícios</div>}
       {currentUser?.isDemo && <div className="demo-session-banner">Demonstração · Dados temporários · Sem acesso aos registros reais</div>}
       <div className="app-shell__body" id="workspace" tabIndex={-1}>
         {shouldShowTopbar ? (

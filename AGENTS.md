@@ -18,3 +18,6 @@
 - Usar versionamento semântico `MAJOR.MINOR.PATCH`: incrementar PATCH para correções e ajustes, MINOR para novas funcionalidades relevantes e MAJOR para mudanças incompatíveis. Não reduzir nem reutilizar versões publicadas.
 - Manter a mesma versão de origem no site oficial, na prévia e no instalador Windows, incluindo metadados de atualização automática. Conferir se a interface exibe o número correto e se a release corresponde ao commit publicado.
 - Registrar a versão e as alterações em `docs/ROADMAP.md`, informar o número ao responsável e distinguir deployment web, CI e release Windows efetivamente confirmados. Não declarar release publicada antes da verificação.
+
+## Procuradoria de Teste na versão oficial
+- A Procuradoria de Teste autenticada deve ter a mesma apresentação visual e os mesmos fluxos operacionais das demais procuradorias. Não inserir faixas, avisos permanentes de homologação ou elementos de demonstração no espaço de trabalho autenticado. Preservar a identificação institucional normal, o isolamento dos registros, as permissões e os avisos necessários em operações específicas. A prévia pública continua separada e identificada como demonstração.
