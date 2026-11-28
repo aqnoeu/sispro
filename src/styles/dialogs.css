@@ -50,3 +50,20 @@
 .process-create .work-dialog__body{padding:12px 20px;gap:10px;margin:0}.process-create-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}.process-create .form-field{gap:4px;margin:0}.process-create .form-field span{font-size:.82rem}.process-create .form-field :is(input,select){min-height:38px;padding:7px 10px;font-size:.9rem}.process-create textarea{resize:none;min-height:110px}
 .process-create .work-dialog__footer{padding:10px 20px}.process-create-note{grid-column:1/-1;color:#53647b;font-size:.83rem;margin:0}.process-read-notice{font-size:.83rem;color:#53647b;margin:0;line-height:1.4}.process-pdf-review{display:grid;gap:8px}.process-pdf-review dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;margin:0}.process-pdf-review dl div{min-width:0;background:#f5f9fc;padding:8px;border-radius:6px}.process-pdf-review dt{font-size:.75rem;color:#53647b}.process-pdf-review dd{margin:3px 0 0;font-size:.85rem;overflow-wrap:anywhere;max-height:3.7em;overflow:auto}.process-pdf-review>div{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
 @media(max-width:600px){.process-create .work-dialog__header,.process-create .work-dialog__body,.process-create .work-dialog__footer{padding-inline:12px}.process-create .process-dialog-tabs{padding-inline:10px}.process-create-grid{grid-template-columns:1fr}.process-pdf-review dl{grid-template-columns:1fr}.process-create .work-dialog__icon{display:none}.process-create .work-dialog__heading h2{font-size:1rem}}
+
+/* Cadastro compacto: fundo imóvel, seções curtas, ações sempre visíveis. */
+html:has(dialog.process-create[open]),body:has(dialog.process-create[open]){overflow:hidden}
+dialog.work-dialog.process-create{position:fixed;inset:0;margin:auto;width:min(900px,calc(100% - 24px));max-height:calc(100dvh - 24px);height:auto;padding:0;overflow:hidden;background:#fff}
+.process-create .work-dialog__body{overflow:visible;flex:0 1 auto;min-height:0}
+.process-create .process-create-grid{gap:10px 16px}
+.process-create .process-create-grid>.process-create-note{align-self:center}
+.process-create .work-dialog__footer{margin:0;flex-shrink:0}
+.process-create .work-dialog__feedback .form-feedback{margin:0;padding:8px 10px;font-size:.83rem;overflow-wrap:anywhere}
+.process-import-review{display:grid;gap:12px}
+.process-import-summary{display:grid;gap:4px;font-size:.9rem}
+.process-import-summary span,.process-import-document small{font-size:.8rem;color:#53647b}
+.process-import-document{display:flex;align-items:center;gap:12px;padding:12px;background:#f5f9fc;border:1px solid #dce8ef;border-radius:8px}
+.process-import-document>div{min-width:0;display:grid;gap:4px;overflow-wrap:anywhere}
+.process-import-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.process-import-controls button{display:inline-flex;align-items:center;gap:5px}
+@media(max-height:500px),(max-width:600px){.process-create .work-dialog__body{overflow:auto}}

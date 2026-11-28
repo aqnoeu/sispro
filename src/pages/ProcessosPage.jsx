@@ -144,13 +144,13 @@ export function ProcessosPage() {
 
   async function handleProcessSubmit(event) {
     event.preventDefault()
-    if(!canWrite)return
+    if(!canWrite)return null
     setSubmittingProcess(true)
     setProcessFeedback({ type: '', message: '' })
 
     try {
       const accessContext = buildUserAccessContext(currentUser)
-      await createCollectionDocument({
+      const createdId = await createCollectionDocument({
         collectionName: 'processos',
         values: {
           ...processForm,
@@ -171,12 +171,13 @@ export function ProcessosPage() {
         message: 'Processo cadastrado com sucesso no monitoramento processual.',
       })
       setProcessForm(PROCESSO_EMPTY_FORM)
-      setShowCadastroModal(false)
+      return createdId
     } catch (error) {
       setProcessFeedback({
         type: 'error',
         message: error.message || 'Não foi possível cadastrar o processo.',
       })
+      return null
     } finally {
       setSubmittingProcess(false)
     }

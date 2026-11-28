@@ -51,7 +51,7 @@ export const formConfigs = {
   processos: {
     collectionName: 'processos',
     title: 'Cadastrar processo',
-    description: 'Registre processo judicial e o próximo marco de acompanhamento.',
+    description: 'Registre processo judicial, com ou sem prazo conhecido.',
     fields: [
       { name: 'numero', label: 'Numero', placeholder: '0000000-00.0000.0.00.0000', required: true },
       { name: 'assunto', label: 'Assunto', placeholder: 'Assunto principal', required: true },
@@ -64,7 +64,7 @@ export const formConfigs = {
         required: true,
         options: ['Crítica', 'Alta', 'Média', 'Baixa'],
       },
-      { name: 'prazo', label: 'Próximo prazo', placeholder: '20/03/2026', required: true },
+      { name: 'prazo', label: 'Próximo prazo (opcional)', placeholder: 'Sem prazo', required: false },
       { name: 'anexo', label: 'Nome do documento', placeholder: 'Nome do arquivo ou documento', required: false },
       { name: 'anexoUrl', label: 'Link do documento', type: 'url', placeholder: 'https://...', required: false },
     ],
