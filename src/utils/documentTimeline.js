@@ -44,19 +44,16 @@ export function compareJudicial(a,b,ascending=false){
  ||Number(!a.pjePage)-Number(!b.pjePage)||(a.pjePage||0)-(b.pjePage||0)
  ||String(a.id).localeCompare(String(b.id))
 }
-const attachmentType=s=>/^(?:documento de (?:identificacao|comprovacao|representacao)|outros documentos|peticao inicial \(pdf\)|anexo(?:s)?)$/.test(normalize(s))
-const principalType=s=>/^(?:peticao(?: inicial| intermediaria)?|contestacao|manifestacao|certidao|decisao|despacho|sentenca|acordao|recurso|intimacao|oficio|ato ordinatorio|mandado|contrarrazoes|embargos|agravo|apelacao)(?:\b|$)/.test(normalize(s))&&!attachmentType(s)
+// One PJe signature/protocol timestamp represents one visible filing group.
+// No dependence on extracted type or consecutive numeric index positions.
 export function groupJudicialAttachments(rows){
  const groups=[];let parent=null
  for(const row of rows){
-  const type=row.pjeType||row.type
-  const timestamp=row.indexDate&&row.indexTime&&row.indexDateKind?row.indexDate+'T'+row.indexTime+'|'+row.indexDateKind:''
-  const indexed=Number.isSafeInteger(row.pjeOrder)&&row.pjeOrder>0
-  if(row.kind!=='movement'&&!row.cover&&indexed&&timestamp&&attachmentType(type)&&parent&&parent.timestamp===timestamp&&parent.lastOrder+1===row.pjeOrder){
-   parent.children.push(row);parent.lastOrder=row.pjeOrder;continue
-  }
-  const g={main:row,children:[],timestamp,lastOrder:row.pjeOrder};groups.push(g)
-  parent=row.kind!=='movement'&&!row.cover&&indexed&&timestamp&&principalType(type)?g:null
+  const isPje=row.kind!=='movement'&&!row.cover&&(row.pjeReference||row.pjeOrder||row.pjePage)&&['assinatura','juntada','protocolo'].includes(row.indexDateKind)
+  const timestamp=isPje&&row.indexDate&&row.indexTime?row.indexDate+'T'+row.indexTime+'|'+row.indexDateKind:''
+  if(timestamp&&parent?.timestamp===timestamp){parent.children.push(row);continue}
+  const g={main:row,children:[],timestamp};groups.push(g)
+  parent=timestamp?g:null
  }
  return groups
 }

@@ -115,3 +115,19 @@ dialog.pje-loading-overlay::backdrop{background:rgba(255,255,255,.62)}
 }
 
 .pje-loading-overlay .pje-progress-value{font-size:30px;font-weight:600;line-height:1.15;font-variant-numeric:tabular-nums;color:#006b9a}.case-document-progress{font-size:22px;font-variant-numeric:tabular-nums;color:#006b9a}
+
+
+/* Short horizontal branches connect each attachment to the vertical spine.
+   Keep a visible gap before the file icon, including wrapped names. */
+.case-attachments{padding-left:13px}
+.case-attachments .case-attachment{position:relative;overflow:visible}
+.case-attachments .case-attachment::before{
+ content:'';
+ position:absolute;
+ left:-13px;
+ top:13px;
+ width:10px;
+ height:1px;
+ background:#aeb6bc;
+ pointer-events:none;
+}

@@ -9,5 +9,15 @@ test('judicial chronology overrides scrambled index order; ties keep principal b
  const rows=[mk('old','2026-09-23','19:21',1,'Petição Inicial'),mk('a','2026-10-19','23:05',4,'Documento de comprovação'),mk('p','2026-10-19','23:05',3,'Contestação'),mk('new','2026-10-20','14:26',2,'Certidão'),mk('orphan','2026-10-19','23:05',6,'Outros documentos')]
  rows.sort((a,b)=>compareJudicial(a,b))
  assert.deepEqual(rows.map(d=>d.id),['new','p','a','orphan','old'])
- const groups=groupJudicialAttachments(rows);assert.deepEqual(groups.map(g=>[g.main.id,g.children.map(d=>d.id)]),[['new',[]],['p',['a']],['orphan',[]],['old',[]]])
+ const groups=groupJudicialAttachments(rows);assert.deepEqual(groups.map(g=>[g.main.id,g.children.map(d=>d.id)]),[['new',[]],['p',['a','orphan']],['old',[]]])
+})
+
+test('same PJe signature groups attachments even with missing type and nonconsecutive index ranks',async()=>{
+ const {groupJudicialAttachments}=await import('../src/utils/documentTimeline.js')
+ const mk=(id,time,order,type)=>({id,pjeReference:id,pjeOrder:order,pjeType:type,indexDate:'2026-10-09',indexTime:time,indexDateKind:'assinatura',kind:'document'})
+ const rows=[mk('main','09:35',1,'Certidão'),mk('email','09:35',4,''),mk('nt','09:35',8,'Outros documentos'),mk('doc','09:35',0,'Não classificado'),mk('other','09:34',9,'Despacho')]
+ assert.deepEqual(groupJudicialAttachments(rows).map(g=>[g.main.id,g.children.map(d=>d.id)]),[['main',['email','nt','doc']],['other',[]]])
+ const unrelated={id:'local',indexDate:'2026-10-09',indexTime:'09:35',indexDateKind:'assinatura',kind:'document'}
+ assert.equal(groupJudicialAttachments([rows[0],unrelated]).length,2)
+ assert.equal(groupJudicialAttachments([rows[0],{...rows[1],indexTime:''}]).length,2)
 })
