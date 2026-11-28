@@ -83,4 +83,4 @@ Manter cabeçalho institucional azul. A segunda barra é branca, aproximadamente
 
 - Cartões da árvore com bordas arredondadas de 8 px e marcador circular azul de 8 px, sem pictograma, centralizado verticalmente em relação ao cartão e alinhado à linha cronológica. Ícones funcionais dos documentos preservados.
 
-- Linha da árvore: conectar apenas os centros dos marcadores consecutivos do mesmo agrupamento de data; não prolongar antes do primeiro ou depois do último. Registro único tem somente a bolinha, sem linha vertical solta.
+- Linha da árvore: conectar continuamente os centros de todos os marcadores consecutivos visíveis, inclusive entre agrupamentos de datas diferentes. A linha atravessa a margem esquerda dos cabeçalhos de data; não prolongar antes do primeiro ou depois do último registro da árvore. Registro único tem somente a bolinha, sem linha vertical solta.
