@@ -79,6 +79,8 @@ Manter cabeçalho institucional azul. A segunda barra é branca, aproximadamente
 
 - Autos digitais em desktop: cronologia e visualizador devem alcançar a borda inferior da área útil do navegador, sem faixa vazia ou rodapé decorativo. Dimensionar pelo fluxo flexível real, mantendo rolagens independentes e controles acessíveis em janelas pequenas.
 
-- Árvore dos autos: largura inicial de 320 px em desktop, ajustável por divisória arrastável ou teclado (220–650 px, limitada a 55% da janela); guardar preferência local por perfil, pesquisa no topo sem fileira de ícones; ações de importação, filtros, atualização, favoritos e recolhimento no menu do processo. Manter marcadores dos eventos, rolagem própria e empilhamento em telas estreitas.
+- Árvore dos autos: largura inicial de 330 px em desktop, ajustável por divisória arrastável ou teclado (220–650 px, limitada a 55% da janela); guardar preferência local por perfil e restaurar padrão por duplo clique na divisória, pesquisa no topo sem fileira de ícones; ações de importação, filtros, atualização, favoritos e recolhimento no menu do processo. Manter marcadores dos eventos, rolagem própria e empilhamento em telas estreitas.
 
 - Cartões da árvore com bordas arredondadas de 8 px e marcador circular azul de 8 px, sem pictograma, centralizado verticalmente em relação ao cartão e alinhado à linha cronológica. Ícones funcionais dos documentos preservados.
+
+- Linha da árvore: conectar apenas os centros dos marcadores consecutivos do mesmo agrupamento de data; não prolongar antes do primeiro ou depois do último. Registro único tem somente a bolinha, sem linha vertical solta.
