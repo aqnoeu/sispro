@@ -84,3 +84,5 @@ Manter cabeçalho institucional azul. A segunda barra é branca, aproximadamente
 - Cartões da árvore com bordas arredondadas de 8 px e marcador circular azul de 8 px, sem pictograma, centralizado verticalmente em relação ao cartão e alinhado à linha cronológica. Ícones funcionais dos documentos preservados.
 
 - Linha da árvore: conectar continuamente os centros de todos os marcadores consecutivos visíveis, inclusive entre agrupamentos de datas diferentes. A linha atravessa a margem esquerda dos cabeçalhos de data; não prolongar antes do primeiro ou depois do último registro da árvore. Registro único tem somente a bolinha, sem linha vertical solta.
+
+- Cartões de documentos da árvore: mostrar apenas ícone de arquivo, ID do tribunal (quando existente), nome e horário disponível. Não repetir tipo em cabeçalho nem exibir linhas auxiliares de assinatura, juntada, armazenamento ou versão. Texto inativo cinza suave `#5B6873`, peso 500; item selecionado azul de contraste. Preservar agrupamento de anexos, classificação de movimentações internas, datas da árvore e metadados fora dos cartões.

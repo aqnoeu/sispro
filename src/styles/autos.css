@@ -74,8 +74,8 @@ dialog.pje-loading-overlay::backdrop{background:rgba(255,255,255,.62)}
 /* PJe-style attachments: one card per principal, individual selection, no blue on inactive pieces. */
 .case-event-card.case-event-group{padding:5px 8px;gap:2px;cursor:default}
 .case-piece{display:grid;gap:4px;width:100%;text-align:left;border:0;background:transparent;color:#303940;padding:5px 4px;border-radius:4px;min-width:0;cursor:pointer}
-.case-piece .case-doc-link{color:#303940;font-weight:650;font-size:13px;line-height:1.35}
-.case-piece .case-doc-type,.case-piece .case-movement-title{color:#37434b;font-weight:650}
+.case-piece .case-doc-link{color:#5b6873;font-weight:500;font-size:13px;line-height:1.4}
+.case-piece .case-movement-title{color:#5b6873;font-weight:500}
 .case-piece:hover{background:#f1f3f4}
 .case-piece[aria-pressed=true]{color:#006b9a;background:#e3f3fb}
 .case-piece[aria-pressed=true] :is(.case-doc-link,.case-doc-type,.case-movement-title){color:#006b9a}
@@ -84,3 +84,6 @@ dialog.pje-loading-overlay::backdrop{background:rgba(255,255,255,.62)}
 .case-event-meta{display:flex;justify-content:space-between;align-items:center;gap:4px;padding:0 4px 3px}
 .case-event-meta time{margin-left:auto}
 .case-pdf-spinner{width:42px;height:42px}
+
+/* Clean tree entries: no repeated document type or auxiliary metadata lines. */
+.case-event-meta{justify-content:flex-end}.case-event-meta time{color:#65727e}.case-piece .case-doc-link svg{margin-top:1px}.case-piece[aria-pressed=true] .case-doc-link{font-weight:600}
