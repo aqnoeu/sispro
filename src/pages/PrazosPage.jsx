@@ -161,7 +161,7 @@ export function PrazosPage() {
                   <option value="Baixa">Baixa</option>
                 </select>
               </label>
-              <Field label="Vencimento" value={formValues.vencimento} onChange={(value) => setFormValues((current) => ({ ...current, vencimento: value }))} placeholder="25/03/2026" required />
+              <Field label="Vencimento" value={formValues.vencimento} onChange={(value) => setFormValues((current) => ({ ...current, vencimento: value }))} placeholder="Sem vencimento" />
               <label className="form-field">
                 <span>Status</span>
                 <select
@@ -227,7 +227,7 @@ export function PrazosPage() {
             label: 'Vencimento',
             render: (row) => (
               <span className={`date-chip${isToday(row.vencimento) ? ' date-chip--today' : ''}`}>
-                {formatDayMonth(row.vencimento)}
+                {row.vencimento?formatDayMonth(row.vencimento):'Sem prazo'}
               </span>
             ),
           },

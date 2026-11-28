@@ -70,3 +70,6 @@ Grade responsiva como padrão, com alternativa horizontal em lista e preferênci
 
 ### Ícones dos controles de conta no cabeçalho
 Em cabeçalhos institucionais azuis, os ícones de expansão do perfil e alternância CEO/PGM devem ser brancos (`#FFFFFF`), inclusive em hover e foco. Usar Lucide com traço consistente e foco visível branco. Dentro do menu suspenso branco, usar azul de contraste (`#006B9A`) para ícones; não herdar a cor branca do cabeçalho. Verificar a cor efetivamente computada no navegador em ambos os perfis antes de considerar a revisão visual aprovada.
+
+### Cadastro de processos
+Diálogo operacional branco, seções compactas Dados do processo, Prazos e documentos e Observações, com ações fixas e sem rolagem na resolução desktop usual. Em tela excepcionalmente pequena ou zoom ampliado, manter acesso ao conteúdo em vez de cortá-lo. A leitura de PDF é ação secundária; não alterar dados preenchidos sem revisão.

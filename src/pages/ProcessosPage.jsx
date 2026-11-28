@@ -5,6 +5,7 @@ import { Labels, WorkflowLabel, LabelPicker, useLabels } from '../components/ui/
 import { classification, processLabels, workflow, WORKFLOW } from '../utils/labels'
 import { useMemo, useState } from 'react'
 import { FolderOpen, Pencil, Save, Plus, Trash2, LayoutGrid, List, Landmark, FileText, CalendarDays, ChevronRight, Search, SlidersHorizontal, X, UserRound, Tags, ClipboardList, NotebookPen, CalendarClock, FilePenLine, FileCheck, Send, ArrowUpRight, CircleAlert } from 'lucide-react'
+import { ProcessCreateDialog } from '../components/ui/ProcessCreateDialog'
 import { ProcessDialog } from '../components/ui/ProcessDialog'
 import { Link, useSearchParams } from 'react-router-dom'
 import { CollectionStatus } from '../components/ui/CollectionStatus'
@@ -156,7 +157,7 @@ export function ProcessosPage() {
           historico: [
             {
               id: `hist-${Date.now()}`,
-              data: processForm.dataUltimoProtocolo || processForm.prazo,
+              data: new Date().toISOString(),
               status: processForm.andamentoAtual,
               descricao: 'Cadastro inicial do processo no monitoramento processual.',
             },
@@ -285,12 +286,12 @@ export function ProcessosPage() {
     }
 
     const invalidPrazo = selectedProcessDraft.prazos.find(
-      (item) => !String(item.item ?? '').trim() || !String(item.vencimento ?? '').trim(),
+      (item) => !String(item.item ?? '').trim(),
     )
 
     if (invalidPrazo) {
       setEditTab('demandas')
-      setSelectedProcessFeedback({ type: 'error', message: 'Todos os prazos precisam ter descrição e vencimento.' })
+      setSelectedProcessFeedback({ type: 'error', message: 'Todas as demandas precisam ter descrição. O vencimento é opcional.' })
       return
     }
 
@@ -548,62 +549,7 @@ export function ProcessosPage() {
         </div>
       </section>
 
-      {showCadastroModal ? (
-        <div className="auth-modal-backdrop">
-          <section className="auth-modal processos-modal">
-            <div className="panel-card__header">
-              <h4 className="process-icon-text"><FolderOpen size={19} aria-hidden="true"/> Cadastrar processo</h4>
-              <button
-                type="button"
-                className="secondary-button"
-                onClick={() => {
-                  setShowCadastroModal(false)
-                  setProcessFeedback({ type: '', message: '' })
-                }}
-              >
-                <X size={16} aria-hidden="true"/> Fechar
-              </button>
-            </div>
-
-            <form className="record-form" onSubmit={handleProcessSubmit}>
-              <div className="record-form__grid">
-                <TextField label="Número CNJ" value={processForm.numero} onChange={(value) => setProcessForm((current) => ({ ...current, numero: value }))} required />
-                <TextField label="Nome da parte" value={processForm.parte} onChange={(value) => setProcessForm((current) => ({ ...current, parte: value }))} required />
-                <TextField label="Assunto" value={processForm.assunto} onChange={(value) => setProcessForm((current) => ({ ...current, assunto: value }))} required />
-                <TextField label="Órgão" value={processForm.orgao} onChange={(value) => setProcessForm((current) => ({ ...current, orgao: value }))} required />
-                <TextField label="Fase" value={processForm.fase} onChange={(value) => setProcessForm((current) => ({ ...current, fase: value }))} required />
-                <SelectField label="Prioridade" value={processForm.prioridade} options={PROCESSO_PRIORIDADES} onChange={(value) => setProcessForm((current) => ({ ...current, prioridade: value }))} />
-                <SelectField label="Andamento atual" value={processForm.andamentoAtual} options={PROCESSO_STATUS_OPTIONS} onChange={(value) => setProcessForm((current) => ({ ...current, andamentoAtual: value }))} />
-                <TextField label="Próximo prazo" value={processForm.prazo} onChange={(value) => setProcessForm((current) => ({ ...current, prazo: value }))} placeholder="25/03/2026" required />
-                <TextField label="Data do último protocolo" value={processForm.dataUltimoProtocolo} onChange={(value) => setProcessForm((current) => ({ ...current, dataUltimoProtocolo: value }))} placeholder="21/03/2026" required />
-                <TextField label="Link do documento" value={processForm.linkDocumento} onChange={(value) => setProcessForm((current) => ({ ...current, linkDocumento: value }))} placeholder="https://..." />
-                <TextField label="Nome do documento" value={processForm.nomeDocumento} onChange={(value) => setProcessForm((current) => ({ ...current, nomeDocumento: value }))} placeholder="peticao-final.pdf" />
-                <label className="form-field form-field--full">
-                  <span>Observações</span>
-                  <textarea
-                    rows={4}
-                    value={processForm.observacoes}
-                    onChange={(event) => setProcessForm((current) => ({ ...current, observacoes: event.target.value }))}
-                    placeholder="Anotações complementares, estratégia processual e detalhes operacionais."
-                  />
-                </label>
-              </div>
-
-              <div className="record-form__actions">
-                <button type="submit" className="primary-button" disabled={!canWrite || submittingProcess || !localEnabled}>
-                  <Save size={17} aria-hidden="true"/> {submittingProcess ? 'Salvando...' : 'Salvar processo'}
-                </button>
-              </div>
-
-              {processFeedback.message ? (
-                <div className={`form-feedback${processFeedback.type === 'error' ? ' form-feedback--error' : ' form-feedback--success'}`}>
-                  {processFeedback.message}
-                </div>
-              ) : null}
-            </form>
-          </section>
-        </div>
-      ) : null}
+      {showCadastroModal && <ProcessCreateDialog values={processForm} onChange={setProcessForm} busy={submittingProcess} canSave={canWrite&&localEnabled} feedback={processFeedback} priorities={PROCESSO_PRIORIDADES} statuses={PROCESSO_STATUS_OPTIONS} onSubmit={handleProcessSubmit} onClose={()=>{setShowCadastroModal(false);setProcessFeedback({type:'',message:''})}}/>}
 
       {selectedProcess ? (
         <ProcessDialog editing={editingSelectedProcess} saving={savingSelectedProcess} onClose={closeSelectedProcessModal}
@@ -649,7 +595,7 @@ export function ProcessosPage() {
                           <>
                             <div className="record-form__grid">
                               <TextField label="Descrição" value={item.item ?? ''} onChange={(value) => updateSelectedProcessPrazo(index, 'item', value)} required />
-                              <TextField label="Vencimento" value={item.vencimento ?? ''} onChange={(value) => updateSelectedProcessPrazo(index, 'vencimento', value)} placeholder="25/03/2026" required />
+                              <TextField label="Vencimento" value={item.vencimento ?? ''} onChange={(value) => updateSelectedProcessPrazo(index, 'vencimento', value)} placeholder="Sem prazo" />
                               <TextField label="Parte" value={item.parte ?? ''} onChange={(value) => updateSelectedProcessPrazo(index, 'parte', value)} />
                               <TextField label="Responsável" value={item.responsavel ?? ''} onChange={(value) => updateSelectedProcessPrazo(index, 'responsavel', value)} />
                               <SelectField label="Andamento da intimação" value={workflow(item)} options={WORKFLOW} onChange={value=>updateSelectedProcessPrazo(index, "andamentoIntimacao", value)} />

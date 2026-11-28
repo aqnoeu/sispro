@@ -37,7 +37,7 @@ export async function createPrazosBatchWithProcessSync({ prazoValuesList, contex
           prazos: [...currentPrazos, nextPrazoEntry],
           historico: [
             ...currentHistorico,
-            buildHistoricoEntry(normalizedPrazo, `Novo prazo incluído por cadastro em lote para ${formatDisplayDate(normalizedPrazo.vencimento)}.`),
+            buildHistoricoEntry(normalizedPrazo, normalizedPrazo.vencimento ? `Nova demanda com vencimento em ${formatDisplayDate(normalizedPrazo.vencimento)}.` : 'Nova demanda sem vencimento definido.'),
           ],
           parte: processoData.parte ?? normalizedPrazo.parte,
         }),
@@ -55,7 +55,6 @@ export async function createPrazosBatchWithProcessSync({ prazoValuesList, contex
           fase: normalizedPrazo.fase || 'Acompanhamento de prazo',
           prioridade: normalizedPrazo.prioridade || 'Média',
           prazo: normalizedPrazo.vencimento,
-          dataUltimoProtocolo: normalizedPrazo.vencimento,
           andamentoAtual: normalizedPrazo.andamentoAtual || 'Fazer',
           observacoes: normalizedPrazo.observacoes || 'Processo criado automaticamente a partir do cadastro em lote de prazos.',
           ownerId: context.ownerId,
@@ -67,7 +66,7 @@ export async function createPrazosBatchWithProcessSync({ prazoValuesList, contex
           tags: normalizedPrazo.tags ?? [],
           prazos: [nextPrazoEntry],
           historico: [
-            buildHistoricoEntry(normalizedPrazo, `Processo criado automaticamente por lote com prazo em ${formatDisplayDate(normalizedPrazo.vencimento)}.`),
+            buildHistoricoEntry(normalizedPrazo, normalizedPrazo.vencimento ? `Processo criado automaticamente com prazo em ${formatDisplayDate(normalizedPrazo.vencimento)}.` : 'Processo criado automaticamente com demanda sem vencimento.'),
           ],
         }),
       )
@@ -158,7 +157,7 @@ function buildPrazoEntry(values) {
 function buildHistoricoEntry(values, descricao) {
   return {
     id: `hist-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    data: values.vencimento,
+    data: new Date().toISOString(),
     status: values.andamentoAtual || 'Fazer',
     descricao,
   }
