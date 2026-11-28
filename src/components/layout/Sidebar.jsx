@@ -62,7 +62,7 @@ export function Sidebar({ items }) {
         <div className="site-header__meta">
           <div className="account-control" ref={accountRef}>
             <button ref={accountButton} type="button" className="user-chip user-chip--interactive account-trigger" aria-label="Menu do usuário" aria-expanded={accountOpen} aria-controls="account-options" onClick={()=>setAccountOpen(v=>!v)}>
-              <span className="account-name"><strong>{currentUser?.displayName ?? 'Usuário'}</strong><small>{currentUser?.workspace ?? currentUser?.role ?? 'Perfil não informado'}</small></span><ChevronDown size={15} aria-hidden="true"/>
+              <span className="account-name"><strong>{currentUser?.displayName ?? 'Usuário'}</strong><small>{currentUser?.workspace ?? currentUser?.role ?? 'Perfil não informado'}</small></span><ChevronDown size={16} strokeWidth={1.8} aria-hidden="true"/>
             </button>
             {accountOpen&&<div id="account-options" className="account-options" aria-label="Opções do usuário">
               <button type="button" onClick={()=>{setAccountOpen(false);navigate('/perfil')}}><UserRound size={17}/> Perfil</button>
@@ -70,7 +70,7 @@ export function Sidebar({ items }) {
               <button type="button" onClick={()=>{setAccountOpen(false);signOut();navigate('/login',{replace:true})}}><LogOut size={17}/> Sair</button>
             </div>}
           </div>
-          {currentUser?.canTestPgm&&<button type="button" className="access-exit account-switch" aria-label={switchLabel} title={switchLabel} disabled={switching} onClick={async()=>{setAccountOpen(false);setSwitching(true);setSwitchError('');try{await switchProfile(currentUser.profileMode==='pgm'?'ceo':'pgm');navigate('/',{replace:true})}catch(e){setSwitchError(e.message)}finally{setSwitching(false)}}}><ArrowLeftRight size={21} aria-hidden="true"/></button>}
+          {currentUser?.canTestPgm&&<button type="button" className="access-exit account-switch" aria-label={switchLabel} title={switchLabel} disabled={switching} onClick={async()=>{setAccountOpen(false);setSwitching(true);setSwitchError('');try{await switchProfile(currentUser.profileMode==='pgm'?'ceo':'pgm');navigate('/',{replace:true})}catch(e){setSwitchError(e.message)}finally{setSwitching(false)}}}><ArrowLeftRight size={21} strokeWidth={1.8} aria-hidden="true"/></button>}
           {switchError&&<span className="account-switch-error" role="alert">{switchError}</span>}
         </div>
       </div>

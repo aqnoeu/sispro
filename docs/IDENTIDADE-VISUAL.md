@@ -67,3 +67,6 @@ Botão único + Etiqueta na consulta, pesquisa por nome, categorias agrupadas, s
 
 ### Lista de processos — cartões
 Grade responsiva como padrão, com alternativa horizontal em lista e preferência por perfil. Cartões brancos, número 16–18px, parte 14px, metadados 13px, sem ornamentos sem função; etiquetas personalizadas preservadas. Ícones Lucide nos filtros, indicadores, cartões, consulta, edição e ações de cadastro. A abertura dos detalhes mantém as funções existentes.
+
+### Ícones dos controles de conta no cabeçalho
+Em cabeçalhos institucionais azuis, os ícones de expansão do perfil e alternância CEO/PGM devem ser brancos (`#FFFFFF`), inclusive em hover e foco. Usar Lucide com traço consistente e foco visível branco. Dentro do menu suspenso branco, usar azul de contraste (`#006B9A`) para ícones; não herdar a cor branca do cabeçalho. Verificar a cor efetivamente computada no navegador em ambos os perfis antes de considerar a revisão visual aprovada.
