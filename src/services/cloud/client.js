@@ -87,6 +87,16 @@ export class CloudClient {
     this.assertSession(s)
     if (!Array.isArray(rows)||rows.length!==1) throw new Error('Conflito de gravação ou acesso negado. Recarregue e tente novamente.')
   }
+  async savePermissions(changes) {
+    const s=this.requireSession()
+    if(s.mode!=='ceo') throw new Error('Acesso administrativo não autorizado.')
+    if(!Array.isArray(changes)||!changes.length||changes.length>500||changes.some(p=>!p.role_id||!p.mechanic_id||!Number.isInteger(p.access_level)||p.access_level<0||p.access_level>3)) throw new Error('Permissões inválidas.')
+    const body=changes.map(({role_id,mechanic_id,access_level})=>({role_id,mechanic_id,access_level}))
+    const rows=await this.request('/rest/v1/sispro_permissions?on_conflict=role_id,mechanic_id',{token:s.token,method:'POST',body,prefer:'resolution=merge-duplicates,return=representation,missing=default'})
+    this.assertSession(s)
+    if(!Array.isArray(rows)||rows.length!==body.length) throw new Error('Não foi possível confirmar todas as permissões gravadas. Atualize a página.')
+    return rows
+  }
   async adminTable(table, row, id) {
     const s=this.requireSession()
     const allowed=['institutions','roles','sectors','cabinets','members','mechanics','permissions','institution_mechanics']

@@ -5,6 +5,7 @@
 @import './styles/labels.css';
 @import './styles/process-cards.css';
 @import './styles/autos.css';
+@import './styles/permissions.css';
 
 * {
   box-sizing: border-box;
