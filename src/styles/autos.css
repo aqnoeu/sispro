@@ -87,3 +87,9 @@ dialog.pje-loading-overlay::backdrop{background:rgba(255,255,255,.62)}
 
 /* Clean tree entries: no repeated document type or auxiliary metadata lines. */
 .case-event-meta{justify-content:flex-end}.case-event-meta time{color:#65727e}.case-piece .case-doc-link svg{margin-top:1px}.case-piece[aria-pressed=true] .case-doc-link{font-weight:600}
+
+/* Keep the document time in its own inline column; long names wrap only in the title column. */
+.case-event-card.case-event-group{padding:4px 7px}
+.case-piece.case-piece-document{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;column-gap:8px;padding-block:4px}
+.case-piece .case-doc-link{min-width:0}.case-doc-name{min-width:0;overflow-wrap:anywhere;white-space:normal}
+.case-piece-document .case-doc-time{grid-column:2;grid-row:1;white-space:nowrap;line-height:18.2px;font-variant-numeric:tabular-nums;color:#65727e;justify-self:end}

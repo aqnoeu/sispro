@@ -86,3 +86,5 @@ Manter cabeçalho institucional azul. A segunda barra é branca, aproximadamente
 - Linha da árvore: conectar continuamente os centros de todos os marcadores consecutivos visíveis, inclusive entre agrupamentos de datas diferentes. A linha atravessa a margem esquerda dos cabeçalhos de data; não prolongar antes do primeiro ou depois do último registro da árvore. Registro único tem somente a bolinha, sem linha vertical solta.
 
 - Cartões de documentos da árvore: mostrar apenas ícone de arquivo, ID do tribunal (quando existente), nome e horário disponível. Não repetir tipo em cabeçalho nem exibir linhas auxiliares de assinatura, juntada, armazenamento ou versão. Texto inativo cinza suave `#5B6873`, peso 500; item selecionado azul de contraste. Preservar agrupamento de anexos, classificação de movimentações internas, datas da árvore e metadados fora dos cartões.
+
+- Horário de documentos na primeira linha, à direita em coluna exclusiva, sem quebra; nome e ID podem ocupar múltiplas linhas, sem sobrepor o horário. Cartões compactos sem linha inferior vazia. Preservar o horário do grupo de anexos no documento principal.
