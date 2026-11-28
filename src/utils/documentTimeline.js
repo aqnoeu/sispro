@@ -31,3 +31,32 @@ export function orderPjeDocuments(rows){
  const other=rows.filter(d=>!d.cover&&!d.pjeOrder&&!d.pjePage&&!d.pjeReference).sort((a,b)=>compareTimeline(a,b,true))
  return [...covers,...ordered,...other]
 }
+
+// Judicial date/time takes priority. Original index order breaks ties, preserving
+// the principal before its attachments; the original PDF page is only a fallback.
+export function compareJudicial(a,b,ascending=false){
+ const direction=ascending?1:-1
+ const at=a.sortTime||'',bt=b.sortTime||''
+ return Number(!a.sortDate)-Number(!b.sortDate)
+ ||direction*String(a.sortDate||'').localeCompare(String(b.sortDate||''))
+ ||Number(!at)-Number(!bt)||direction*at.localeCompare(bt)
+ ||Number(!a.pjeOrder)-Number(!b.pjeOrder)||(a.pjeOrder||0)-(b.pjeOrder||0)
+ ||Number(!a.pjePage)-Number(!b.pjePage)||(a.pjePage||0)-(b.pjePage||0)
+ ||String(a.id).localeCompare(String(b.id))
+}
+const attachmentType=s=>/^(?:documento de (?:identificacao|comprovacao|representacao)|outros documentos|peticao inicial \(pdf\)|anexo(?:s)?)$/.test(normalize(s))
+const principalType=s=>/^(?:peticao(?: inicial| intermediaria)?|contestacao|manifestacao|certidao|decisao|despacho|sentenca|acordao|recurso|intimacao|oficio|ato ordinatorio|mandado|contrarrazoes|embargos|agravo|apelacao)(?:\b|$)/.test(normalize(s))&&!attachmentType(s)
+export function groupJudicialAttachments(rows){
+ const groups=[];let parent=null
+ for(const row of rows){
+  const type=row.pjeType||row.type
+  const timestamp=row.indexDate&&row.indexTime&&row.indexDateKind?row.indexDate+'T'+row.indexTime+'|'+row.indexDateKind:''
+  const indexed=Number.isSafeInteger(row.pjeOrder)&&row.pjeOrder>0
+  if(row.kind!=='movement'&&!row.cover&&indexed&&timestamp&&attachmentType(type)&&parent&&parent.timestamp===timestamp&&parent.lastOrder+1===row.pjeOrder){
+   parent.children.push(row);parent.lastOrder=row.pjeOrder;continue
+  }
+  const g={main:row,children:[],timestamp,lastOrder:row.pjeOrder};groups.push(g)
+  parent=row.kind!=='movement'&&!row.cover&&indexed&&timestamp&&principalType(type)?g:null
+ }
+ return groups
+}
