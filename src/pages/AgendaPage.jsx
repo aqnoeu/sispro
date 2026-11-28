@@ -15,10 +15,12 @@ import { compareByDateDesc, formatDayMonth, isToday } from '../utils/dates'
 export function AgendaPage() {
   const { currentUser } = useAuth()
  const canWrite=canAccess(currentUser,'agenda',2)
+ const canReadPrazos=canAccess(currentUser,'prazos',1)
   const [searchParams] = useSearchParams()
   const isAdmin = currentUser?.isAdmin
   const prefilledDate = searchParams.get('data') ?? ''
   const prefilledTipo = searchParams.get('tipo') ?? ''
+  const initialValuesOverride=useMemo(()=>({horario:prefilledDate ? `${prefilledDate} 09:00` : '',tipo:prefilledTipo}),[prefilledDate,prefilledTipo])
   const { rows, loading, error, source } = useCollectionData({
     collectionName: 'agenda',
     fallbackData: agenda,
@@ -43,7 +45,7 @@ export function AgendaPage() {
           dataBase: item.horario,
           dataExibicao: formatDayMonth(item.horario),
         })),
-        ...prazosCollection.rows.map((item) => ({
+        ...(canReadPrazos?prazosCollection.rows:[]).map((item) => ({
           id: `prazo-${item.id ?? item.processo ?? item.item}`,
           tipo: 'Prazo',
           titulo: item.parte ?? item.item ?? 'Prazo processual',
@@ -54,10 +56,10 @@ export function AgendaPage() {
           destaque: isToday(item.vencimento) ? 'Hoje' : '',
         })),
       ].sort((left, right) => compareByDateDesc(left.dataBase, right.dataBase)),
-    [prazosCollection.rows, rows],
+    [prazosCollection.rows, rows, canReadPrazos],
   )
 
-  if (isAdmin) {
+  if (!canAccess(currentUser,'agenda')) {
     return <Navigate to="/" replace />
   }
 
@@ -85,8 +87,8 @@ export function AgendaPage() {
       />
 
       <CollectionStatus
-        loading={loading || prazosCollection.loading}
-        error={error || prazosCollection.error}
+        loading={loading || (canReadPrazos&&prazosCollection.loading)}
+        error={error || (canReadPrazos?prazosCollection.error:'')}
         source={source === 'local' && prazosCollection.source === 'local' ? 'local' : 'remote'}
         empty={!timelineRows.length}
         label="agenda"
@@ -95,10 +97,7 @@ export function AgendaPage() {
       <fieldset disabled={!canWrite} style={{border:0,padding:0,minWidth:0}}><RecordForm
         config={formConfigs.agenda}
         formId="cadastro-agenda"
-        initialValuesOverride={{
-          horario: prefilledDate ? `${prefilledDate} 09:00` : '',
-          tipo: prefilledTipo,
-        }}
+        initialValuesOverride={initialValuesOverride}
         additionalValues={accessContext}
         scopeMessage={
           isAdmin

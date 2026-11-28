@@ -61,7 +61,7 @@ export function PrazosPage() {
     [filteredRows],
   )
 
-  if (isAdmin) {
+  if (!canAccess(currentUser,'prazos')) {
     return <Navigate to="/" replace />
   }
 

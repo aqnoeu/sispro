@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { canAccess } from '../utils/mechanicAccess.js'
 import { Link, Navigate } from 'react-router-dom'
 import { CollectionStatus } from '../components/ui/CollectionStatus'
 import { DataTable } from '../components/ui/DataTable'
@@ -16,7 +17,7 @@ import { buildUserAccessContext, canAccessOwnedRow, getStableOwnerId } from '../
 
 export function PrazosBatchPage() {
   const { currentUser } = useAuth()
-  const isAdmin = currentUser?.isAdmin
+  const canWrite = canAccess(currentUser,'prazos',2)&&canAccess(currentUser,'processos',2)
   const [rawInput, setRawInput] = useState('')
   const [previewRows, setPreviewRows] = useState([])
   const [summary, setSummary] = useState(null)
@@ -36,7 +37,7 @@ export function PrazosBatchPage() {
     [existingRows],
   )
 
-  if (isAdmin) {
+  if (!canWrite) {
     return <Navigate to="/" replace />
   }
 
@@ -63,6 +64,7 @@ export function PrazosBatchPage() {
   }
 
   async function handleSave() {
+    if(!canWrite)return
     const validRows = previewRows.filter((row) => row.status !== 'Duplicado' && row.status !== 'Linha invalida')
 
     if (!validRows.length) {
@@ -416,7 +418,7 @@ function normalizeDate(value) {
   const normalizedDay = day.padStart(2, '0')
   const normalizedMonth = month.padStart(2, '0')
   const isoDate = `${year}-${normalizedMonth}-${normalizedDay}`
-  const date = new Date(`${isoDate}T00:00:00`)
+  const date = new Date(`${isoDate}T00:00:00Z`)
 
   if (
     Number.isNaN(date.getTime()) ||

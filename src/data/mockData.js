@@ -3,7 +3,7 @@ export const navigationItems = [
   { label: 'Jurisprudência', path: '/jurisprudencia', description: 'Precedentes, pareceres e teses da Procuradoria' },
   { label: 'Processos', path: '/processos', description: 'Acompanhamento judicial' },
   { label: 'Prazos', path: '/prazos', description: 'Controle de vencimentos' },
-  { label: 'Oficios e Agenda', path: '/agenda', description: 'Expedientes e compromissos' },
+  { label: 'Ofícios e Agenda', path: '/agenda', description: 'Expedientes e compromissos' },
 ]
 
 export const adminNavigationItems = [
