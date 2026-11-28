@@ -93,3 +93,24 @@ dialog.pje-loading-overlay::backdrop{background:rgba(255,255,255,.62)}
 .case-piece.case-piece-document{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;column-gap:8px;padding-block:4px}
 .case-piece .case-doc-link{min-width:0}.case-doc-name{min-width:0;overflow-wrap:anywhere;white-space:normal}
 .case-piece-document .case-doc-time{grid-column:2;grid-row:1;white-space:nowrap;line-height:18.2px;font-variant-numeric:tabular-nums;color:#65727e;justify-self:end}
+
+
+/* Subtle speech-bubble tip aligned to the timeline marker. */
+.case-chronology .case-event-card{
+ position:relative;
+ box-shadow:0 2px 5px rgba(22,50,79,.09),0 1px 2px rgba(22,50,79,.04);
+}
+.case-chronology .case-event-card::before{
+ content:'';
+ position:absolute;
+ width:9px;
+ height:9px;
+ left:-5px;
+ top:50%;
+ transform:translateY(-50%) rotate(45deg);
+ background:#fff;
+ border-left:1px solid #cfd9df;
+ border-bottom:1px solid #cfd9df;
+ box-sizing:border-box;
+ pointer-events:none;
+}
