@@ -76,3 +76,5 @@ Valide CI 1.0.21, corrija falhas e execute os testes disponíveis. Implemente hi
 - 1.4.5: CI visual fixado em Ubuntu 24.04 porque Playwright 1.56.1 não suporta Ubuntu 26.04. Adicionado teste de importação real no Chromium com PDF sintético PJe (capa, duas peças, quatro páginas), sem prazos. Homologação pendente.
 
 - 1.4.6: árvore de documentos e movimentos reduzida para 320 px no desktop; removida a fileira de cinco ícones sob a pesquisa. Importação permanece no menu do processo, que recebe filtros, atualização, favoritos e ocultação/exibição da árvore. Pesquisa e marcadores de eventos preservados; visualizador utiliza o espaço recuperado. Sem mudança de registros, sessão ou permissões. Teste de layout e menu adicionado; CI/deployment a confirmar.
+
+- 1.4.7: reconhecimento de parte ativa no formato de tabela PJe, inclusive iniciais anonimizadas, papel REQUERENTE antes de advogado vinculado na mesma linha, e papel em linha separada. Prioriza a capa; múltiplas partes ambíguas não são inventadas. Fixtures fictícias adicionadas; validação com PDF original pendente.

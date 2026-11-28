@@ -77,14 +77,14 @@ test('autos fill available viewport without bottom gap or page scroll',async({pa
 test('imports a synthetic PJe PDF and separates its pieces without deadlines',async({page})=>{
  const {PDFDocument,StandardFonts}=require('pdf-lib');
  const pdf=await PDFDocument.create(),font=await pdf.embedFont(StandardFonts.Helvetica);
- const sheets=[['Número: 0000001-00.2026.8.08.0011','PESSOA FICTÍCIA (AUTOR)','Assunto: Saúde'],['Petição inicial','Num. 123456 - Pág. 1'],['Continuação','Num. 123456 - Pág. 2'],['Decisão','Num. 234567 - Pág. 1']];
+ const sheets=[['Número: 0000001-00.2026.8.08.0011','A. B. C. (REQUERENTE) ADVOGADA FICTÍCIA (ADVOGADO)','Assunto: Saúde'],['Petição inicial','Num. 123456 - Pág. 1'],['Continuação','Num. 123456 - Pág. 2'],['Decisão','Num. 234567 - Pág. 1']];
  for(const lines of sheets){const p=pdf.addPage();lines.forEach((line,i)=>p.drawText(line,{x:40,y:750-i*30,size:14,font}))}
  await page.setViewportSize({width:1366,height:768});await mock(page,{ceo:true});await login(page);
  await page.getByRole('button',{name:'Trocar para PGM',exact:true}).click();await page.getByRole('button',{name:'Processos',exact:true}).click();await page.getByRole('button',{name:'Cadastrar Processo',exact:true}).click();
  const d=page.getByRole('dialog',{name:'Cadastrar processo'});
  await d.locator('input[type=file]').setInputFiles({name:'autos-teste.pdf',mimeType:'application/pdf',buffer:Buffer.from(await pdf.save())});
  await expect(d.getByLabel('Número CNJ',{exact:true})).toHaveValue('0000001-00.2026.8.08.0011',{timeout:30000});
- await expect(d.getByLabel('Nome da parte',{exact:true})).toHaveValue('PESSOA FICTÍCIA');
+ await expect(d.getByLabel('Nome da parte',{exact:true})).toHaveValue('A. B. C.');
  await d.getByRole('button',{name:'Documentos (3)',exact:true}).click();
  await expect(d.getByText('3 arquivo(s) · 2 com ID PJe')).toBeVisible();
  await d.getByRole('button',{name:'Próximo documento'}).click();

@@ -8,13 +8,13 @@ export async function readProcessPdf(file,onProgress=()=>{}){
  const task=getDocument({data,isEvalSupported:false,useWorkerFetch:false,disableFontFace:true,enableXfa:false,stopAtErrors:true})
  let groups,fields,hasText
  try{
-  const pdf=await task.promise;const pages=[];let cover=''
+  const pdf=await task.promise;const pages=[];let cover='',firstPage=''
   for(let n=1;n<=pdf.numPages;n++){
    const page=await pdf.getPage(n),content=await page.getTextContent();let priorY=null,text=''
    for(const item of content.items){if(typeof item.str!=='string')continue;const y=item.transform?.[5];if(priorY!==null&&Math.abs(y-priorY)>3)text+='\n';text+=item.str+(item.hasEOL?'\n':' ');priorY=y??null}
-   pages.push(text.slice(-6000));if(n<=5)cover+=text+'\n';page.cleanup();if(n===1||n===pdf.numPages||n%10===0)onProgress(n,pdf.numPages)
+   pages.push(text.slice(-6000));if(n===1)firstPage=text;if(n<=5)cover+=text+'\n';page.cleanup();if(n===1||n===pdf.numPages||n%10===0)onProgress(n,pdf.numPages)
   }
-  const first=extractProcessFields(cover.split('\n').slice(0,100).join('\n'));fields=first;hasText=pages.some(p=>p.trim());groups=groupPjePages(pages)
+  const first=extractProcessFields(cover.split('\n').slice(0,100).join('\n'));const front=extractProcessFields(firstPage);if(front.fields.parte||front.ambiguous.includes('parte')){delete first.fields.parte;first.ambiguous=first.ambiguous.filter(k=>k!=='parte');if(front.fields.parte)first.fields.parte=front.fields.parte;else first.ambiguous.push('parte')}fields=first;hasText=pages.some(p=>p.trim());groups=groupPjePages(pages)
  }finally{await task.destroy()}
  const documents=await splitProcessPdf(file,groups)
  return {...fields,hasText,documents}
