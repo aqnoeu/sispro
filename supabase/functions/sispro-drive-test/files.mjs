@@ -7,15 +7,61 @@ const pdf=b=>b.length>=5&&b[0]===37&&b[1]===80&&b[2]===68&&b[3]===70&&b[4]===45;
 export async function boundedBytes(stream,max){if(!stream)throw Error('Resposta vazia.');const reader=stream.getReader(),chunks=[];let size=0;try{while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>max)throw Error('Limite de tamanho excedido.');chunks.push(value)}}finally{await reader.cancel().catch(()=>{});reader.releaseLock()}const bytes=new Uint8Array(size);let offset=0;for(const c of chunks){bytes.set(c,offset);offset+=c.length}return bytes}
 export function toBase64(bytes){let s='';for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(s)}
 export function fromBase64(s){if(typeof s!=='string'||s.length>Math.ceil(MAX/3)*4)throw Error('PDF acima de 5 MB.');let raw;try{raw=atob(s)}catch{throw Error('PDF inválido.')}const b=Uint8Array.from(raw,c=>c.charCodeAt(0));if(b.length>MAX||!pdf(b))throw Error('PDF inválido ou acima de 5 MB.');return b}
+
+export const LARGE_MAX=100*1024*1024, CHUNK=2*1024*1024;
+const digestPattern=/^[a-f0-9]{64}$/;
+function sessionUrl(value){const u=new URL(value);if(u.origin!=='https://www.googleapis.com'||u.pathname!=='/upload/drive/v3/files'||!u.searchParams.get('upload_id')||u.username||u.password)throw Error('Sessão inválida.');return u.href}
+export async function sealUpload(secret,state){
+ const key=await crypto.subtle.importKey('raw',await crypto.subtle.digest('SHA-256',encoder.encode('sispro-upload-v1:'+secret)),{name:'AES-GCM'},false,['encrypt']);
+ const iv=crypto.getRandomValues(new Uint8Array(12)),cipher=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,encoder.encode(JSON.stringify(state))));
+ const out=new Uint8Array(12+cipher.length);out.set(iv);out.set(cipher,12);return toBase64(out)
+}
+export async function openUpload(secret,handle,userId,processId){
+ if(typeof handle!=='string'||handle.length>8192)throw Error('Sessão inválida.');
+ const b=Uint8Array.from(atob(handle),c=>c.charCodeAt(0)),key=await crypto.subtle.importKey('raw',await crypto.subtle.digest('SHA-256',encoder.encode('sispro-upload-v1:'+secret)),{name:'AES-GCM'},false,['decrypt']);
+ const v=JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:b.slice(0,12)},key,b.slice(12))));
+ if(v.userId!==userId||v.processId!==processId||v.expires<Date.now()||!Number.isSafeInteger(v.total)||v.total<5||v.total>LARGE_MAX||!digestPattern.test(v.sha))throw Error('Sessão inválida.');
+ v.url=sessionUrl(v.url);return v
+}
+function block(s){if(typeof s!=='string'||s.length>Math.ceil(CHUNK/3)*4)throw Error('Bloco inválido.');const b=Uint8Array.from(atob(s),c=>c.charCodeAt(0));if(!b.length||b.length>CHUNK)throw Error('Bloco inválido.');return b}
+
 export function createFiles({token,userId,processId,numero,fetcher=fetch}){
  async function request(url,options={}){const r=await fetcher(url,{...options,headers:{...options.headers,Authorization:'Bearer '+token},signal:AbortSignal.timeout(40000)});if(!r.ok)throw Error('google');return r}
  async function list(q){let rows=[],next='',pages=0;do{const u=new URL(API);u.search=new URLSearchParams({q:"trashed = false and ("+q+")",fields:'nextPageToken,files(id,name,mimeType,createdTime,size,appProperties,sha256Checksum)',pageSize:'100',...(next?{pageToken:next}:{})});const result=await(await request(u.href)).json();rows.push(...(result.files||[]));next=result.nextPageToken||'';if(++pages>=20&&next)throw Error('Limite de documentos excedido.')}while(next);return rows}
  async function folder(parent,key,name,create){const matches=await list("mimeType = '"+FOLDER+"' and '"+safeId(parent)+"' in parents and appProperties has { key='siproKey' and value='"+qstr(key)+"' }");if(matches.length>1)throw Error('Pastas duplicadas; contate o suporte.');if(matches.length)return safeId(matches[0].id);if(!create)return '';return safeId((await(await request(API+'?fields=id',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,mimeType:FOLDER,parents:[parent],appProperties:{siproKey:key}})})).json()).id)}
  async function parent(create){const root=await folder('root',await hash(encoder.encode('sipro-web-test:'+userId)),'Sistema Procuradorias - Homologação',create);return root?folder(root,await hash(encoder.encode(processId)),String(numero).slice(0,150),create):''}
  const docs=(dir,term='')=>dir?list("'"+safeId(dir)+"' in parents and mimeType = 'application/pdf'"+(term?" and fullText contains '"+qstr(term)+"'":'')):[];
- const row=d=>({id:'drive:'+safeId(d.id),name:d.name,date:d.createdTime,source:'drive',hash:d.appProperties?.siproSha256||d.sha256Checksum||'',versionOf:d.appProperties?.siproVersionOf||'',size:Number(d.size)||0});
+ const row=d=>({id:'drive:'+safeId(d.id),name:d.name,date:d.createdTime,source:'drive',hash:d.sha256Checksum||d.appProperties?.siproSha256||'',versionOf:d.appProperties?.siproVersionOf||'',size:Number(d.size)||0});
  async function owned(dir,ref){if(typeof ref!=='string'||!ref.startsWith('drive:'))throw Error('Documento inválido.');const id=safeId(ref.slice(6));const d=(await docs(dir)).find(r=>r.id===id);if(!d)throw Error('Documento fora destes autos.');return d}
  return {async list(term=''){return (await docs(await parent(false),String(term).trim().slice(0,200))).map(row)},
  async upload({name,data,versionOf}){const bytes=fromBase64(data);if(typeof name!=='string'||!name.trim()||name.length>200||/[\x00-\x1f\/\\]/.test(name))throw Error('Nome de arquivo inválido.');const dir=await parent(true);const rows=await docs(dir);const sha=await hash(bytes);const existing=rows.find(d=>(d.appProperties?.siproSha256||d.sha256Checksum)===sha);if(existing)return {...row(existing),duplicate:true};let previous='';if(versionOf)previous=safeId((await owned(dir,versionOf)).id);const boundary='sipro_'+crypto.randomUUID().replace(/-/g,'');const meta={name,mimeType:'application/pdf',parents:[dir],appProperties:{siproSha256:sha,...(previous?{siproVersionOf:previous}:{})}};const body=new Blob(['--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+JSON.stringify(meta)+'\r\n--'+boundary+'\r\nContent-Type: application/pdf\r\n\r\n',bytes,'\r\n--'+boundary+'--\r\n']);const result=await(await request('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,createdTime,size,appProperties',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+boundary},body})).json();return row(result)},
+
+ async begin({name,total,sha,versionOf}){
+  if(typeof name!=='string'||!name.trim()||name.length>200||/[\x00-\x1f\/\\]/.test(name)||!Number.isSafeInteger(total)||total<=MAX||total>LARGE_MAX||!digestPattern.test(sha))throw Error('PDF inválido.');
+  const dir=await parent(true),rows=await docs(dir),existing=rows.find(d=>(d.sha256Checksum||d.appProperties?.siproSha256)===sha&&Number(d.size)===total);
+  if(existing)return {file:{...row(existing),duplicate:true}};
+  const previous=versionOf?safeId((await owned(dir,versionOf)).id):'',meta={name,mimeType:'application/pdf',parents:[dir],appProperties:previous?{siproVersionOf:previous}:{}};
+  const r=await request('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id,name,createdTime,size,appProperties,sha256Checksum',{method:'POST',headers:{'Content-Type':'application/json','X-Upload-Content-Type':'application/pdf','X-Upload-Content-Length':String(total)},body:JSON.stringify(meta)});
+  return {session:{url:sessionUrl(r.headers.get('location')),userId,processId,total,sha,expires:Date.now()+6*86400000}}
+ },
+ async transfer(state,{offset,data,statusOnly=false}){
+  const total=state.total;let bytes=new Uint8Array(),range='bytes */'+total;
+  if(!statusOnly){bytes=block(data);if(!Number.isSafeInteger(offset)||offset<0||offset+bytes.length>total||offset% (256*1024)!==0||((offset+bytes.length<total)&&bytes.length%(256*1024)!==0)||(offset===0&&!pdf(bytes)))throw Error('Bloco inválido.');range='bytes '+offset+'-'+(offset+bytes.length-1)+'/'+total}
+  const r=await fetcher(sessionUrl(state.url),{method:'PUT',redirect:'manual',headers:{Authorization:'Bearer '+token,'Content-Type':'application/pdf','Content-Range':range},body:bytes,signal:AbortSignal.timeout(40000)});
+  if(r.status===308){const h=r.headers.get('range'),m=h?.match(/^bytes=0-(\d+)$/i),next=m?Number(m[1])+1:0;if(!Number.isSafeInteger(next)||next<0||next>=total)throw Error('Resposta inválida.');return {next}}
+  if(r.status===404||r.status===410)return {expired:true};
+  if(!r.ok)throw Error('google');const d=await r.json();
+  if(Number(d.size)!==total||d.sha256Checksum!==state.sha)throw Error('Integridade do PDF não confirmada.');
+  return {file:row(d)}
+ },
+ async readBlock(ref,offset=0){
+  const d=await owned(await parent(false),ref),total=Number(d.size);
+  if(!Number.isSafeInteger(total)||total<5||total>LARGE_MAX||!Number.isSafeInteger(offset)||offset<0||offset>=total)throw Error('Intervalo inválido.');
+  const end=Math.min(total-1,offset+CHUNK-1),r=await request(API+'/'+safeId(d.id)+'?alt=media',{headers:{Range:'bytes='+offset+'-'+end}});
+  if(r.status!==206&&!(offset===0&&end===total-1&&r.status===200))throw Error('Intervalo não recebido.');
+  if(r.status===206&&r.headers.get('content-range')!=='bytes '+offset+'-'+end+'/'+total)throw Error('Intervalo inválido.');
+  const bytes=await boundedBytes(r.body,CHUNK);if(bytes.length!==end-offset+1||(offset===0&&!pdf(bytes)))throw Error('Arquivo inválido.');
+  return {data:toBase64(bytes),total,next:end+1}
+ },
  async read(ref){const d=await owned(await parent(false),ref);if(Number(d.size)>MAX)throw Error('PDF acima de 5 MB.');const r=await request(API+'/'+safeId(d.id)+'?alt=media');const bytes=await boundedBytes(r.body,MAX);if(!pdf(bytes))throw Error('Arquivo recebido não é PDF.');return {data:toBase64(bytes)}}}
 }

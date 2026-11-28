@@ -1,4 +1,4 @@
-import {createFiles,boundedBytes} from './files.mjs';
+import {createFiles,boundedBytes,sealUpload,openUpload} from './files.mjs';
 const origin='https://sispro-eight.vercel.app';
 const redirect=origin+'/drive-callback.html';
 const scope='https://www.googleapis.com/auth/drive.file';
@@ -42,7 +42,7 @@ Deno.serve(async req=>{
  let id:string;try{id=await owner(token)}catch{return respond({error:'Acesso restrito ao PGM de teste autorizado.'},403)}
  try{
   const raw=new TextDecoder().decode(await boundedBytes(req.body,7*1024*1024));
-  const b=JSON.parse(raw);if(b.action!=='files-upload'&&raw.length>16000)return respond({error:'Solicitação inválida.'},400);const current=await read(id),rev=current?.revision??null,v=current?.value??{};
+  const b=JSON.parse(raw);if(!['files-upload','files-upload-chunk'].includes(b.action)&&raw.length>16000)return respond({error:'Solicitação inválida.'},400);const current=await read(id),rev=current?.revision??null,v=current?.value??{};
   if(b.action==='status')return respond(status(v));
   if(b.action==='configure'){
    if(v.refresh_token)return respond({error:'Desconecte a conta antes de alterar a credencial.'},409);
@@ -66,7 +66,7 @@ Deno.serve(async req=>{
    const name=await account(t.access_token);const next={...clean,refresh_token:t.refresh_token,account:name};
    await owner(token);await write(id,consumed,next);return respond(status(next));
   }
-  if(['files-list','files-search','files-upload','files-read'].includes(b.action)){
+  if(['files-list','files-search','files-upload','files-read','files-upload-start','files-upload-chunk','files-upload-status','files-read-block'].includes(b.action)){
    if(!v.refresh_token)return respond({error:'Conecte a conta Google primeiro.'},400);
    if(typeof b.processId!=='string'||!b.processId||b.processId.length>256)return respond({error:'Processo inválido.'},400);
    const rows=await rest('/rest/v1/sispro_test_pgm_workspaces?select=data,active&user_id=eq.'+encodeURIComponent(id),pub,token);
@@ -77,6 +77,9 @@ Deno.serve(async req=>{
    if(b.action==='files-list')return respond(await provider.list());
    if(b.action==='files-search')return respond(await provider.list(typeof b.term==='string'?b.term:''));
    if(b.action==='files-upload')return respond(await provider.upload(b));
+   if(b.action==='files-upload-start'){const result=await provider.begin(b);return respond('file' in result?result:{handle:await sealUpload(service,result.session),next:0})}
+   if(b.action==='files-upload-chunk'||b.action==='files-upload-status'){const state=await openUpload(service,b.handle,id,b.processId);return respond(await provider.transfer(state,{offset:b.offset,data:b.data,statusOnly:b.action==='files-upload-status'}))}
+   if(b.action==='files-read-block')return respond(await provider.readBlock(b.fileId,b.offset));
    return respond(await provider.read(b.fileId));
   }
   if(b.action==='check'){

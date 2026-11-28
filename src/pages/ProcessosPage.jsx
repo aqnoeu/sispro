@@ -149,6 +149,7 @@ export function ProcessosPage() {
     setProcessFeedback({ type: '', message: '' })
 
     try {
+      const number=String(processForm.numero||'').trim();const existing=processosCollection.rows.find(row=>String(row.numero||'').trim()===number);if(existing)throw Error('Este processo já está cadastrado. Abra os autos e use Importar PDF completo e separar.');
       const accessContext = buildUserAccessContext(currentUser)
       const createdId = await createCollectionDocument({
         collectionName: 'processos',
