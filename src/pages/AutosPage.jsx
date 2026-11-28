@@ -7,7 +7,7 @@ import { getProcessoStatusTone } from '../utils/processos'
 import { ProcessoDetailPage } from './ProcessoDetailPage'
 import { useAuth } from '../contexts/useAuth'
 import { database,doc,setDoc } from '../services/local/database'
-import { DOCUMENT_TYPES,dateKey,dateLabel,enrichDocuments,filterDocuments,validateMetadata,groupTimeline,compareJudicial,navigationDocuments,groupJudicialAttachments } from '../utils/documentTimeline'
+import { DOCUMENT_TYPES,dateKey,dateLabel,enrichDocuments,filterDocuments,validateMetadata,groupTimeline,compareJudicial,navigationDocuments,groupJudicialAttachments,isInitialRegistrationMovement } from '../utils/documentTimeline'
 import { useCollectionData } from '../services/local/useCollectionData'
 import { canAccessOwnedRow } from '../utils/accessScope'
 import { createWebDrive,WEB_MAX_FILE_BYTES,exportAutosZip } from '../utils/webAutos.js'
@@ -59,7 +59,7 @@ export function AutosPage(){
  const docs=useMemo(()=>enrichDocuments([...files,...cloudFiles,...linkedDocuments(process,(canAccess(currentUser,'prazos')?deadlines.rows:[]).filter(r=>(r.processo??r.numeroProcesso)===numero))],metadata.rows),[files,cloudFiles,process,deadlines.rows,numero,metadata.rows,currentUser])
  const visibleDocs=navigationDocuments(docs,showCover)
  const filtered=filterDocuments((contentIds?visibleDocs.filter(d=>contentIds.includes(d.id)):visibleDocs).filter(d=>!onlyFavorites||favorites.includes(d.id)),{search,type:typeFilter,source:sourceFilter,from,to,ascending,preserveOrder:true})
- const moves=useMemo(()=>Array.isArray(process?.historico)?process.historico.map((m,i)=>({id:'internal-move:'+i,kind:'movement',name:m.descricao||m.status||'Registro interno',sortDate:dateKey(m.data),rawDate:m.data,sortTime:formatTime(m.data),status:m.status})):[],[process?.historico])
+ const moves=useMemo(()=>Array.isArray(process?.historico)?process.historico.map((m,i)=>({id:'internal-move:'+i,kind:'movement',name:m.descricao||m.status||'Registro interno',sortDate:dateKey(m.data),rawDate:m.data,sortTime:formatTime(m.data),status:m.status,hiddenFromAutos:isInitialRegistrationMovement(m)})).filter(m=>!m.hiddenFromAutos):[],[process?.historico])
  const timelineRows=[...(showDocs?filtered.map(d=>({...d,kind:'document'})):[]),...(showMoves&&!onlyFavorites&&!contentIds&&!typeFilter&&!sourceFilter?moves.filter(m=>(!search||m.name.toLocaleLowerCase('pt-BR').includes(search.toLocaleLowerCase('pt-BR')))&&(!from||m.sortDate>=from)&&(!to||m.sortDate<=to)):[])]
  const timeline=timelineRows.sort((a,b)=>compareJudicial(a,b,ascending))
  const navDocs=showDocs?[...filtered].sort((a,b)=>compareJudicial(a,b,ascending)):[]
@@ -142,7 +142,7 @@ export function AutosPage(){
  const importAllowed=canWrite&&!busy&&(demo||bridge||(web&&connected))
  const selectedTime=active?displayTime(active):''
  return <div className="autos-page case-workspace" aria-busy={updatingIndex||!!operationProgress}>
- {operationProgress&&<PjeLoading progress={operationProgress}/>}
+ {operationProgress&&<PjeLoading progress={operationProgress} skeleton={updatingIndex} treeWidth={actualTreeWidth} collapsed={collapsed}/>}
  <header className="case-header">
   <Link className="case-header-icon" to="/processos" aria-label="Voltar aos processos" title="Voltar aos processos"><ArrowLeft size={21}/></Link>
   <button type="button" className="case-identity" aria-expanded={detailsOpen} aria-controls="case-details" onClick={()=>setDetailsOpen(v=>!v)}><span><strong>{process.classe||process.classeProcessual? (process.classe||process.classeProcessual)+' ':''}{process.numero}</strong><small>{process.parte||'Parte não informada'}{process.orgao?' · '+process.orgao:''}</small></span><ChevronDown size={19}/></button>
@@ -174,8 +174,18 @@ function readTreeWidth(key){try{const value=Number(localStorage.getItem(key));re
 function displayTime(d){return d.sortTime||(d.dateOrigin==='armazenamento'?formatTime(d.date):'')}
 function dateOriginLabel(origin){return ({juntada:'Juntada',assinatura:'Assinatura no PJe',protocolo:'Protocolo no PJe',referência:'Data de referência',armazenamento:'Armazenado no sistema','pje-desconhecida':'Data original não identificada'})[origin]||'Data não informada'}
 
-function PjeLoading({progress}){
+function PjeLoading({progress,skeleton=false,treeWidth=330,collapsed=false}){
  const ref=useRef(null)
  useEffect(()=>{const el=ref.current;el.showModal();return()=>{if(el.open)el.close()}},[])
+ if(skeleton)return <dialog ref={ref} className="pje-loading-overlay pje-skeleton-overlay" aria-label="Atualizando autos" onCancel={e=>e.preventDefault()}>
+  <div className="pje-skeleton-shell" aria-hidden="true" style={{'--skeleton-tree-width':treeWidth+'px'}}>
+   <div className="pje-skeleton-header"><i/><i/><i/></div>
+   <div className={'pje-skeleton-workspace'+(collapsed?' pje-skeleton-collapsed':'')}>
+    {!collapsed&&<div className="pje-skeleton-tree"><i className="pje-skeleton-search"/>{Array.from({length:6},(_,n)=><div className="pje-skeleton-event" key={n}><i className="pje-skeleton-date"/><div className="pje-skeleton-card"><i/><i/></div></div>)}</div>}
+    <div className="pje-skeleton-document"><div className="pje-skeleton-toolbar"><i/><i/></div><div className="pje-skeleton-paper"><i/>{Array.from({length:9},(_,n)=><i key={n}/>)}</div></div>
+   </div>
+  </div>
+  <div className="pje-skeleton-status" role="status" aria-live="polite"><span className="pje-loading-logo" aria-hidden="true"/><strong>Carregando autos…</strong><small>{progress.label}</small><span className="pje-skeleton-meter" role="progressbar" aria-label={progress.label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress.value}><i style={{width:progress.value+'%'}}/></span></div>
+ </dialog>
  return <dialog ref={ref} className="pje-loading-overlay" aria-label="Progresso dos autos" onCancel={e=>e.preventDefault()}><div role="status" aria-live="polite"><span className="pje-loading-logo" aria-hidden="true"/><strong className="pje-progress-value" role="progressbar" aria-label={progress.label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress.value}>{progress.value}%</strong><small>{progress.label}</small></div></dialog>
 }

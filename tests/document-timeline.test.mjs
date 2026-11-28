@@ -21,3 +21,11 @@ test('same PJe signature groups attachments even with missing type and nonconsec
  assert.equal(groupJudicialAttachments([rows[0],unrelated]).length,2)
  assert.equal(groupJudicialAttachments([rows[0],{...rows[1],indexTime:''}]).length,2)
 })
+
+test('internal registration is hidden in autos only; other movements remain',async()=>{
+ const {isInitialRegistrationMovement}=await import('../src/utils/documentTimeline.js')
+ assert.equal(isInitialRegistrationMovement({descricao:'Cadastro inicial do processo no monitoramento processual.'}),true)
+ assert.equal(isInitialRegistrationMovement({status:'CADASTRO INICIAL DO PROCESSO NO MONITORAMENTO PROCESSUAL'}),true)
+ assert.equal(isInitialRegistrationMovement({descricao:'Petição inicial'}),false)
+ assert.equal(isInitialRegistrationMovement({descricao:'Atualização do cadastro do processo'}),false)
+})

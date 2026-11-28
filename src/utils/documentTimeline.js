@@ -57,3 +57,9 @@ export function groupJudicialAttachments(rows){
  }
  return groups
 }
+
+
+// Keep administrative creation events in the audit history, not in judicial autos.
+export function isInitialRegistrationMovement(m){
+ return normalize(m?.descricao||m?.status||'').trim().replace(/\s+/g,' ').replace(/[.!]+$/,'')==='cadastro inicial do processo no monitoramento processual'
+}

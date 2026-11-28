@@ -131,3 +131,30 @@ dialog.pje-loading-overlay::backdrop{background:rgba(255,255,255,.62)}
  background:#aeb6bc;
  pointer-events:none;
 }
+
+
+/* Index refresh replaces the old translucent percentage overlay only in this workflow. */
+dialog.pje-loading-overlay.pje-skeleton-overlay{background:#f5f7f9;color:#53647b}
+.pje-skeleton-overlay::backdrop{background:#f5f7f9}
+.pje-skeleton-overlay>.pje-skeleton-shell{position:absolute;inset:0;display:flex;flex-direction:column;gap:0;padding:0;text-align:left;overflow:hidden;pointer-events:none}
+.pje-skeleton-shell i{display:block;border-radius:5px;background:linear-gradient(100deg,#e1e6eb 25%,#f1f4f6 48%,#e1e6eb 72%);background-size:220% 100%;animation:pje-skeleton-shimmer 1.8s ease-in-out infinite}
+.pje-skeleton-header{height:62px;flex-shrink:0;background:white;border-bottom:1px solid #e0e6eb;display:flex;gap:16px;align-items:center;padding:0 22px}
+.pje-skeleton-header i:nth-child(1){width:34px;height:34px}.pje-skeleton-header i:nth-child(2){width:min(260px,40%);height:15px}.pje-skeleton-header i:nth-child(3){width:95px;height:16px;margin-left:auto}
+.pje-skeleton-workspace{display:grid;grid-template-columns:minmax(220px,var(--skeleton-tree-width)) minmax(0,1fr);flex:1;min-height:0;overflow:hidden}
+.pje-skeleton-workspace.pje-skeleton-collapsed{grid-template-columns:minmax(0,1fr)}
+.pje-skeleton-tree{background:#e9eef1;border-right:1px solid #d8e0e6;padding:14px 12px;overflow:hidden}
+.pje-skeleton-tree .pje-skeleton-search{width:100%;height:29px;margin-bottom:18px}
+.pje-skeleton-event{position:relative;padding:0 0 13px 17px}.pje-skeleton-event:before{content:'';position:absolute;left:4px;top:20px;bottom:0;border-left:1px solid #cbd5dd}
+.pje-skeleton-event:after{content:'';position:absolute;left:1px;top:43px;width:7px;height:7px;background:#c4d0d9;border-radius:50%}
+.pje-skeleton-event .pje-skeleton-date{width:72px;height:10px;margin:0 auto 9px}
+.pje-skeleton-card{background:#fff;border:1px solid #dce3e8;border-radius:8px;padding:14px 10px;display:grid;gap:9px}.pje-skeleton-card i:first-child{width:88%;height:12px}.pje-skeleton-card i:last-child{width:54%;height:10px}
+.pje-skeleton-document{display:flex;flex-direction:column;align-items:center;overflow:hidden;background:#f0f3f5}
+.pje-skeleton-toolbar{width:100%;height:64px;background:#fff;display:flex;align-items:center;gap:12px;padding:0 18px;border-bottom:1px solid #dde4e9}.pje-skeleton-toolbar i:first-child{width:45%;height:14px}.pje-skeleton-toolbar i:last-child{width:60px;height:14px;margin-left:auto}
+.pje-skeleton-paper{width:min(72%,680px);min-height:75vh;margin:28px 0;background:#fff;box-shadow:0 2px 10px #16324f09;padding:clamp(20px,5vw,60px);display:grid;align-content:start;gap:18px}.pje-skeleton-paper i{height:11px;width:100%}.pje-skeleton-paper i:first-child{width:42%;height:18px;margin:0 auto 24px}.pje-skeleton-paper i:nth-child(4n){width:65%}
+.pje-skeleton-overlay>.pje-skeleton-status{position:relative;z-index:1;display:grid;justify-items:center;gap:9px;padding:22px 30px;background:rgba(255,255,255,.95);border:1px solid #e0e6eb;border-radius:12px;box-shadow:0 5px 22px #16324f0d;text-align:center;max-width:calc(100% - 32px)}
+.pje-skeleton-status .pje-loading-logo{width:32px;height:32px;opacity:.78}
+.pje-skeleton-status strong{font-size:14px;font-weight:600;color:#456477}.pje-skeleton-status small{font-size:12px;color:#65727e}
+.pje-skeleton-meter{width:150px;height:3px;background:#e7edf1;border-radius:10px;overflow:hidden}.pje-skeleton-meter i{display:block;height:100%;background:#80a9bd;transition:width .2s ease}
+@keyframes pje-skeleton-shimmer{from{background-position:110% 0}to{background-position:-110% 0}}
+@media(max-width:700px){.pje-skeleton-workspace{grid-template-columns:40% minmax(0,1fr)}.pje-skeleton-paper{width:84%;padding:18px}}
+@media(prefers-reduced-motion:reduce){.pje-skeleton-shell i{animation:none}.pje-skeleton-meter i{transition:none}}
