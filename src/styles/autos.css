@@ -16,7 +16,7 @@
 .case-header-actions,.case-menu-wrap{display:flex;align-items:center;position:relative}.case-menu{position:absolute;right:0;top:100%;min-width:230px;box-shadow:0 4px 16px #16324f30;background:#fff;color:#16324f;border:1px solid #cbd7df;z-index:4;display:grid}.case-menu button,.case-menu a{border:0;background:white;color:inherit;text-align:left;padding:11px 14px;font-size:13px}.case-menu button:hover,.case-menu a:hover{background:#ddf2fc}.case-menu button:disabled{opacity:.45}
 .case-details{padding:14px;background:#f5f9fc;border-bottom:1px solid #cbd7df}.case-details dl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 12px}.case-details dt{font-size:11px;color:#53647b}.case-details dd{margin:3px 0 0;font-size:13px;overflow-wrap:anywhere}
 .case-message{padding:8px 14px;margin:0;font-size:13px;border-bottom:1px solid #d4dfe5}
-.case-split{display:grid;grid-template-columns:minmax(280px,31%) minmax(0,1fr);min-height:0;height:auto}
+.case-split{display:grid;grid-template-columns:320px minmax(0,1fr);min-height:0;height:auto}
 .case-split--collapsed{grid-template-columns:minmax(0,1fr)}
 .case-chronology{display:flex;flex-direction:column;min-width:0;min-height:0;background:#e9eef1;border-right:1px solid #c0cbd2}
 .case-chronology-tools{background:#f5f7f8;padding:8px;border-bottom:1px solid #cbd7df;display:grid;gap:5px}.case-search{display:flex;align-items:center;gap:7px;border:1px solid #bfcdd5;background:white;padding:6px 8px;color:#53647b}.case-search input{width:100%;min-width:0;border:0;background:transparent;font-size:12px}
@@ -53,3 +53,6 @@
  .case-chronology-tools,.case-document-bar,.case-document-controls{flex-shrink:0}
 }
 @media(min-width:851px) and (max-height:479px){.case-workspace>.case-split{min-height:360px}}
+
+/* Compact document tree; actions are grouped in the process menu. */
+.case-chronology-tools{gap:0}.case-chronology .case-event-card{overflow-wrap:anywhere}.case-filter-panel .autos-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.case-filter-panel .autos-filters label,.case-filter-panel .autos-filters input,.case-filter-panel .autos-filters select{min-width:0;max-width:100%}.case-menu button[aria-pressed=true]{background:#ddf2fc}
