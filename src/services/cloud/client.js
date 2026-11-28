@@ -97,6 +97,13 @@ export class CloudClient {
     if(!Array.isArray(rows)||rows.length!==body.length) throw new Error('Não foi possível confirmar todas as permissões gravadas. Atualize a página.')
     return rows
   }
+  async driveRequest(body) {
+    const s=this.requireSession()
+    if(s.mode!=='pgm'||!s.user.canTestPgm)throw new Error('Acesso restrito ao PGM de teste.')
+    const r=await this.request('/functions/v1/sispro-drive-test',{token:s.token,method:'POST',body})
+    this.assertSession(s)
+    return r
+  }
   async adminTable(table, row, id) {
     const s=this.requireSession()
     const allowed=['institutions','roles','sectors','cabinets','members','mechanics','permissions','institution_mechanics']

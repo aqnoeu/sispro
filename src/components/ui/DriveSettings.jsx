@@ -1,7 +1,13 @@
 import { useEffect,useState } from 'react'
 import { Cloud,Info,FileKey,Link2,Unlink,RefreshCw,Save } from 'lucide-react'
 import { useAuth } from '../../contexts/useAuth'
+import { WebDriveSettings } from './WebDriveSettings'
 export function DriveSettings(){
+ const {currentUser}=useAuth()
+ if(currentUser?.isCloud)return <WebDriveSettings/>
+ return <DesktopDriveSettings/>
+}
+function DesktopDriveSettings(){
  const {currentUser}=useAuth(),bridge=currentUser?.isDemo?null:globalThis.siproDrive
  const [status,setStatus]=useState(null),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[error,setError]=useState('')
  const [editing,setEditing]=useState(false),[clientId,setClientId]=useState(''),[secret,setSecret]=useState('')
