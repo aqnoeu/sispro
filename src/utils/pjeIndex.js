@@ -30,8 +30,8 @@ export function parsePjeIndex(text,allowedIds){
   const raw=rows[i],line=clean(raw),n=normalize(line)
   if(!line)continue
   const header=normalize(rows.slice(i,i+4).join(' '))
-  if(/(?:^|\b)id\.?(?:\s|$)/.test(n)&&/data (?:da |de )?(?:assinatura|juntada|protocolo)/.test(header)&&/documento/.test(header)){
-   flush();inside=true;kind=/data (?:da |de )?assinatura/.test(header)?'assinatura':/data (?:da |de )?juntada/.test(header)?'juntada':'protocolo';continue
+  if(/(?:^|\b)id\.?(?:\s|$)/.test(n)&&/\bdata\b/.test(header)&&/\b(?:assinatura|juntada|protocolo)\b/.test(header)&&/documento/.test(header)){
+   flush();inside=true;kind=/\bassinatura\b/.test(header)?'assinatura':/\bjuntada\b/.test(header)?'juntada':'protocolo';continue
   }
   if(!inside)continue
   if(/^(?:data (?:da |de )?(?:assinatura|juntada|protocolo)|documento(?: tipo)?|tipo|documentos|id\.?)$/.test(n))continue
@@ -40,7 +40,20 @@ export function parsePjeIndex(text,allowedIds){
    const next=rows[i+1]||'',d=next.match(/^\s*(\d{2}\/\d{2}\/\d{4})(?:\s+(\d{2}:\d{2}(?::\d{2})?))?\s*(.*)$/)
    if(d){m=[line,line,d[1],d[2],d[3]||''];i++}
   }
-  if(m){flush();current={id:m[1],date:dateKey(m[2]),time:m[3]||'',body:m[4]||'',indexOrder:++sequence};continue}
+  if(m){
+   flush()
+   let id=m[1],body=m[4]||''
+   // Narrow PJe ID column wraps, e.g. 10958 + 0483. Match the entire ID,
+   // never just its prefix. A following dated row is a new record.
+   const next=rows[i+1]||'',suffix=next.match(/^\s*(\d{1,8})(?!\d)(?:\t+|\s+|$)(.*)$/)
+   if(suffix&&!/^\d{1,8}\s+\d{2}\/\d{2}\/\d{4}/.test(clean(next))){
+    const full=id+suffix[1]
+    if(full.length<=16&&(ids?ids.has(full)&&!ids.has(id):id.length<8&&full.length>=8)){
+     id=full;i++;if(suffix[2]?.trim())body+=' '+suffix[2].trim()
+    }
+   }
+   current={id,date:dateKey(m[2]),time:m[3]||'',body,indexOrder:++sequence};continue
+  }
   if(current&&!current.time){
    const clock=raw.match(/^\s*(\d{2}:\d{2}(?::\d{2})?)\s*(.*)$/)
    if(clock){current.time=clock[1];if(clock[2])current.body+=(current.body?' ':'')+clock[2];continue}
@@ -66,3 +79,45 @@ export function matchPjeIndex(rows,index){
  return rows.flatMap(d=>{const id=d.pjeReference||d.reference||pjeIdFromName(d.storageName||d.name);const pje=index.get(id);return pje?[{document:d,entry:{id,pje}}]:[]})
 }
 export function pjeKnownType(value){return DOCUMENT_TYPES.find(t=>normalize(t)===normalize(value))||'Não classificado'}
+
+// Read the four physical columns instead of PDF text-stream order. Each
+// row contains PDF.js text items with original x/y coordinates and widths.
+export function pjeTableRows(visualRows,pageWidth){
+ const rows=[...visualRows].sort((a,b)=>b.y-a.y)
+ const label=(item)=>normalize(item.str)
+ let header=-1,docX=0,typeCenter=0,kind='',idX=0
+ for(let i=0;i<rows.length;i++){
+  const items=rows[i].items
+  const id=items.find(x=>/^id\.?$/.test(label(x))),doc=items.find(x=>/^documento$/.test(label(x))),type=items.find(x=>/^tipo$/.test(label(x)))
+  const words=normalize(rows.slice(i,i+3).flatMap(r=>r.items.map(x=>x.str)).join(' '))
+  if(id&&doc&&type&&/\bdata\b/.test(words)&&/\b(assinatura|juntada|protocolo)\b/.test(words)){
+   header=i;docX=doc.x;typeCenter=type.x+type.width/2;idX=id.x;kind=/\bassinatura\b/.test(words)?'assinatura':/\bjuntada\b/.test(words)?'juntada':'protocolo';break
+  }
+ }
+ if(header<0)return ''
+ const dateItem=rows.slice(header+1).flatMap(r=>r.items).find(x=>/^\s*\d{2}\/\d{2}\/\d{4}\b/.test(x.str))
+ if(!dateItem||!(idX<dateItem.x&&dateItem.x<docX&&docX<typeCenter))return ''
+ const dateX=dateItem.x-2,documentX=docX-3,typeX=Math.max(documentX+20,2*typeCenter-(pageWidth-Math.max(0,idX-10))-3)
+ const result=['Id. Data da '+kind+' Documento Tipo']
+ let current=null
+ const flush=()=>{if(!current)return;const id=current.id.replace(/\s/g,'');if(/^\d{4,16}$/.test(id)&&current.date&&current.title)result.push(id+'\t'+current.date+'\t'+current.title+(current.type?'\t'+current.type:''));current=null}
+ for(const row of rows.slice(header+1)){
+  const cells=['','','','']
+  for(const item of [...row.items].sort((a,b)=>a.x-b.x)){
+   const x=item.x,j=x<dateX?0:x<documentX?1:x<typeX?2:3
+   cells[j]+=(cells[j]?' ':'')+item.str.trim()
+  }
+  const [id,date,title,type]=cells.map(clean)
+  if(/^\d{1,16}$/.test(id)&&/^\d{2}\/\d{2}\/\d{4}\b/.test(date)){
+   flush();current={id,date,title,type};continue
+  }
+  if(!current)continue
+  if(id&& !/^\d{1,8}$/.test(id)){flush();continue}
+  if(/^\d{1,8}$/.test(id)&&!date&&current.id.length+id.length<=16)current.id+=id
+  if(date&&/^\d{2}:\d{2}(?::\d{2})?$/.test(date)&&!/\d{2}:\d{2}/.test(current.date))current.date+=' '+date
+  else if(date){flush();continue}
+  if(title)current.title+=(current.title?' ':'')+title
+  if(type)current.type+=(current.type?' ':'')+type
+ }
+ flush();return result.join('\n')
+}

@@ -60,3 +60,13 @@
 /* Resizable tree separator, with full pointer capture and keyboard support. */
 .case-tree-divider{background:#e9eef1;position:relative;cursor:col-resize;touch-action:none;user-select:none;min-width:0;z-index:2}.case-tree-divider::after{content:'';position:absolute;inset:0 auto 0 2px;width:1px;background:#c0cbd2}.case-tree-divider:hover,.case-tree-divider:focus-visible,.case-split--resizing .case-tree-divider{background:#ddf2fc;outline:none}.case-tree-divider:hover::after,.case-tree-divider:focus-visible::after,.case-split--resizing .case-tree-divider::after{width:2px;background:#006b9a}.case-split--resizing{cursor:col-resize;user-select:none}.case-split--resizing iframe{pointer-events:none}.case-chronology{border-right:0}
 @media(max-width:850px){.case-tree-divider{display:none}.case-chronology{border-bottom:1px solid #c0cbd2}}
+
+/* Transparent institutional progress overlay, top layer above PDF iframe. */
+dialog.pje-loading-overlay{position:fixed;inset:0;margin:auto;width:100%;max-width:none;height:100%;max-height:none;border:0;padding:0;background:transparent;overflow:hidden;color:#006b9a}
+dialog.pje-loading-overlay[open]{display:grid;place-items:center}
+dialog.pje-loading-overlay::backdrop{background:rgba(255,255,255,.62)}
+.pje-loading-overlay>div{display:grid;justify-items:center;gap:9px;text-align:center;padding:18px}
+.pje-loading-logo{display:block;width:76px;height:76px;background:#007ca8;mask:url('/logo-branca.svg') center/contain no-repeat;-webkit-mask:url('/logo-branca.svg') center/contain no-repeat;animation:pje-logo-spin 1.6s linear infinite}
+.pje-loading-overlay strong{font-size:16px;color:#006b9a}.pje-loading-overlay small{font-size:12px;color:#34536a}
+@keyframes pje-logo-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.pje-loading-logo{animation:none}}

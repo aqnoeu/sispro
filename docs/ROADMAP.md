@@ -92,3 +92,5 @@ Valide CI 1.0.21, corrija falhas e execute os testes disponíveis. Implemente hi
 - 1.4.13: índice aceita data e hora quebradas em linhas físicas distintas e evita reexaminar páginas anteriores durante leitura. Testes sintéticos adicionados.
 
 - 1.4.14: ordem padrão dos autos segue a sequência explícita do índice PJe quando completa, ou a página inicial original quando parcial/ausente (inclusive PDFs antigos, pelo nome). Árvore, navegação anterior/próximo e ZIP compartilham a ordem; movimentos internos ficam depois no modo PJe. Ordem por data permanece como filtro opcional. Data de upload não substitui data judicial não identificada. Testes de ordem e fallback adicionados; validação com exportação real pendente.
+
+- 1.4.15: reconstrução de IDs quebrados em duas linhas na coluna estreita do PJe, cabeçalho de assinatura em duas linhas e leitura geométrica das quatro colunas; atualização compara IDs completos já arquivados, sem reenviar arquivos. Diálogo translúcido branco com símbolo azul animado durante leitura e gravação do índice. Testes sintéticos reproduzem a estrutura da tabela; PDF original não disponibilizado para homologação.

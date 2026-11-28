@@ -13,7 +13,7 @@ import { canAccessOwnedRow } from '../utils/accessScope'
 import { createWebDrive,WEB_MAX_FILE_BYTES,exportAutosZip } from '../utils/webAutos.js'
 import { linkedDocuments,MAX_FILE_BYTES,validPdf } from '../utils/autos'
 import { readProcessPdf } from '../utils/readProcessPdf'
-import { matchPjeIndex } from '../utils/pjeIndex'
+import { matchPjeIndex,pjeIdFromName } from '../utils/pjeIndex'
 import { saveImportedMetadata } from '../utils/pjeMetadataStore'
 export function AutosPage(){
  const {numero}=useParams(),{currentUser,driveRequest}=useAuth()
@@ -32,7 +32,7 @@ export function AutosPage(){
  function treeResizeKey(e){const offsets={ArrowLeft:-16,ArrowRight:16,Home:220-actualTreeWidth,End:treeMax-actualTreeWidth};if(!Object.hasOwn(offsets,e.key))return;e.preventDefault();const next=Math.max(220,Math.min(treeMax,actualTreeWidth+offsets[e.key]));setTreeWidth(next);saveTreeWidth(next)}
  const [detailsOpen,setDetailsOpen]=useState(false),[collapsed,setCollapsed]=useState(false),[filtersOpen,setFiltersOpen]=useState(false),[editMeta,setEditMeta]=useState(false),[menuOpen,setMenuOpen]=useState(false),[view,setView]=useState('autos'),[showMoves,setShowMoves]=useState(true),[showDocs,setShowDocs]=useState(true),[favorites,setFavorites]=useState([]),[onlyFavorites,setOnlyFavorites]=useState(false)
  const versionRef=useRef(''),splitRef=useRef(false),indexRef=useRef(false)
- const [showCover,setShowCover]=useState(false)
+ const [showCover,setShowCover]=useState(false),[updatingIndex,setUpdatingIndex]=useState(false)
  const processes=useCollectionData({collectionName:'processos',clientFilter:r=>canAccessOwnedRow(r,currentUser)})
  const deadlines=useCollectionData({collectionName:'prazos',clientFilter:r=>canAccessOwnedRow(r,currentUser)})
  const process=processes.rows.find(r=>r.numero===numero)
@@ -73,7 +73,7 @@ export function AutosPage(){
   if(!canWrite||!processId)return
   const requestedVersion=versionRef.current,split=splitRef.current,indexOnly=indexRef.current
   if(requestedVersion&&list.length!==1){setError('Selecione um único PDF para a nova versão.');return}
-  setBusy(true);setError('');const errors=[];let done=0
+  setBusy(true);setError('');if(indexOnly){setUpdatingIndex(true);setCloudMessage('Lendo índice do PDF…')}const errors=[];let done=0
   try{
    for(const file of list){
     if(indexOnly){try{await restoreIndex(file)}catch(e){errors.push(e.message)}continue}
@@ -94,25 +94,26 @@ export function AutosPage(){
    }
    if(!indexOnly)setCloudMessage(done+' documento(s) processado(s).'+(errors.length?' '+errors.length+' falha(s).':''))
    if(errors.length)setError(errors.join(' · '))
-  }finally{setBusy(false);versionRef.current='';splitRef.current=false;indexRef.current=false;setVersionOf('');setContentIds(null);if(input.current)input.current.value=''}
+  }finally{setBusy(false);setUpdatingIndex(false);versionRef.current='';splitRef.current=false;indexRef.current=false;setVersionOf('');setContentIds(null);if(input.current)input.current.value=''}
  }
 
  async function restoreIndex(file){
-  const result=await readProcessPdf(file,()=>{},true)
+  const knownIds=docs.map(d=>d.pjeReference||d.reference||pjeIdFromName(d.storageName||d.name)).filter(Boolean)
+  const result=await readProcessPdf(file,()=>{},true,knownIds)
   if(result.fields.numero&&result.fields.numero!==numero)throw Error('O PDF pertence a outro processo.')
   const matches=matchPjeIndex(docs,result.index)
-  if(!matches.length)throw Error('Nenhum ID do índice corresponde aos documentos arquivados.')
+  if(!matches.length)throw Error('Nenhum ID completo do índice corresponde aos documentos arquivados. Nenhum dado foi alterado.')
   const count=await saveImportedMetadata(processId,matches)
-  setCloudMessage(count+' documento(s) atualizado(s) pelo índice do PJe, sem reenviar PDFs.')
+  setCloudMessage(count+' de '+knownIds.length+' documento(s) atualizado(s) pelo índice do PJe, sem reenviar PDFs.')
  }
  async function restoreFromCover(){
   if(!canWrite||!processId||busy)return
   const covers=docs.filter(d=>d.cover&&d.source!=='link')
   if(covers.length!==1){chooseFiles('',false,true);return}
-  setBusy(true);setError('');setCloudMessage('Lendo índice da capa arquivada…')
+  setBusy(true);setUpdatingIndex(true);setError('');setCloudMessage('Lendo índice da capa arquivada…')
   try{const d=covers[0],bytes=d.source==='drive'?await drive.readFile(processId,d.id,d.size):d.bytes||bridge.read(processId,d.id);await restoreIndex(new File([bytes],d.storageName||d.name,{type:'application/pdf'}))}
-  catch(e){setError(e.message+' Use o PDF original pelo menu, se necessário.')}
-  finally{setBusy(false)}
+  catch(e){setCloudMessage('');setError(e.message+' Use o PDF original pelo menu, se necessário.')}
+  finally{setBusy(false);setUpdatingIndex(false)}
  }
  async function searchContent(){setCloudBusy(true);setError('');try{const rows=await drive.searchFiles(processId,contentTerm);setContentIds(rows.map(d=>d.id));setCloudMessage('Resultados de conteúdo indexado pelo Google Drive.')}catch(e){setError(e.message)}finally{setCloudBusy(false)}}
  async function exportAll(){setBusy(true);setError('');try{await exportAutosZip({numero,docs:orderPjeDocuments(docs),read:async d=>d.source==='drive'?drive.readFile(processId,d.id,d.size):d.bytes||bridge.read(processId,d.id)});setCloudMessage('Exportação de PDFs e índice concluída. Links externos foram relacionados no índice.')}catch(e){setError(e.message)}finally{setBusy(false)}}
@@ -121,7 +122,8 @@ export function AutosPage(){
  if(!process)return <section className="panel-card"><h3>Processo não encontrado ou sem acesso.</h3><Link to="/processos">Voltar aos processos</Link></section>
  const importAllowed=canWrite&&!busy&&(demo||bridge||(web&&connected))
  const selectedTime=active?displayTime(active):''
- return <div className="autos-page case-workspace">
+ return <div className="autos-page case-workspace" aria-busy={updatingIndex}>
+ {updatingIndex&&<PjeLoading/>}
  <header className="case-header">
   <Link className="case-header-icon" to="/processos" aria-label="Voltar aos processos" title="Voltar aos processos"><ArrowLeft size={21}/></Link>
   <button type="button" className="case-identity" aria-expanded={detailsOpen} aria-controls="case-details" onClick={()=>setDetailsOpen(v=>!v)}><span><strong>{process.classe||process.classeProcessual? (process.classe||process.classeProcessual)+' ':''}{process.numero}</strong><small>{process.parte||'Parte não informada'}{process.orgao?' · '+process.orgao:''}</small></span><ChevronDown size={19}/></button>
@@ -152,3 +154,9 @@ function readTreeWidth(key){try{const value=Number(localStorage.getItem(key));re
 
 function displayTime(d){return d.sortTime||(d.dateOrigin==='armazenamento'?formatTime(d.date):'')}
 function dateOriginLabel(origin){return ({juntada:'Juntada',assinatura:'Assinatura no PJe',protocolo:'Protocolo no PJe',referência:'Data de referência',armazenamento:'Armazenado no sistema','pje-desconhecida':'Data original não identificada'})[origin]||'Data não informada'}
+
+function PjeLoading(){
+ const ref=useRef(null)
+ useEffect(()=>{const el=ref.current;el.showModal();return()=>{if(el.open)el.close()}},[])
+ return <dialog ref={ref} className="pje-loading-overlay" aria-label="Atualizando índice do PJe" onCancel={e=>e.preventDefault()}><div role="status" aria-live="polite"><span className="pje-loading-logo" aria-hidden="true"/><strong>Atualizando autos…</strong><small>Identificando documentos no índice do PJe.</small></div></dialog>
+}

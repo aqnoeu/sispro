@@ -42,3 +42,15 @@ test('explicit PJe index order takes precedence over timestamp and PDF page orde
  assert.deepEqual(orderPjeDocuments(enrichDocuments(rows,meta)).map(d=>d.id),['b','a'])
  assert.deepEqual(orderPjeDocuments(enrichDocuments(rows,meta.slice(0,1))).map(d=>d.id),['a','b'])
 })
+
+test('narrow PJe ID column wraps across lines and header has split signature label',()=>{
+ const index=parsePjeIndex('Id. Data da Documento Tipo\nAssinatura\n10958\t20/10/2026 14:26\tCertidão - Análise\tCertidão - Análise\n0483\tTempestividade/Preparo\n10954\t19/10/2026 23:05\tContestação\tContestação\n9510',['109580483','109549510'])
+ assert.equal(index.size,2);assert.equal(index.get('109580483').indexTime,'14:26');assert.equal(index.get('109549510').title,'Contestação')
+})
+test('physical PJe columns reconstruct wrapped IDs, document and type independently',async()=>{
+ const {pjeTableRows}=await import('../src/utils/pjeIndex.js')
+ const row=(y,...cells)=>({y,items:cells.map(([x,str,width=20])=>({x,str,width}))})
+ const rows=[row(500,[14,'Id.',10],[65,'Data da',36],[142,'Documento',60],[570,'Tipo',24]),row(488,[62,'Assinatura',52]),row(475,[4,'10958',30],[42,'20/10/2026 14:26',90],[143,'Certidão - Análise Tempestividade/Preparo',280],[485,'Certidão - Análise',100]),row(463,[4,'0483',25],[490,'Tempestividade/Preparo',130]),row(451,[4,'10954',30],[42,'19/10/2026 23:05',90],[143,'Contestação',70],[540,'Contestação',70]),row(439,[4,'9510',25])]
+ const index=parsePjeIndex(pjeTableRows(rows,700),['109580483','109549510'])
+ assert.equal(index.size,2);assert.equal(index.get('109580483').title,'Certidão - Análise Tempestividade/Preparo');assert.equal(index.get('109580483').documentType,'Certidão - Análise Tempestividade/Preparo');assert.equal(index.get('109549510').indexOrder,2)
+})
