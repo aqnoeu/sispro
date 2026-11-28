@@ -53,8 +53,8 @@
 
 /* Cadastro compacto: fundo imóvel, seções curtas, ações sempre visíveis. */
 html:has(dialog.process-create[open]),body:has(dialog.process-create[open]){overflow:hidden}
-dialog.work-dialog.process-create{position:fixed;inset:0;margin:auto;width:min(900px,calc(100% - 24px));max-height:calc(100dvh - 24px);height:auto;padding:0;overflow:hidden;background:#fff}
-.process-create .work-dialog__body{overflow:visible;flex:0 1 auto;min-height:0}
+dialog.work-dialog.process-create{position:fixed;inset:0;margin:auto;width:min(900px,calc(100% - 24px));max-height:calc(100dvh - 24px);height:max-content;min-height:0;padding:0;overflow:hidden;background:#fff}
+.process-create .work-dialog__body{overflow:auto;flex:0 1 auto;min-height:0}
 .process-create .process-create-grid{gap:10px 16px}
 .process-create .process-create-grid>.process-create-note{align-self:center}
 .process-create .work-dialog__footer{margin:0;flex-shrink:0}
