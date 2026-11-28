@@ -76,3 +76,5 @@ Diálogo operacional branco, seções compactas Dados do processo, Prazos e docu
 
 ### Barra de ferramentas dos autos
 Manter cabeçalho institucional azul. A segunda barra é branca, aproximadamente 52 px em desktop, número do processo em azul e identificação complementar em segunda linha. Ícones Lucide azuis sobre branco. Etiquetas somente leitura na região direita, sem botões de criação ou remoção; respeitar visibilidade e escopo. Exportação integral no menu do processo, preservado download individual do PDF. Em tela estreita permitir reorganização sem cortar controles.
+
+- Autos digitais em desktop: cronologia e visualizador devem alcançar a borda inferior da área útil do navegador, sem faixa vazia ou rodapé decorativo. Dimensionar pelo fluxo flexível real, mantendo rolagens independentes e controles acessíveis em janelas pequenas.

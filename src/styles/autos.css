@@ -16,7 +16,7 @@
 .case-header-actions,.case-menu-wrap{display:flex;align-items:center;position:relative}.case-menu{position:absolute;right:0;top:100%;min-width:230px;box-shadow:0 4px 16px #16324f30;background:#fff;color:#16324f;border:1px solid #cbd7df;z-index:4;display:grid}.case-menu button,.case-menu a{border:0;background:white;color:inherit;text-align:left;padding:11px 14px;font-size:13px}.case-menu button:hover,.case-menu a:hover{background:#ddf2fc}.case-menu button:disabled{opacity:.45}
 .case-details{padding:14px;background:#f5f9fc;border-bottom:1px solid #cbd7df}.case-details dl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 12px}.case-details dt{font-size:11px;color:#53647b}.case-details dd{margin:3px 0 0;font-size:13px;overflow-wrap:anywhere}
 .case-message{padding:8px 14px;margin:0;font-size:13px;border-bottom:1px solid #d4dfe5}
-.case-split{display:grid;grid-template-columns:minmax(280px,31%) minmax(0,1fr);min-height:calc(100dvh - 175px);height:calc(100dvh - 175px)}
+.case-split{display:grid;grid-template-columns:minmax(280px,31%) minmax(0,1fr);min-height:0;height:auto}
 .case-split--collapsed{grid-template-columns:minmax(0,1fr)}
 .case-chronology{display:flex;flex-direction:column;min-width:0;min-height:0;background:#e9eef1;border-right:1px solid #c0cbd2}
 .case-chronology-tools{background:#f5f7f8;padding:8px;border-bottom:1px solid #cbd7df;display:grid;gap:5px}.case-search{display:flex;align-items:center;gap:7px;border:1px solid #bfcdd5;background:white;padding:6px 8px;color:#53647b}.case-search input{width:100%;min-width:0;border:0;background:transparent;font-size:12px}
@@ -35,5 +35,21 @@
 .case-workspace .case-header-icon svg,.case-workspace .case-identity>svg{color:#006b9a;stroke:currentColor;flex-shrink:0}
 .case-workspace .case-identity{flex:0 1 auto;max-width:60%;gap:10px;min-width:0;text-align:left}.case-workspace .case-identity span{min-width:0}.case-workspace .case-identity strong{font-size:15px;line-height:1.2;color:#006b9a}.case-workspace .case-identity small{font-size:12px;line-height:1.2;color:#53647b;margin-top:3px}.case-workspace .case-identity strong,.case-workspace .case-identity small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .case-header-labels{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;padding:2px 0}.case-header-labels .label-list{display:flex;flex-wrap:nowrap;flex:0 0 auto;margin:0;gap:5px}.case-header-labels .label-chip,.case-header-labels .process-status-chip{flex-shrink:0;white-space:nowrap}.case-header-actions{flex-shrink:0;margin-left:auto}.case-menu button{display:flex;align-items:center;gap:8px}.case-menu button svg{color:#006b9a;flex-shrink:0}
-@media(min-width:900px){.case-split{height:calc(100dvh - 108px);min-height:calc(100dvh - 108px)}}
+
 @media(max-width:700px){.case-workspace .case-header{flex-wrap:wrap;gap:4px;padding:3px 8px}.case-workspace .case-identity{max-width:calc(100% - 100px);flex:1}.case-header-labels{order:3;flex:1 0 100%;justify-content:flex-start}.case-workspace .case-identity strong{font-size:13px}.case-workspace .case-identity small{font-size:11px}}
+
+/* Fill the actual browser workspace; no estimated header subtraction or blank footer. */
+.app-shell--autos .case-workspace{border:0;border-radius:0}
+@media(min-width:851px) and (min-height:480px){
+ .app-shell.app-shell--autos{display:flex;flex-direction:column;height:100dvh;min-height:0;overflow:hidden}
+ .app-shell--autos>.site-header,.app-shell--autos>.demo-session-banner{flex:0 0 auto}
+ .app-shell--autos>.app-shell__body{display:flex;flex-direction:column;flex:1 1 0;min-height:0;margin-block:0!important}
+ .app-shell--autos .app-shell__content{flex:1 1 0;min-height:0;gap:0;animation:none}
+ .app-shell--autos .case-workspace{flex:1 1 0;min-height:0}
+ .case-workspace>.case-header,.case-workspace>.case-message,.case-workspace>.case-details{flex-shrink:0}
+ .case-workspace>.case-details{max-height:30dvh;overflow:auto}
+ .case-workspace>.case-message{max-height:12dvh;overflow:auto}
+ .case-workspace>.case-split{flex:1 1 0;height:auto;min-height:0}
+ .case-chronology-tools,.case-document-bar,.case-document-controls{flex-shrink:0}
+}
+@media(min-width:851px) and (max-height:479px){.case-workspace>.case-split{min-height:360px}}
