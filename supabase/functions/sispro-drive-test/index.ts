@@ -1,3 +1,4 @@
+import {createFiles,boundedBytes} from './files.mjs';
 const origin='https://sispro-eight.vercel.app';
 const redirect=origin+'/drive-callback.html';
 const scope='https://www.googleapis.com/auth/drive.file';
@@ -40,8 +41,8 @@ Deno.serve(async req=>{
  if(!token)return respond({error:'Sessão não autorizada.'},401);
  let id:string;try{id=await owner(token)}catch{return respond({error:'Acesso restrito ao PGM de teste autorizado.'},403)}
  try{
-  const raw=await req.text();if(raw.length>16000)return respond({error:'Solicitação inválida.'},400);
-  const b=JSON.parse(raw);const current=await read(id),rev=current?.revision??null,v=current?.value??{};
+  const raw=new TextDecoder().decode(await boundedBytes(req.body,7*1024*1024));
+  const b=JSON.parse(raw);if(b.action!=='files-upload'&&raw.length>16000)return respond({error:'Solicitação inválida.'},400);const current=await read(id),rev=current?.revision??null,v=current?.value??{};
   if(b.action==='status')return respond(status(v));
   if(b.action==='configure'){
    if(v.refresh_token)return respond({error:'Desconecte a conta antes de alterar a credencial.'},409);
@@ -64,6 +65,19 @@ Deno.serve(async req=>{
    if(!t.refresh_token||!String(t.scope||'').split(' ').includes(scope))return respond({error:'Google não concedeu a autorização solicitada.'},400);
    const name=await account(t.access_token);const next={...clean,refresh_token:t.refresh_token,account:name};
    await owner(token);await write(id,consumed,next);return respond(status(next));
+  }
+  if(['files-list','files-search','files-upload','files-read'].includes(b.action)){
+   if(!v.refresh_token)return respond({error:'Conecte a conta Google primeiro.'},400);
+   if(typeof b.processId!=='string'||!b.processId||b.processId.length>256)return respond({error:'Processo inválido.'},400);
+   const rows=await rest('/rest/v1/sispro_test_pgm_workspaces?select=data,active&user_id=eq.'+encodeURIComponent(id),pub,token);
+   const processes=rows?.[0]?.active?rows[0].data?.processos:null;
+   if(!processes||!Object.hasOwn(processes,b.processId)||!processes[b.processId]?.numero)return respond({error:'Processo inexistente ou sem acesso.'},403);
+   const t=await googleToken(v,{refresh_token:v.refresh_token,grant_type:'refresh_token'});
+   const provider=createFiles({token:t.access_token,userId:id,processId:b.processId,numero:processes[b.processId].numero});
+   if(b.action==='files-list')return respond(await provider.list());
+   if(b.action==='files-search')return respond(await provider.list(typeof b.term==='string'?b.term:''));
+   if(b.action==='files-upload')return respond(await provider.upload(b));
+   return respond(await provider.read(b.fileId));
   }
   if(b.action==='check'){
    if(!v.refresh_token)return respond({error:'Conta não conectada.'},400);

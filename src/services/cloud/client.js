@@ -7,13 +7,13 @@ export class CloudClient {
     this.session = null
   }
   get configured() { return /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(this.url) && /^sb_publishable_[A-Za-z0-9_-]+$/.test(this.key) }
-  async request(path, { token, method = 'GET', body, prefer } = {}) {
+  async request(path, { token, method = 'GET', body, prefer, timeout = 20000 } = {}) {
     if (!this.configured) throw new Error('Servidor ainda não configurado.')
     const headers = { apikey: this.key, 'Content-Type': 'application/json' }
     if (token) headers.Authorization = 'Bearer ' + token
     if (prefer) headers.Prefer = prefer
     let response
-    try { response = await this.fetcher(this.url + path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body), cache: 'no-store', credentials: 'omit', redirect: 'error', signal: AbortSignal.timeout(20000) }) }
+    try { response = await this.fetcher(this.url + path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body), cache: 'no-store', credentials: 'omit', redirect: 'error', signal: AbortSignal.timeout(timeout) }) }
     catch { throw new Error('Não foi possível conectar ao Supabase. Verifique sua internet e tente novamente.') }
     if (!response.ok) {
       let code; try { const payload = await response.json(); code = payload?.error_code ?? payload?.code } catch { /* no response body */ }
@@ -100,7 +100,7 @@ export class CloudClient {
   async driveRequest(body) {
     const s=this.requireSession()
     if(s.mode!=='pgm'||!s.user.canTestPgm)throw new Error('Acesso restrito ao PGM de teste.')
-    const r=await this.request('/functions/v1/sispro-drive-test',{token:s.token,method:'POST',body})
+    const r=await this.request('/functions/v1/sispro-drive-test',{token:s.token,method:'POST',body,timeout:120000})
     this.assertSession(s)
     return r
   }
