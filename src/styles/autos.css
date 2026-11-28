@@ -158,3 +158,8 @@ dialog.pje-loading-overlay.pje-skeleton-overlay{background:#f5f7f9;color:#53647b
 @keyframes pje-skeleton-shimmer{from{background-position:110% 0}to{background-position:-110% 0}}
 @media(max-width:700px){.pje-skeleton-workspace{grid-template-columns:40% minmax(0,1fr)}.pje-skeleton-paper{width:84%;padding:18px}}
 @media(prefers-reduced-motion:reduce){.pje-skeleton-shell i{animation:none}.pje-skeleton-meter i{transition:none}}
+
+/* The opening skeleton has no measurable percentage while the list is being fetched. */
+.pje-skeleton-meter .pje-skeleton-indeterminate{width:38%;animation:pje-opening-progress 1.5s ease-in-out infinite}
+@keyframes pje-opening-progress{from{transform:translateX(-100%)}to{transform:translateX(270%)}}
+@media(prefers-reduced-motion:reduce){.pje-skeleton-meter .pje-skeleton-indeterminate{animation:none;margin:auto}}

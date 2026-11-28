@@ -52,10 +52,19 @@ export function AutosPage(){
  const [contentTerm,setContentTerm]=useState(''),[contentIds,setContentIds]=useState(null),[versionOf,setVersionOf]=useState('')
  const [cloudFiles,setCloudFiles]=useState([]),[connected,setConnected]=useState(false),[cloudBusy,setCloudBusy]=useState(false),[cloudMessage,setCloudMessage]=useState('')
  const processId=process?.documentId
- useEffect(()=>{let live=true;setCloudFiles([]);setConnected(false);if(drive&&processId)drive.status().then(async s=>{if(!live)return;setConnected(s.connected);if(s.connected){const rows=await drive.listFiles(processId);if(live)setCloudFiles(rows)}}).catch(e=>{if(live)setError(e.message)});return()=>{live=false}},[drive,processId])
+ const [cloudReady,setCloudReady]=useState(null),[localReady,setLocalReady]=useState(null)
+ const loadScope=String(currentUser?.uid||'')+':'+String(currentUser?.profileMode||'')+':'+String(processId||'')
+ const awaitingCloud=!!drive&&!!processId&&cloudReady!==loadScope
+ const awaitingLocal=!!bridge&&!demo&&!!processId&&localReady!==loadScope
+ const openingAutos=processes.loading||!!process&&(metadata.loading||(canAccess(currentUser,'prazos')&&deadlines.loading)||awaitingCloud||awaitingLocal)
+ useEffect(()=>{
+  let live=true;setCloudFiles([]);setConnected(false);setCloudReady(null)
+  if(drive&&processId)Promise.resolve().then(()=>drive.status()).then(async s=>{if(!live)return;setConnected(s.connected);if(s.connected){const rows=await drive.listFiles(processId);if(live)setCloudFiles(rows)}}).catch(e=>{if(live)setError(e.message)}).finally(()=>{if(live)setCloudReady(loadScope)})
+  return()=>{live=false}
+ },[drive,processId,loadScope])
  async function refreshCloud(){setContentIds(null);setCloudBusy(true);setError('');setOperationProgress({label:'Atualizando árvore…',value:0});try{pdfCache.clear();setCloudFiles(await drive.listFiles(processId));setPreviewRetry(n=>n+1);setCloudMessage('Documentos do Drive atualizados.')}catch(e){setError(e.message)}finally{setCloudBusy(false);setOperationProgress(null)}}
  async function sendCloud(){if(!active||active.source!=='local'||!confirm('Enviar uma cópia de '+active.name+' para a conta Google autorizada?'))return;setCloudBusy(true);setError('');try{const d=await drive.uploadFile(processId,active.id);setCloudFiles(old=>[...old.filter(x=>x.id!==d.id),d]);setCloudMessage(d.duplicate?'Documento já existente no Drive.':'Cópia enviada. Original local preservado.')}catch(e){setError(e.message)}finally{setCloudBusy(false)}}
- useEffect(()=>{setFiles([]);setSelected('');if(processId&&!demo&&bridge){try{setFiles(bridge.list(processId))}catch(e){setError(e.message)}}},[processId,demo,bridge])
+ useEffect(()=>{setFiles([]);setSelected('');setLocalReady(null);if(processId&&!demo&&bridge){try{setFiles(bridge.list(processId))}catch(e){setError(e.message)}finally{setLocalReady(loadScope)}}},[processId,demo,bridge,loadScope])
  const docs=useMemo(()=>enrichDocuments([...files,...cloudFiles,...linkedDocuments(process,(canAccess(currentUser,'prazos')?deadlines.rows:[]).filter(r=>(r.processo??r.numeroProcesso)===numero))],metadata.rows),[files,cloudFiles,process,deadlines.rows,numero,metadata.rows,currentUser])
  const visibleDocs=navigationDocuments(docs,showCover)
  const filtered=filterDocuments((contentIds?visibleDocs.filter(d=>contentIds.includes(d.id)):visibleDocs).filter(d=>!onlyFavorites||favorites.includes(d.id)),{search,type:typeFilter,source:sourceFilter,from,to,ascending,preserveOrder:true})
@@ -65,7 +74,7 @@ export function AutosPage(){
  const navDocs=showDocs?[...filtered].sort((a,b)=>compareJudicial(a,b,ascending)):[]
  const position=navDocs.findIndex(d=>d.id===selected)
  const movement=moves.find(m=>m.id===selected)
- useEffect(()=>{if((!selected||(!showCover&&docs.some(d=>d.id===selected&&d.cover)))&&navDocs.length)setSelected(navDocs[0].id);else if(!showCover&&docs.some(d=>d.id===selected&&d.cover))setSelected('')},[selected,navDocs,showCover,docs])
+ useEffect(()=>{if((!selected||(!showCover&&docs.some(d=>d.id===selected&&d.cover)))&&navDocs.length&&!openingAutos)setSelected(navDocs[0].id);else if(!showCover&&docs.some(d=>d.id===selected&&d.cover))setSelected('')},[selected,navDocs,showCover,docs,openingAutos])
  function selectDocument(id){setSelected(id);setEditMeta(false);setView('autos')}
  function step(i){if(navDocs[i])selectDocument(navDocs[i].id)}
  function toggleFavorite(id){setFavorites(old=>old.includes(id)?old.filter(x=>x!==id):[...old,id])}
@@ -75,7 +84,7 @@ export function AutosPage(){
  async function saveMetadata(e){e.preventDefault();if(!canWrite||!active||!processId)return;setError('');try{const values=validateMetadata(metaDraft);const old=metadata.rows.find(r=>r.documentKey===active.id);const key=old?.documentId||crypto.randomUUID();await setDoc(doc(database,'autosMetadata',key),{...values,processId,documentKey:active.id},{merge:true});setCloudMessage('Informações do documento salvas.')}catch(e){setError(e.message)}}
  useEffect(()=>{
   setPreview('');setPreviewError('');setDocumentProgress(null)
-  if(!active||active.source==='link'||!processId||busy)return
+  if(!active||active.source==='link'||!processId||busy||openingAutos)return
   let url='',live=true
   const key=processId+':'+active.id+':'+(active.hash||active.size||'')
   pdfCache.get(key,async()=>{
@@ -83,7 +92,7 @@ export function AutosPage(){
    return new Blob([new Uint8Array(bytes)],{type:'application/pdf'})
   }).then(blob=>{if(live){url=URL.createObjectURL(blob);setPreview(url)}}).catch(e=>{if(live)setPreviewError(e.message||'Não foi possível carregar o PDF.')})
   return()=>{live=false;if(url)URL.revokeObjectURL(url)}
- },[selected,active?.id,active?.hash,active?.size,processId,bridge,drive,pdfCache,previewRetry,busy])
+ },[selected,active?.id,active?.hash,active?.size,processId,bridge,drive,pdfCache,previewRetry,busy,openingAutos])
  async function importFiles(list){
   if(!canWrite||!processId)return
   const requestedVersion=versionRef.current,split=splitRef.current,indexOnly=indexRef.current
@@ -137,7 +146,7 @@ export function AutosPage(){
  async function searchContent(){setCloudBusy(true);setError('');try{const rows=await drive.searchFiles(processId,contentTerm);setContentIds(rows.map(d=>d.id));setCloudMessage('Resultados de conteúdo indexado pelo Google Drive.')}catch(e){setError(e.message)}finally{setCloudBusy(false)}}
  async function exportAll(){setBusy(true);setError('');try{await exportAutosZip({numero,docs:[...docs].sort((a,b)=>compareJudicial(a,b,false)),read:async d=>d.source==='drive'?drive.readFile(processId,d.id,d.size):d.bytes||bridge.read(processId,d.id)});setCloudMessage('Exportação de PDFs e índice concluída. Links externos foram relacionados no índice.')}catch(e){setError(e.message)}finally{setBusy(false)}}
  function remove(){if(!canAccess(currentUser,'autos',3)||!active||active.source!=='local'||!confirm('Remover este PDF dos autos locais?'))return;try{if(!demo)bridge.remove(processId,active.id);setFiles(old=>old.filter(d=>d.id!==active.id));setSelected('')}catch(e){setError(e.message)}}
- if(processes.loading)return <p>Carregando autos…</p>
+ if(openingAutos)return <div className="autos-page case-workspace" aria-busy="true"><PjeLoading skeleton treeWidth={actualTreeWidth} collapsed={collapsed} progress={{label:processes.loading?'Carregando dados do processo…':awaitingCloud?'Carregando árvore de documentos…':'Organizando os autos…',value:null}}/></div>
  if(!process)return <section className="panel-card"><h3>Processo não encontrado ou sem acesso.</h3><Link to="/processos">Voltar aos processos</Link></section>
  const importAllowed=canWrite&&!busy&&(demo||bridge||(web&&connected))
  const selectedTime=active?displayTime(active):''
@@ -185,7 +194,7 @@ function PjeLoading({progress,skeleton=false,treeWidth=330,collapsed=false}){
     <div className="pje-skeleton-document"><div className="pje-skeleton-toolbar"><i/><i/></div><div className="pje-skeleton-paper"><i/>{Array.from({length:9},(_,n)=><i key={n}/>)}</div></div>
    </div>
   </div>
-  <div className="pje-skeleton-status" role="status" aria-live="polite"><span className="pje-loading-logo" aria-hidden="true"/><strong>Carregando autos…</strong><small>{progress.label}</small><span className="pje-skeleton-meter" role="progressbar" aria-label={progress.label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress.value}><i style={{width:progress.value+'%'}}/></span></div>
+  <div className="pje-skeleton-status" role="status" aria-live="polite"><span className="pje-loading-logo" aria-hidden="true"/><strong>Carregando autos…</strong><small>{progress.label}</small><span className="pje-skeleton-meter" role="progressbar" aria-label={progress.label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress.value??undefined}><i className={progress.value==null?'pje-skeleton-indeterminate':undefined} style={progress.value==null?undefined:{width:progress.value+'%'}}/></span></div>
  </dialog>
  return <dialog ref={ref} className="pje-loading-overlay" aria-label="Progresso dos autos" onCancel={e=>e.preventDefault()}><div role="status" aria-live="polite"><span className="pje-loading-logo" aria-hidden="true"/><strong className="pje-progress-value" role="progressbar" aria-label={progress.label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress.value}>{progress.value}%</strong><small>{progress.label}</small></div></dialog>
 }
