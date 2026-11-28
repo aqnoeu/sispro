@@ -104,3 +104,5 @@ Valide CI 1.0.21, corrija falhas e execute os testes disponíveis. Implemente hi
 - 1.4.19: horário do documento principal alinhado à direita na primeira linha do cartão, em coluna própria sem sobreposição. Nome/ID quebram naturalmente em larguras menores; anexos conservam agrupamento e horário compartilhado já exibido no principal. Menor padding vertical do cartão. Dados, cores, seleção, divisória e movimentações internas preservados. Teste de layout com nome longo e horário explícito adicionado; CI/deployment a confirmar.
 
 - 1.4.20: pequenos bicos brancos nos cartões da árvore, centralizados verticalmente em relação aos marcadores, com contorno suave e sombra discreta para profundidade. Alteração exclusivamente visual; agrupamento, ordem, seleção e armazenamento preservados. Homologação visual pendente.
+
+- 1.4.21: bico dos cartões ampliado de 9 para 13 px, mantendo alinhamento aos marcadores, e sombra ligeiramente mais pronunciada. Alteração exclusivamente visual; homologação no navegador pendente.
