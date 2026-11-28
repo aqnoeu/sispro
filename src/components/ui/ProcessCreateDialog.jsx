@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/useAuth'
 import { canAccess } from '../../utils/mechanicAccess'
 import { createWebDrive,WEB_MAX_FILE_BYTES,makeZip } from '../../utils/webAutos'
 import { MAX_FILE_BYTES } from '../../utils/autos'
+import { saveImportedMetadata } from '../../utils/pjeMetadataStore'
 const labels={numero:'Número CNJ',parte:'Nome da parte',assunto:'Assunto',orgao:'Órgão',fase:'Fase'}
 export function ProcessCreateDialog({values,onChange,busy,canSave,feedback,priorities,statuses,onSubmit,onClose}){
  const {currentUser,driveRequest}=useAuth()
@@ -34,7 +35,7 @@ export function ProcessCreateDialog({values,onChange,busy,canSave,feedback,prior
  }
  async function attach(id){
   setUploading(true);setValidation('');setTab('documents');setFailed([])
-  const errors=[]
+  const errors=[],saved=[]
   try{
    if(!canAttach)throw Error('Armazenamento de autos indisponível neste perfil.')
    const bridge=globalThis.siproFiles,web=!!currentUser?.isTestPgm
@@ -47,10 +48,12 @@ export function ProcessCreateDialog({values,onChange,busy,canSave,feedback,prior
     try{
      if(d.bytes.length>(web?WEB_MAX_FILE_BYTES:MAX_FILE_BYTES))throw Error('Limite de '+(web?100:25)+' MB por arquivo.')
      setProgress('Documento '+(i+1)+' de '+documents.length)
-     if(web)await drive.uploadBytes(id,d.name,d.bytes,undefined,(sent,total)=>{if(live.current)setProgress('Documento '+(i+1)+' de '+documents.length+' · '+Math.round(sent/total*100)+'%')});else bridge.import(id,d.name,d.bytes)
+     const doc=web?await drive.uploadBytes(id,d.name,d.bytes,undefined,(sent,total)=>{if(live.current)setProgress('Documento '+(i+1)+' de '+documents.length+' · '+Math.round(sent/total*100)+'%')}):bridge.import(id,d.name,d.bytes)
+     saved.push({document:doc,entry:d})
      completed.current.add(i);if(live.current)setUploaded(completed.current.size)
     }catch(e){errors.push({index:i,name:d.name,message:e.message||'Falha de envio.'})}
    }
+   try{await saveImportedMetadata(id,saved)}catch(e){if(live.current)setValidation('Arquivos armazenados. Falha ao salvar metadados: '+e.message+'. Atualize o índice nos autos.');return}
    if(live.current){setFailed(errors);if(!errors.length)onClose();else setValidation(errors.length+' documento(s) não anexado(s). Os demais foram preservados. Tente novamente ou baixe o ZIP.')}
   }catch(e){if(live.current)setValidation('Processo salvo. '+e.message+' Baixe o ZIP ou tente novamente.')}
   finally{if(live.current){setUploading(false);setProgress('')}}
