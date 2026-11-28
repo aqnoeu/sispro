@@ -21,3 +21,5 @@
 
 ## Procuradoria de Teste na versão oficial
 - A Procuradoria de Teste autenticada deve ter a mesma apresentação visual e os mesmos fluxos operacionais das demais procuradorias. Não inserir faixas, avisos permanentes de homologação ou elementos de demonstração no espaço de trabalho autenticado. Preservar a identificação institucional normal, o isolamento dos registros, as permissões e os avisos necessários em operações específicas. A prévia pública continua separada e identificada como demonstração.
+
+- Cabeçalho autenticado: manter apenas identificação do usuário com menu Perfil, Configurações e Sair; botão de alternância CEO/PGM exclusivamente para perfis autorizados, representado por ícone. Não exibir indicador de armazenamento ou botão Sair permanente no cabeçalho.

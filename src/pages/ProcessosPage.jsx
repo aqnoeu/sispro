@@ -12,6 +12,7 @@ import { useAuth } from '../contexts/useAuth'
 import { processos as fallbackProcessos, prazos as fallbackPrazos } from '../data/mockData'
 import {
   createCollectionDocument,
+  deleteCollectionDocument,
 } from '../services/local/localCrud'
 import { hasLocalDatabase } from '../services/local/client'
 import { useCollectionData } from '../services/local/useCollectionData'
@@ -44,6 +45,7 @@ const PROCESSO_EMPTY_FORM = {
 export function ProcessosPage() {
   const { currentUser } = useAuth()
  const canWrite=canAccess(currentUser,'processos',2)
+ const canDelete=canAccess(currentUser,'processos',3)
  const canSync=canWrite&&canAccess(currentUser,'prazos',2)
   const assignments = useLabels()
   const {appearance,update}=useAppearance()
@@ -89,6 +91,8 @@ export function ProcessosPage() {
   const [selectedProcessFeedback, setSelectedProcessFeedback] = useState({ type: '', message: '' })
   const [submittingProcess, setSubmittingProcess] = useState(false)
   const [savingSelectedProcess, setSavingSelectedProcess] = useState(false)
+  const [deleteFeedback,setDeleteFeedback]=useState('')
+  const [confirmDelete,setConfirmDelete]=useState(false)
 
   const filteredProcessos = useMemo(
     () => filterProcessos(processosCollection.rows, filters, []).filter(row=>!labelFilter||processLabels(row,assignments).some(t=>t.scope+':'+t.name===labelFilter)||prazosCollection.rows.some(p=>(p.processo??p.numeroProcesso)===row.numero&&'andamento:'+workflow(p)===labelFilter)),
@@ -261,6 +265,18 @@ export function ProcessosPage() {
     }))
   }
 
+  async function handleDeleteProcess(){
+    if(!canDelete||!localEnabled||!selectedProcess?.documentId||savingSelectedProcess||!confirmDelete)return
+    setSavingSelectedProcess(true)
+    setSelectedProcessFeedback({type:'',message:''})
+    try{
+      await deleteCollectionDocument({collectionName:'processos',documentId:selectedProcess.documentId})
+      setDeleteFeedback('Processo '+selectedProcess.numero+' excluído. Prazos separados e arquivos não foram apagados.')
+      setConfirmDelete(false)
+      setSelectedProcessNumero('')
+    }catch(e){setSelectedProcessFeedback({type:'error',message:e.message})}
+    finally{setSavingSelectedProcess(false)}
+  }
   async function handleSaveSelectedProcess() {
     if(!canSync)return
     if (!selectedProcess?.documentId) {
@@ -518,6 +534,7 @@ export function ProcessosPage() {
         </div>
       </section>
 
+      {deleteFeedback&&<div role="status" className="form-feedback form-feedback--success">{deleteFeedback}</div>}
       <section className="process-gallery">
         <header className="process-gallery__header">
           <h4 className="process-icon-text"><FolderOpen size={19} aria-hidden="true"/> Lista de processos</h4>
@@ -527,7 +544,7 @@ export function ProcessosPage() {
           </div></div>
         </header>
         <div className={'process-gallery__items process-gallery__items--'+view}>
-          {filteredProcessos.length ? filteredProcessos.map(processo=><ProcessCard key={processo.documentId??processo.id??processo.numero} row={processo} assignments={assignments} onOpen={()=>setSelectedProcessNumero(processo.numero)}/>) : <div className="empty-state process-gallery__empty">Nenhum processo encontrado para os filtros atuais.</div>}
+          {filteredProcessos.length ? filteredProcessos.map(processo=><ProcessCard key={processo.documentId??processo.id??processo.numero} row={processo} assignments={assignments} onOpen={()=>{setConfirmDelete(false);setDeleteFeedback('');setSelectedProcessNumero(processo.numero)}}/>) : <div className="empty-state process-gallery__empty">Nenhum processo encontrado para os filtros atuais.</div>}
         </div>
       </section>
 
@@ -591,15 +608,17 @@ export function ProcessosPage() {
       {selectedProcess ? (
         <ProcessDialog editing={editingSelectedProcess} saving={savingSelectedProcess} onClose={closeSelectedProcessModal}
           title={selectedProcess.numero} icon={editingSelectedProcess?<FilePenLine size={24} aria-hidden="true"/>:<FolderOpen size={24} aria-hidden="true"/>}
-          footer={editingSelectedProcess ? <>
+          footer={confirmDelete ? <><button type="button" className="secondary-button" disabled={savingSelectedProcess} onClick={()=>setConfirmDelete(false)}>Cancelar exclusão</button><button type="button" className="secondary-button secondary-button--danger" disabled={!canDelete||savingSelectedProcess||!localEnabled} onClick={handleDeleteProcess}><Trash2 size={17}/> {savingSelectedProcess?'Excluindo...':'Confirmar exclusão'}</button></> : editingSelectedProcess ? <>
             <button type="button" className="secondary-button" onClick={handleCancelEditSelectedProcess} disabled={savingSelectedProcess}><X size={17} aria-hidden="true"/>Cancelar</button>
             <button type="button" className="primary-button" onClick={handleSaveSelectedProcess} disabled={!canSync || savingSelectedProcess || !localEnabled}><Save size={17} aria-hidden="true"/>{savingSelectedProcess ? 'Salvando...' : 'Salvar alterações'}</button>
           </> : <>
-            <button type="button" className="secondary-button" onClick={closeSelectedProcessModal}><X size={17} aria-hidden="true"/>Fechar</button>
+            {canDelete&&<button type="button" className="secondary-button secondary-button--danger" disabled={!localEnabled||savingSelectedProcess} onClick={()=>{setConfirmDelete(true);setSelectedProcessFeedback({type:'',message:''})}}><Trash2 size={17}/> Excluir processo</button>}
+            <button type="button" className="secondary-button" disabled={savingSelectedProcess} onClick={closeSelectedProcessModal}><X size={17} aria-hidden="true"/>Fechar</button>
             <button type="button" className="primary-button" onClick={handleStartEditSelectedProcess} disabled={!canSync || !localEnabled}><Pencil size={17} aria-hidden="true"/>Editar processo</button>
           </>}
           tabs={editingSelectedProcess ? <div className="process-dialog-tabs" role="group" aria-label="Seções de edição">{[['geral','Dados gerais',ClipboardList],['demandas','Demandas e prazos',CalendarClock],['obs','Observações',NotebookPen]].map(([id,label,Icon])=><button key={id} type="button" aria-pressed={editTab===id} onClick={()=>setEditTab(id)}><Icon size={16} aria-hidden="true"/>{label}</button>)}</div> : null}
           feedback={selectedProcessFeedback.message ? <div role={selectedProcessFeedback.type==='error'?'alert':'status'} className={`form-feedback form-feedback--${selectedProcessFeedback.type}`}>{selectedProcessFeedback.message}</div> : null}>
+          {confirmDelete&&<section role="alert" className="form-feedback form-feedback--error"><strong>Excluir o processo {selectedProcess.numero}?</strong><p>O cadastro, suas observações e os dados incorporados serão removidos. Esta ação não tem recuperação pela interface. Prazos cadastrados separadamente, metadados e PDFs serão preservados; revise os vínculos antes de confirmar.</p></section>}
           {(!editingSelectedProcess || editTab==='geral') && <section className="process-modal__section process-dialog-summary">
             <div className="process-dialog-fields">
               <div><span className="process-icon-text"><UserRound size={15} aria-hidden="true"/> Parte</span><strong>{selectedProcess.parte || 'Não informada'}</strong></div>
