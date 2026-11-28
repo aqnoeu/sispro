@@ -73,3 +73,6 @@ Em cabeçalhos institucionais azuis, os ícones de expansão do perfil e altern�
 
 ### Cadastro de processos
 Diálogo operacional branco, seções compactas Dados do processo, Prazos e documentos e Observações, com ações fixas e sem rolagem na resolução desktop usual. Em tela excepcionalmente pequena ou zoom ampliado, manter acesso ao conteúdo em vez de cortá-lo. A leitura de PDF é ação secundária; não alterar dados preenchidos sem revisão.
+
+### Barra de ferramentas dos autos
+Manter cabeçalho institucional azul. A segunda barra é branca, aproximadamente 52 px em desktop, número do processo em azul e identificação complementar em segunda linha. Ícones Lucide azuis sobre branco. Etiquetas somente leitura na região direita, sem botões de criação ou remoção; respeitar visibilidade e escopo. Exportação integral no menu do processo, preservado download individual do PDF. Em tela estreita permitir reorganização sem cortar controles.

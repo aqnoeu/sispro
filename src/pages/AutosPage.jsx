@@ -2,6 +2,8 @@ import { canAccess } from '../utils/mechanicAccess.js'
 import { useEffect,useMemo,useRef,useState } from 'react'
 import { Link,useParams } from 'react-router-dom'
 import { ArrowLeft,ArrowUpRight,FileText,FilePlus,Search,Download,Trash2,CloudUpload,RefreshCw,Filter,Tag,Save,Hash,ChevronDown,ChevronLeft,ChevronRight,ChevronsLeft,ChevronsRight,PanelLeftClose,PanelLeftOpen,Menu,Star,Clock,Info } from 'lucide-react'
+import { Labels,useLabels } from '../components/ui/Labels'
+import { getProcessoStatusTone } from '../utils/processos'
 import { ProcessoDetailPage } from './ProcessoDetailPage'
 import { useAuth } from '../contexts/useAuth'
 import { database,doc,setDoc } from '../services/local/database'
@@ -13,6 +15,7 @@ import { linkedDocuments,MAX_FILE_BYTES,validPdf } from '../utils/autos'
 export function AutosPage(){
  const {numero}=useParams(),{currentUser,driveRequest}=useAuth()
  const canWrite=canAccess(currentUser,'autos',2)
+ const assignments=useLabels()
  const [detailsOpen,setDetailsOpen]=useState(false),[collapsed,setCollapsed]=useState(false),[filtersOpen,setFiltersOpen]=useState(false),[editMeta,setEditMeta]=useState(false),[menuOpen,setMenuOpen]=useState(false),[view,setView]=useState('autos'),[showMoves,setShowMoves]=useState(true),[showDocs,setShowDocs]=useState(true),[favorites,setFavorites]=useState([]),[onlyFavorites,setOnlyFavorites]=useState(false)
  const versionRef=useRef('')
  const processes=useCollectionData({collectionName:'processos',clientFilter:r=>canAccessOwnedRow(r,currentUser)})
@@ -61,7 +64,8 @@ export function AutosPage(){
  <header className="case-header">
   <Link className="case-header-icon" to="/processos" aria-label="Voltar aos processos" title="Voltar aos processos"><ArrowLeft size={21}/></Link>
   <button type="button" className="case-identity" aria-expanded={detailsOpen} aria-controls="case-details" onClick={()=>setDetailsOpen(v=>!v)}><span><strong>{process.classe||process.classeProcessual? (process.classe||process.classeProcessual)+' ':''}{process.numero}</strong><small>{process.parte||'Parte não informada'}{process.orgao?' · '+process.orgao:''}</small></span><ChevronDown size={19}/></button>
-  <div className="case-header-actions"><button className="case-header-icon" title="Exportar autos (ZIP)" aria-label="Exportar autos (ZIP)" disabled={busy||cloudBusy||!docs.length} onClick={exportAll}><Download size={20}/></button><div className="case-menu-wrap"><button className="case-header-icon" aria-label="Menu do processo" aria-expanded={menuOpen} onClick={()=>setMenuOpen(v=>!v)}><Menu size={22}/></button>{menuOpen&&<nav className="case-menu" aria-label="Ações do processo"><button onClick={()=>{setView('autos');setShowDocs(true);setShowMoves(true);setMenuOpen(false)}}>Autos</button><button onClick={()=>{setView('autos');setShowDocs(true);setShowMoves(false);setMenuOpen(false)}}>Documentos</button><button onClick={()=>{setView('details');setMenuOpen(false)}}>Dados do processo e demandas</button><button disabled={!importAllowed} onClick={()=>{setMenuOpen(false);chooseFiles()}}>Importar documentos</button><Link to="/configuracoes" onClick={()=>setMenuOpen(false)}>Armazenamento</Link></nav>}</div></div>
+  <div className="case-header-labels" aria-label="Etiquetas do processo"><Labels row={process} assignments={assignments}/>{process.andamentoAtual&&<span className={`process-status-chip process-status-chip--${getProcessoStatusTone(process.andamentoAtual)}`}>{process.andamentoAtual}</span>}</div>
+  <div className="case-header-actions"><div className="case-menu-wrap"><button className="case-header-icon" aria-label="Menu do processo" aria-expanded={menuOpen} onClick={()=>setMenuOpen(v=>!v)}><Menu size={22}/></button>{menuOpen&&<nav className="case-menu" aria-label="Ações do processo"><button type="button" disabled={busy||cloudBusy||!docs.length} onClick={()=>{setMenuOpen(false);exportAll()}}><Download size={16} aria-hidden="true"/> Baixar autos (ZIP)</button><button onClick={()=>{setView('autos');setShowDocs(true);setShowMoves(true);setMenuOpen(false)}}>Autos</button><button onClick={()=>{setView('autos');setShowDocs(true);setShowMoves(false);setMenuOpen(false)}}>Documentos</button><button onClick={()=>{setView('details');setMenuOpen(false)}}>Dados do processo e demandas</button><button disabled={!importAllowed} onClick={()=>{setMenuOpen(false);chooseFiles()}}>Importar documentos</button><Link to="/configuracoes" onClick={()=>setMenuOpen(false)}>Armazenamento</Link></nav>}</div></div>
  </header>
  {detailsOpen&&<section id="case-details" className="case-details"><dl>{[['Número CNJ',process.numero],['Classe',process.classe||process.classeProcessual],['Parte',process.parte],['Órgão julgador',process.orgao],['Assunto',process.assunto],['Fase',process.fase],['Responsável',process.responsavel||process.ownerName],['Prioridade',process.prioridade]].map(([k,v])=><div key={k}><dt>{k}</dt><dd>{v||'Não informado'}</dd></div>)}</dl><button className="secondary-button" onClick={()=>setView('details')}>Abrir dados e demandas</button></section>}
  {cloudMessage&&<p role="status" className="case-message">{cloudMessage}</p>}{demo&&<p className="case-message">Demonstração: PDFs fictícios e temporários.</p>}{error&&<p role="alert" className="form-feedback form-feedback--error case-message">{error}</p>}
