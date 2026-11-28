@@ -18,6 +18,8 @@ import { ProcessosPage } from '../pages/ProcessosPage'
 
 export function AppRouter() {
   const location = useLocation()
+  const {authReady,restoreError,retryRestore,discardRestore}=useAuth()
+  if(!authReady)return <main className="page-stack" style={{maxWidth:480,margin:'12vh auto',padding:20}}><section className="panel-card" aria-live="polite"><h2>Sistema Procuradorias</h2><p>{restoreError||'Restaurando sua sessão…'}</p>{restoreError&&<div className="record-form__actions"><button className="primary-button" onClick={retryRestore}>Tentar novamente</button><button className="secondary-button" onClick={discardRestore}>Entrar novamente</button></div>}</section></main>
 
   return (
     <Routes location={location} key={location.pathname}>

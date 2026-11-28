@@ -1,11 +1,24 @@
-// Supabase Auth and Data API. Session lives only in memory; no browser storage.
+// Supabase Auth and Data API. Per-tab access-token restoration, never passwords or refresh tokens.
+const unauthorized=message=>Object.assign(new Error(message),{status:403})
 export class CloudClient {
-  constructor({ url, key, fetcher = (...args) => globalThis.fetch(...args) }) {
+  constructor({ url, key, fetcher = (...args) => globalThis.fetch(...args), storage = null }) {
     this.url = String(url || '').replace(/\/$/, '')
     this.key = String(key || '')
     this.fetcher = (...args) => fetcher(...args)
     this.session = null
+    this.storage=storage
+    this.storageKey='sispro-web-session-v1:'+this.url
   }
+  clearSavedSession(){try{this.storage?.removeItem(this.storageKey)}catch{/* storage blocked */}}
+  saveSession(){const s=this.session;if(!s)return;try{this.storage?.setItem(this.storageKey,JSON.stringify({token:s.token,uid:s.uid,expires:s.expires,mode:s.mode}))}catch{/* storage blocked; session remains in memory */}}
+  async restoreSession(){
+    if(this.session)return this.session.mode==='pgm'?this.pgmUser(this.session.user):this.session.user
+    let saved;try{saved=JSON.parse(this.storage?.getItem(this.storageKey)||'null')}catch{this.clearSavedSession();return null}
+    if(!saved)return null
+    if(typeof saved.token!=='string'||!saved.token||typeof saved.uid!=='string'||!Number.isFinite(saved.expires)||saved.expires<=Date.now()){this.clearSavedSession();return null}
+    try{const authUser=await this.request('/auth/v1/user',{token:saved.token});if(authUser?.id!==saved.uid||authUser.is_anonymous)throw unauthorized('Sessão não autorizada.');const user=await this.authorizeSession({token:saved.token,uid:authUser.id,expires:saved.expires},authUser);if(saved.mode==='pgm'&&user.canTestPgm)return await this.switchProfile('pgm');return user}catch(e){this.session=null;if(e.status===401||e.status===403){this.clearSavedSession();return null}throw e}
+  }
+  pgmUser(user){return {...user,role:'PGM',workspace:'Procuradoria de teste · PGM',sectorId:'pgm-test',sectorName:'Procuradoria de teste',sectorSigla:'PGM',profileMode:'pgm',accessLevel:4,isTestPgm:true}}
   get configured() { return /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(this.url) && /^sb_publishable_[A-Za-z0-9_-]+$/.test(this.key) }
   async request(path, { token, method = 'GET', body, prefer, timeout = 20000 } = {}) {
     if (!this.configured) throw new Error('Servidor ainda não configurado.')
@@ -25,39 +38,44 @@ export class CloudClient {
   }
   async signIn(email, password) {
     this.session = null
+    this.clearSavedSession()
     const auth = await this.request('/auth/v1/token?grant_type=password', { method: 'POST', body: { email, password } })
     if (!auth?.access_token || !auth?.user?.id || !Number.isFinite(auth.expires_in) || auth.expires_in <= 0) throw new Error('Sessão inválida.')
     const s = { token: auth.access_token, uid: auth.user.id, expires: Date.now() + auth.expires_in * 1000 }
-    try {
+    try{return await this.authorizeSession(s,auth.user)}catch(e){try{await this.request('/auth/v1/logout?scope=local',{token:s.token,method:'POST'})}catch{/* session discarded */}throw e}
+  }
+  async authorizeSession(s,authUser){
       const rows = await this.request('/rest/v1/sispro_profiles?select=user_id,display_name,role,active,platform_role&user_id=eq.' + encodeURIComponent(s.uid), { token:s.token })
       const p = rows?.[0]
-      if (!p || p.user_id !== s.uid || !p.active || !['user','admin'].includes(p.role)) throw new Error('Conta sem autorização no Sispro.')
+      if (!p || p.user_id !== s.uid || !p.active || !['user','admin'].includes(p.role)) throw unauthorized('Conta sem autorização no Sispro.')
       const ceo=p.role==='admin'&&p.platform_role==='ceo'
       const grants=ceo?await this.request('/rest/v1/sispro_test_pgm_workspaces?select=user_id,active&user_id=eq.'+encodeURIComponent(s.uid),{token:s.token}):[]
       const canTestPgm=grants?.some(g=>g.user_id===s.uid&&g.active===true)===true
-      const user={uid:s.uid,email:auth.user.email,displayName:p.display_name,isAdmin:p.role==='admin',role:ceo?'CEO':p.role==='admin'?'Administrador':'Usuário',workspace:ceo?'SISPRO · CEO':'Sispro Web',sectorId:'web',sectorName:ceo?'SISPRO':'Ambiente individual',sectorSigla:'WEB',isCloud:true,profileMode:ceo?'ceo':'standard',canTestPgm}
+      const user={uid:s.uid,email:authUser.email,displayName:p.display_name,isAdmin:p.role==='admin',role:ceo?'CEO':p.role==='admin'?'Administrador':'Usuário',workspace:ceo?'SISPRO · CEO':'Sispro Web',sectorId:'web',sectorName:ceo?'SISPRO':'Ambiente individual',sectorSigla:'WEB',isCloud:true,profileMode:ceo?'ceo':'standard',canTestPgm}
       if(!ceo){
         const access=await this.request('/rest/v1/rpc/sispro_read_workspace',{token:s.token,method:'POST',body:{}})
         user.levels=access.levels||{}
       }
+      if(s.expires<=Date.now())throw unauthorized('Sessão expirada.')
       this.session={...s,user,mode:user.profileMode}
+      this.saveSession()
       return user
-    } catch (e) { try { await this.request('/auth/v1/logout?scope=local',{token:s.token,method:'POST'}) } catch { /* session discarded */ } throw e }
   }
   requireSession() { const s=this.session; if (!s || s.expires <= Date.now()) throw new Error('Sessão expirada. Entre novamente.'); return s }
   assertSession(s) { if (this.requireSession() !== s) throw new Error('Sessão encerrada.') }
-  async signOut() { const s=this.session; this.session=null; if (s) await this.request('/auth/v1/logout?scope=local',{token:s.token,method:'POST'}) }
+  async signOut() { const s=this.session; this.session=null; this.clearSavedSession(); if (s) await this.request('/auth/v1/logout?scope=local',{token:s.token,method:'POST'}) }
   async switchProfile(mode) {
     const s=this.requireSession()
     if (!['ceo','pgm'].includes(mode)||s.user.profileMode!=='ceo'||!s.user.canTestPgm) throw new Error('Subperfil não autorizado.')
     if (mode==='pgm') {
       const rows=await this.request('/rest/v1/sispro_test_pgm_workspaces?select=user_id,active&user_id=eq.'+encodeURIComponent(s.uid),{token:s.token})
       this.assertSession(s)
-      if (!rows?.some(g=>g.user_id===s.uid&&g.active===true)) throw new Error('Subperfil PGM revogado.')
+      if (!rows?.some(g=>g.user_id===s.uid&&g.active===true)) throw unauthorized('Subperfil PGM revogado.')
     }
     this.assertSession(s)
     this.session={...s,mode}
-    return mode==='ceo'?s.user:{...s.user,role:'PGM',workspace:'Procuradoria de teste · PGM',sectorId:'pgm-test',sectorName:'Procuradoria de teste',sectorSigla:'PGM',profileMode:'pgm',accessLevel:4,isTestPgm:true}
+    this.saveSession()
+    return mode==='ceo'?s.user:this.pgmUser(s.user)
   }
   workspaceTable(s) { return s.mode==='pgm'?'sispro_test_pgm_workspaces':'sispro_workspaces' }
   async read() {
@@ -144,6 +162,7 @@ export class CloudClient {
       await this.request('/auth/v1/user',{token:verified.access_token,method:'PUT',body:{password:newPassword}})
     } finally {
       this.session=null
+      this.clearSavedSession()
       await this.request('/auth/v1/logout?scope=global',{token:verified.access_token,method:'POST'}).catch(()=>{})
     }
   }

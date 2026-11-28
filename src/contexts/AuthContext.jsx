@@ -3,7 +3,10 @@ import { AuthContext } from './auth-context'
 import { setDemoMode, initializePreview, configureCloud } from '../services/local/database'
 import { isCloud, isPreview, createPreviewData } from '../data/preview'
 import { CloudClient } from '../services/cloud/client.js'
-const cloud = isCloud ? new CloudClient({url:import.meta.env.VITE_SUPABASE_URL,key:import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}) : null
+function tabStorage(){try{return globalThis.sessionStorage}catch{return null}}
+const cloud = isCloud ? new CloudClient({url:import.meta.env.VITE_SUPABASE_URL,key:import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,storage:tabStorage()}) : null
+let restoring=null
+function restoreOnce(){if(!restoring)restoring=cloud.restoreSession().finally(()=>{restoring=null});return restoring}
 if (cloud) configureCloud(cloud)
 if (isPreview) initializePreview(createPreviewData())
 
@@ -13,6 +16,10 @@ const demoAdmin = Object.freeze({ ...localUser, uid: 'sipro-demo-admin', email: 
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null)
+  const [authReady,setAuthReady]=useState(!cloud),[restoreError,setRestoreError]=useState(''),[restoreAttempt,setRestoreAttempt]=useState(0)
+  useEffect(()=>{if(!cloud)return;let live=true;restoreOnce().then(user=>{if(live){setCurrentUser(user);setAuthReady(true);setRestoreError('')}}).catch(()=>{if(live)setRestoreError('Não foi possível verificar sua sessão. Confira a conexão e tente novamente.')});return()=>{live=false}},[restoreAttempt])
+  function retryRestore(){setRestoreError('');setRestoreAttempt(n=>n+1)}
+  function discardRestore(){cloud?.clearSavedSession();setRestoreError('');setAuthReady(true)}
   useEffect(() => {
     if (!cloud || !currentUser) return
     const timer=setTimeout(() => { cloud.signOut().catch(()=>{}); setCurrentUser(null) }, Math.max(0,cloud.session.expires-Date.now()))
@@ -34,5 +41,5 @@ export function AuthProvider({ children }) {
     if (cloud) cloud.signOut().catch(()=>{})
     setCurrentUser(null)
   }
-  return <AuthContext.Provider value={{ currentUser, authReady: true, isLocalEnabled: !isCloud, cloudReady:cloud?.configured ?? false, enter, signIn, signOut, switchProfile, changePassword:async(...args)=>{try{await cloud.changePassword(...args)}finally{if(!cloud.session)setCurrentUser(null)}}, manageAccount:(body)=>cloud.manageAccount(body), adminTable:(...args)=>cloud.adminTable(...args), driveRequest:(body)=>cloud.driveRequest(body), savePermissions:(changes)=>cloud.savePermissions(changes), listProfiles:()=>cloud.listProfiles() }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ currentUser, authReady, restoreError, retryRestore, discardRestore, isLocalEnabled: !isCloud, cloudReady:cloud?.configured ?? false, enter, signIn, signOut, switchProfile, changePassword:async(...args)=>{try{await cloud.changePassword(...args)}finally{if(!cloud.session)setCurrentUser(null)}}, manageAccount:(body)=>cloud.manageAccount(body), adminTable:(...args)=>cloud.adminTable(...args), driveRequest:(body)=>cloud.driveRequest(body), savePermissions:(changes)=>cloud.savePermissions(changes), listProfiles:()=>cloud.listProfiles() }}>{children}</AuthContext.Provider>
 }
