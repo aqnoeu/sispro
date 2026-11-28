@@ -73,3 +73,22 @@ test('reload keeps PGM and current route; explicit logout clears session',async(
 test('autos toolbar is white, compact, read-only labels and export in menu',async({page})=>{await page.setViewportSize({width:1366,height:768});const numero='0000001-00.2026.8.08.0011';await mock(page,{ceo:true,seed:{processos:{qa:{numero,parte:'Parte fictícia',assunto:'Saúde',orgao:'Fazenda Pública',andamentoAtual:'Fazer',ownerUid:uid}}}});await login(page);await page.getByRole('button',{name:'Trocar para PGM'}).click();await page.getByRole('button',{name:'Processos',exact:true}).click();await page.getByRole('link',{name:'Acessar autos de '+numero}).click();const bar=page.locator('.case-header');await expect(bar).toBeVisible();await expect(bar).toHaveCSS('background-color','rgb(255, 255, 255)');expect((await bar.boundingBox()).height).toBeLessThanOrEqual(56);const tags=bar.getByLabel('Etiquetas do processo');await expect(tags.getByText('Saúde',{exact:true})).toBeVisible();await expect(tags.getByRole('button')).toHaveCount(0);await expect(bar.getByRole('button',{name:'Baixar autos (ZIP)'})).toHaveCount(0);await bar.getByRole('button',{name:'Menu do processo'}).click();await expect(bar.getByRole('button',{name:'Baixar autos (ZIP)'})).toBeVisible()});
 
 test('autos fill available viewport without bottom gap or page scroll',async({page})=>{const numero='0000001-00.2026.8.08.0011';await mock(page,{ceo:true,seed:{processos:{qa:{numero,parte:'Parte fictícia',assunto:'Saúde',orgao:'Fazenda Pública',andamentoAtual:'Fazer',ownerUid:uid}}}});await login(page);await page.getByRole('button',{name:'Trocar para PGM'}).click();await page.getByRole('button',{name:'Processos',exact:true}).click();await page.getByRole('link',{name:'Acessar autos de '+numero}).click();await expect(page.locator('.case-split')).toBeVisible();for(const [width,height] of [[1920,1080],[1366,768],[1024,768]]){await page.setViewportSize({width,height});await expect.poll(async()=>Math.abs((await page.locator('.case-split').boundingBox()).y+(await page.locator('.case-split').boundingBox()).height-height)).toBeLessThanOrEqual(2);expect(await page.evaluate(()=>document.documentElement.scrollHeight-window.innerHeight)).toBeLessThanOrEqual(2);await expect(page.locator('.case-pdf-area')).toBeVisible()}await page.locator('.case-identity').click();await expect(page.locator('#case-details')).toBeVisible();await expect.poll(async()=>{const b=await page.locator('.case-split').boundingBox();return Math.abs(b.y+b.height-768)}).toBeLessThanOrEqual(2)});
+
+test('imports a synthetic PJe PDF and separates its pieces without deadlines',async({page})=>{
+ const {PDFDocument,StandardFonts}=require('pdf-lib');
+ const pdf=await PDFDocument.create(),font=await pdf.embedFont(StandardFonts.Helvetica);
+ const sheets=[['Número: 0000001-00.2026.8.08.0011','PESSOA FICTÍCIA (AUTOR)','Assunto: Saúde'],['Petição inicial','Num. 123456 - Pág. 1'],['Continuação','Num. 123456 - Pág. 2'],['Decisão','Num. 234567 - Pág. 1']];
+ for(const lines of sheets){const p=pdf.addPage();lines.forEach((line,i)=>p.drawText(line,{x:40,y:750-i*30,size:14,font}))}
+ await page.setViewportSize({width:1366,height:768});await mock(page,{ceo:true});await login(page);
+ await page.getByRole('button',{name:'Trocar para PGM',exact:true}).click();await page.getByRole('button',{name:'Processos',exact:true}).click();await page.getByRole('button',{name:'Cadastrar Processo',exact:true}).click();
+ const d=page.getByRole('dialog',{name:'Cadastrar processo'});
+ await d.locator('input[type=file]').setInputFiles({name:'autos-teste.pdf',mimeType:'application/pdf',buffer:Buffer.from(await pdf.save())});
+ await expect(d.getByLabel('Número CNJ',{exact:true})).toHaveValue('0000001-00.2026.8.08.0011',{timeout:30000});
+ await expect(d.getByLabel('Nome da parte',{exact:true})).toHaveValue('PESSOA FICTÍCIA');
+ await d.getByRole('button',{name:'Documentos (3)',exact:true}).click();
+ await expect(d.getByText('3 arquivo(s) · 2 com ID PJe')).toBeVisible();
+ await d.getByRole('button',{name:'Próximo documento'}).click();
+ await expect(d.getByText('Documento 123456 (p. 2-3).pdf',{exact:true})).toBeVisible();
+ await expect(d.getByRole('button',{name:'Salvar processo'})).toBeInViewport();
+ await d.getByRole('button',{name:'Prazos (opcional)'}).click();await expect(d.getByLabel('Próximo prazo (opcional)')).toHaveValue('');
+});
