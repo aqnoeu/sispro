@@ -25,6 +25,7 @@ function driveService(){return drive??=createDrive({root:app.getPath('userData')
 function driveHandler(name,fn){ipcMain.handle('sipro:drive:'+name,async(event,value)=>{if(!trusted(event))throw Error('Origem não autorizada');return fn(driveService(),value);});}
 driveHandler('status',d=>d.status());
 driveHandler('configure',async d=>{const result=await dialog.showOpenDialog(win,{title:'Selecionar credencial OAuth para computador',properties:['openFile'],filters:[{name:'Credencial JSON',extensions:['json']}]});if(result.canceled)return d.status();const file=result.filePaths[0];if(fs.statSync(file).size>65536)throw Error('Arquivo de credencial inválido.');return d.configure(fs.readFileSync(file,'utf8'));});
+driveHandler('configureManual',(d,value)=>d.configureManual(value));
 driveHandler('connect',d=>d.connect());
 driveHandler('check',d=>d.check());
 driveHandler('disconnect',d=>d.disconnect());
