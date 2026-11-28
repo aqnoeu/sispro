@@ -90,3 +90,5 @@ Valide CI 1.0.21, corrija falhas e execute os testes disponíveis. Implemente hi
 - 1.4.12: capa PJe arquivada fora da navegação normal, acessível no menu e ZIP. Índice da capa fornece ID, título, tipo, data e hora, distingue assinatura/juntada/protocolo; metadados vinculados ao documento por ID, sem substituir campos manuais. Recuperação de metadados pela capa arquivada ou PDF original, sem reenvio. Testes sintéticos; PDF original e produção a homologar.
 
 - 1.4.13: índice aceita data e hora quebradas em linhas físicas distintas e evita reexaminar páginas anteriores durante leitura. Testes sintéticos adicionados.
+
+- 1.4.14: ordem padrão dos autos segue a sequência explícita do índice PJe quando completa, ou a página inicial original quando parcial/ausente (inclusive PDFs antigos, pelo nome). Árvore, navegação anterior/próximo e ZIP compartilham a ordem; movimentos internos ficam depois no modo PJe. Ordem por data permanece como filtro opcional. Data de upload não substitui data judicial não identificada. Testes de ordem e fallback adicionados; validação com exportação real pendente.

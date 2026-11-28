@@ -15,15 +15,15 @@ function titleAndType(value){
 // Parse only explicit rows of the cover index; signature and filing dates are not interchangeable.
 export function parsePjeIndex(text,allowedIds){
  const ids=allowedIds?new Set(allowedIds):null,out=new Map(),conflicts=new Set()
- let kind='',inside=false,current=null
+ let kind='',inside=false,current=null,sequence=0
  function flush(){
   if(!current)return
-  const {id,date,time,body}=current;current=null
+  const {id,date,time,body,indexOrder}=current;current=null
   if(!date||!validTime(time)||!body.trim()||ids&&!ids.has(id)||conflicts.has(id))return
   const v={reference:id,indexDate:date,indexTime:time,indexDateKind:kind,...titleAndType(body)}
   if(!v.title)return
   const prior=out.get(id)
-  if(prior&&JSON.stringify(prior)!==JSON.stringify(v)){out.delete(id);conflicts.add(id)}else out.set(id,v)
+  if(prior){const {indexOrder:previousOrder,...previous}=prior;if(JSON.stringify(previous)!==JSON.stringify(v)){out.delete(id);conflicts.add(id)}}else out.set(id,{...v,indexOrder})
  }
  const rows=String(text||'').replace(/\r/g,'').split('\n')
  for(let i=0;i<rows.length;i++){
@@ -40,7 +40,7 @@ export function parsePjeIndex(text,allowedIds){
    const next=rows[i+1]||'',d=next.match(/^\s*(\d{2}\/\d{2}\/\d{4})(?:\s+(\d{2}:\d{2}(?::\d{2})?))?\s*(.*)$/)
    if(d){m=[line,line,d[1],d[2],d[3]||''];i++}
   }
-  if(m){flush();current={id:m[1],date:dateKey(m[2]),time:m[3]||'',body:m[4]||''};continue}
+  if(m){flush();current={id:m[1],date:dateKey(m[2]),time:m[3]||'',body:m[4]||'',indexOrder:++sequence};continue}
   if(current&&!current.time){
    const clock=raw.match(/^\s*(\d{2}:\d{2}(?::\d{2})?)\s*(.*)$/)
    if(clock){current.time=clock[1];if(clock[2])current.body+=(current.body?' ':'')+clock[2];continue}
@@ -58,7 +58,8 @@ export function importedMetadata(entry){
  const reference=entry.id||entry.pje?.reference||pjeIdFromName(entry.name)
  const result={};if(entry.cover||isPjeCover(entry.name))result.cover=true
  if(reference)result.pjeReference=reference
- if(entry.pje){const {title,documentType,indexDate,indexTime,indexDateKind}=entry.pje;Object.assign(result,{pjeTitle:title,pjeType:documentType,indexDate,indexTime,indexDateKind})}
+ if(Number.isSafeInteger(entry.start)&&entry.start>0)result.pjePage=entry.start
+ if(entry.pje){const {title,documentType,indexDate,indexTime,indexDateKind,indexOrder}=entry.pje;Object.assign(result,{pjeTitle:title,pjeType:documentType,indexDate,indexTime,indexDateKind});if(Number.isSafeInteger(indexOrder)&&indexOrder>0)result.pjeOrder=indexOrder}
  return result
 }
 export function matchPjeIndex(rows,index){
