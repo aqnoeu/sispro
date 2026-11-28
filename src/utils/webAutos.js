@@ -22,11 +22,11 @@ export function createWebDrive(request){
   }
   throw Error('Envio não concluído. Tente novamente.')
  },
- async readFile(processId,fileId,size){
-  if(!size||size<=SMALL)return decodeBase64((await request({action:'files-read',processId,fileId})).data)
+ async readFile(processId,fileId,size,onProgress=()=>{}){
+  if(!size||size<=SMALL){const bytes=decodeBase64((await request({action:'files-read',processId,fileId})).data);onProgress(bytes.length,bytes.length);return bytes}
   if(size>WEB_MAX_FILE_BYTES)throw Error('PDF acima de 100 MB.')
   const bytes=new Uint8Array(size)
-  for(let offset=0;offset<size;){const r=await request({action:'files-read-block',processId,fileId,offset}),part=decodeBase64(r.data);if(r.total!==size||!part.length||r.next!==offset+part.length||r.next>size)throw Error('Download incompleto.');bytes.set(part,offset);offset=r.next}
+  for(let offset=0;offset<size;){const r=await request({action:'files-read-block',processId,fileId,offset}),part=decodeBase64(r.data);if(r.total!==size||!part.length||r.next!==offset+part.length||r.next>size)throw Error('Download incompleto.');bytes.set(part,offset);offset=r.next;onProgress(offset,size)}
   return bytes
  }}
 }

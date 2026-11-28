@@ -88,3 +88,5 @@ Manter cabeçalho institucional azul. A segunda barra é branca, aproximadamente
 - Cartões de documentos da árvore: mostrar apenas ícone de arquivo, ID do tribunal (quando existente), nome e horário disponível. Não repetir tipo em cabeçalho nem exibir linhas auxiliares de assinatura, juntada, armazenamento ou versão. Texto inativo cinza suave `#5B6873`, peso 500; item selecionado azul de contraste. Preservar agrupamento de anexos, classificação de movimentações internas, datas da árvore e metadados fora dos cartões.
 
 - Horário de documentos na primeira linha, à direita em coluna exclusiva, sem quebra; nome e ID podem ocupar múltiplas linhas, sem sobrepor o horário. Cartões compactos sem linha inferior vazia. Preservar o horário do grupo de anexos no documento principal.
+
+- Carregamento dos autos: fundo branco translúcido, símbolo institucional azul estático, percentual central e etapa em texto discreto. Progresso estimado por trabalho realizado, nunca simular avanço por tempo. Abertura de documento individual somente no visualizador, sem logo, texto discreto e percentual quando bytes mensuráveis. Não bloquear navegação da árvore para leitura individual.

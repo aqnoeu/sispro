@@ -106,3 +106,5 @@ Valide CI 1.0.21, corrija falhas e execute os testes disponíveis. Implemente hi
 - 1.4.20: pequenos bicos brancos nos cartões da árvore, centralizados verticalmente em relação aos marcadores, com contorno suave e sombra discreta para profundidade. Alteração exclusivamente visual; agrupamento, ordem, seleção e armazenamento preservados. Homologação visual pendente.
 
 - 1.4.21: bico dos cartões ampliado de 9 para 13 px, mantendo alinhamento aos marcadores, e sombra ligeiramente mais pronunciada. Alteração exclusivamente visual; homologação no navegador pendente.
+
+- 1.4.22: logo institucional estática no overlay translúcido de atualização de índice, importação e atualização explícita da árvore; porcentagem baseada em etapas efetivas (estimativa ponderada por páginas, arquivos, bytes enviados e gravação), sem temporizador fictício e sem 100% antes de concluir. Atualização de lista sem progresso granular permanece em 0% até resposta. Abertura de PDF sem logo, com texto e percentual de bytes recebidos quando disponível; cache e mensagens de erro preservados. Dados e permissões inalterados. Teste de regressão adicionado; CI/deployment a confirmar.
