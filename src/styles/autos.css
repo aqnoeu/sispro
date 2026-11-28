@@ -76,8 +76,8 @@ dialog.pje-loading-overlay::backdrop{background:rgba(255,255,255,.62)}
 .case-piece .case-doc-link{color:#5b6873;font-weight:500;font-size:13px;line-height:1.4}
 .case-piece .case-movement-title{color:#5b6873;font-weight:500}
 .case-piece:hover{background:#f1f3f4}
-.case-piece[aria-pressed=true]{color:#006b9a;background:#e3f3fb}
-.case-piece[aria-pressed=true] :is(.case-doc-link,.case-doc-type,.case-movement-title){color:#006b9a}
+.case-piece[aria-pressed=true]{color:#456477;background:#edf2f5}
+.case-piece[aria-pressed=true] :is(.case-doc-link,.case-doc-type,.case-movement-title){color:#456477}
 .case-attachments{border-left:1px solid #aeb6bc;margin:1px 0 3px 11px;padding-left:9px;display:grid;gap:2px}
 .case-attachment{padding-block:4px}
 .case-event-meta{display:flex;justify-content:space-between;align-items:center;gap:4px;padding:0 4px 3px}
